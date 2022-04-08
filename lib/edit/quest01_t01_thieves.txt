@@ -1,0 +1,62 @@
+# quest01_t01_thieves.txt
+
+# Name
+Q:$1:N:Thieves Hideout
+Q:1:N:盗賊の隠れ家
+
+# Definition
+Q:$1:Q:6:0:0:0:5:0:0:0:2
+Q:1:Q:6:0:0:0:5:0:0:0:2
+
+# Description for quest
+?:[LEQ $QUEST1 2]
+Q:1:T:阿求「最近見覚えのないならず者が里で盗みを働いているのです。
+Q:1:T:どうやら町外れの空き家が根城になっているようです。
+Q:1:T:あまり事を大きくしても皆が不安になりますので、
+Q:1:T:あなたが彼らを追い払って下さいませんか？」
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST1 3]
+Q:1:T:阿求「お疲れ様でした。
+Q:1:T:やはり空き家を放置しておくと何かと物騒ですね。
+Q:1:T:あなたも最近出現した例の洞窟を探索するおつもりなのですね？
+Q:1:T:あの家を拠点として使っていただいても構いませんよ。」
+?:1
+
+# Description for quest failed
+?:[EQU $QUEST1 5]
+Q:$1:T:It seems like this task was too difficult for you.  Good that I
+Q:$1:T:hired another adventurer to clean up the remaining thieves.
+Q:1:T:このメッセージが出たらバグ
+?:1
+
+# Floor with Novice rogue
+F:a:FLOOR:8:44
+
+# Floor with Bandit
+F:b:FLOOR:8:150
+
+F:j:FLOOR:8:0:*7
+
+#このクエスト再挑戦時にはアイテムが落ちていないようにする
+?:[EQU $RETRY1 1]
+F:T:FLOOR:8:
+F:j:FLOOR:8:
+?:1
+
+# Dungeon layout
+D:XXXXXXXXXXXXXXX
+D:X....a....X..jX
+D:X.........D...X
+D:X.........Xb..X
+D:XXXXX.....XXXXX
+D:XT..D........aX
+D:X.b.X.........X
+D:XXXXX.........X
+D:X<..D.........X
+D:XXXXXXXXXXXXXXX
+
+# Starting position
+P:8:1
+
