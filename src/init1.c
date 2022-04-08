@@ -1244,6 +1244,7 @@ errr parse_v_info(char *buf, header *head)
  * Initialize the "s_info" array, by parsing an ascii "template" file
  */
 /*:::s_info.txt‚Ìs‚²‚Æ‰ğß*/
+#if 0
 errr parse_s_info(char *buf, header *head)
 {
 	int i;
@@ -1320,7 +1321,7 @@ errr parse_s_info(char *buf, header *head)
 	/* Success */
 	return (0);
 }
-
+#endif
 
 /*
  * Initialize the "m_info" array, by parsing an ascii "template" file
