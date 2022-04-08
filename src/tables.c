@@ -5641,7 +5641,7 @@ const player_class class_info[MAX_CLASS] =
 			,A_INT
 			,4,2,60,
 			{ 2,2,1,2,2,0,0,0,0,0
-			,4,3,3,2,2,2,2,2,2
+			,4,3,3,2,2,2,2,2,2,1
 			,1 }
 			,55,4,3,4,
 			FALSE,FALSE,TRUE
