@@ -34113,7 +34113,7 @@ const support_item_type support_item_list[] =
 	{25, 5, 40,4,2,	MON_KASEN,class_power_kasen,do_cmd_class_power_aux_kasen,4,
 	"仙人のシニヨンキャップ","それは周囲の動物を説得し配下にする。"},
 	//ドラゴンズグロウル
-	{35, 40, 100,5,6,	MON_KASEN,class_power_kasen,do_cmd_class_power_aux_kasen,6,
+	{35, 40, 100,5,6,	MON_KASEN,class_power_kasen,do_cmd_class_power_aux_kasen,7,
 	"包帯の竜頭","それは現在HPの1/3の威力の轟音属性ブレスを放つ。"},
 
 	//火炎ブレス
