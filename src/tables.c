@@ -13210,9 +13210,11 @@ ex_quest_rew_type ex_quest_reward_table[] =
 	{40,0,TV_ROD,SV_ROD_SPEED,0L,1},
 
 	//クローン　報酬箱、薬箱、耐カオス指輪
+	//v1.1.96 鑑定ロッド追加
 	{50,0,TV_CHEST,SV_CHEST_CLONE,0L,1},
 	{50,0,TV_CHEST,SV_CHEST_EIRIN,0L,1},
 	{50,0,TV_RING,SV_RING_RES_CHAOS,(AM_NO_FIXED_ART | AM_GOOD),1},
+	{50,0,TV_ROD,SV_ROD_IDENTIFY,0L,1 },
 
 	//古い城　報酬箱、妖刀箱、破壊の杖
 	{60,0,TV_CHEST,SV_CHEST_OLDCASTLE,0L,1},
