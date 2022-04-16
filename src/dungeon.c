@@ -5531,6 +5531,10 @@ static void process_world(void)
 			p_ptr->energy_need = 0;
 		}
 		//それ以外のとき、まだ勝負がついてない
+
+		//v1.1.96 闘技場で「応答なし」にならないように追加　たぶんこの関数でいいはず
+		if (turn % 10 == 0) Term_flush();
+
 	}
 
 	/*** Check monster arena ***/
