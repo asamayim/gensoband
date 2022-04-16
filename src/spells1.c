@@ -7688,7 +7688,7 @@ note = "Ç…ÇÕå¯â Ç™Ç»Ç©Ç¡ÇΩÅB";
 				if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flagsr |= (RFR_RES_ALL);
 				break;
 			}
-			else if(randint1(r_ptr->ac ) > p_ptr->lev + 10)
+			else if(randint1(r_ptr->ac ) > (p_ptr->lev + 25)) //v1.1.96
 			{
 				note = "Ç…ÇÕìñÇΩÇÁÇ»Ç©Ç¡ÇΩÅB";
 				dam = 0;

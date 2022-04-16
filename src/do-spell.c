@@ -13761,7 +13761,8 @@ static cptr do_new_spell_element(int spell, int mode)
 		if (desc) return "電撃のボルトもしくはビームを放つ。";
 #endif   
 		{
-			int dice = 6 + (plev - 5) / 4;
+
+			int dice = 7 + (plev - 5) / 4;
 			int sides = 5;
 
 			if (info) return info_damage(dice, sides, 0);
@@ -13780,7 +13781,7 @@ static cptr do_new_spell_element(int spell, int mode)
 		if (desc) return "冷気のボルトもしくはビームを放つ。";
 #endif   
 		{
-			int dice = 6 + (plev - 5) / 4;
+			int dice = 8 + (plev - 5) / 4;
 			int sides = 6;
 
 			if (info) return info_damage(dice, sides, 0);
@@ -13800,7 +13801,7 @@ static cptr do_new_spell_element(int spell, int mode)
 		if (desc) return "酸のボルトもしくはビームを放つ。";
 #endif   
 		{
-			int dice = 7 + (plev - 5) / 4;
+			int dice = 9 + (plev - 5) / 4;
 			int sides = 6;
 
 			if (info) return info_damage(dice, sides, 0);
@@ -13823,7 +13824,7 @@ static cptr do_new_spell_element(int spell, int mode)
 #endif
     
 		{
-			int dice = 8 + (plev - 5) / 4;
+			int dice = 10 + (plev - 5) / 4;
 			int sides = 8;
 
 			if (info) return info_damage(dice, sides, 0);
@@ -13918,12 +13919,14 @@ static cptr do_new_spell_element(int spell, int mode)
 #endif
     
 		{
-			int count = 2 + (plev - 10) / 5;
-			int dice = 3 + (plev - 1) / 5;
+			int count = 3 + plev / 10;
+			int dice = 2 + plev / 5;
 			int sides = 4;
 			int i;
-			if(cp_ptr->magicmaster) count+=2;
-			if(count<1) break; //paranoia
+
+			if(cp_ptr->magicmaster) count += plev / 20;
+			if(count<1) count = 1; //paranoia
+
 			if (info) return info_multi_damage_dice(dice, sides);
 
 			if (cast)
@@ -13968,7 +13971,7 @@ static cptr do_new_spell_element(int spell, int mode)
 #endif
     
 		{
-			int dam = plev + 55;
+			int dam = plev * 2 + 50;
 			int rad = 2;
 
 			if (info) return info_damage(0, 0, dam);
@@ -13989,7 +13992,7 @@ static cptr do_new_spell_element(int spell, int mode)
 #endif
     
 		{
-			int dam = plev + 75;
+			int dam = plev * 2 + 70;
 			int rad = 2;
 
 			if (info) return info_damage(0, 0, dam);
@@ -14009,7 +14012,7 @@ static cptr do_new_spell_element(int spell, int mode)
 #endif
     
 		{
-			int dam = plev + 95;
+			int dam = plev * 2 + 90;
 			int rad = 2;
 
 			if (info) return info_damage(0, 0, dam);
@@ -14029,7 +14032,7 @@ static cptr do_new_spell_element(int spell, int mode)
 #endif
     
 		{
-			int dam = plev*2 + 100;
+			int dam = plev * 3 + 120;
 			int rad = 2;
 
 			if (info) return info_damage(0, 0, dam);
@@ -14075,7 +14078,7 @@ static cptr do_new_spell_element(int spell, int mode)
     
 		{
 			int dice = 1;
-			int sides = plev * 2;
+			int sides = 50 + plev * 2;
 			int base = 50 + plev * 2;
 
 			if (info) return info_damage(dice, sides, base);
@@ -14194,8 +14197,8 @@ static cptr do_new_spell_element(int spell, int mode)
     
 		{
 			int dice = plev / 3;
-			int sides = 10;
-			int base = 100 + plev;
+			int sides = 12;
+			int base = 120 + plev;
 
 			if (info) return info_damage(dice, sides, base);
 
@@ -14216,7 +14219,7 @@ static cptr do_new_spell_element(int spell, int mode)
 #endif
     
 		{
-			int dam = 50 + plev * 2;
+			int dam = 80 + plev * 2;
 
 			if (info) return info_damage(0, 0, dam);
 
@@ -14236,7 +14239,7 @@ static cptr do_new_spell_element(int spell, int mode)
 #endif
     
 		{
-			int dam = plev*5 + 100;
+			int dam = plev * 6 + 100;
 			int rad = 4;
 
 			if (info) return info_damage(0, 0, dam);
@@ -14262,8 +14265,8 @@ static cptr do_new_spell_element(int spell, int mode)
     
 		{
 			int dice = 1;
-			int sides = plev * 3;
-			int base = 150 + plev * 4;
+			int sides = 120 + plev * 4;
+			int base = 120 + plev * 4;
 
 			if (info) return info_damage(dice, sides, base);
 
@@ -14337,7 +14340,7 @@ static cptr do_new_spell_element(int spell, int mode)
 #endif
     
 		{
-			int dam = plev + 70;
+			int dam = plev * 2 + 50;
 			int rad = 3 + plev / 40;
 
 			if (info) return info_damage(0, 0, dam);
@@ -14377,7 +14380,7 @@ static cptr do_new_spell_element(int spell, int mode)
     
 		{
 
-			int dam = plev * 5;
+			int dam = plev * 5 + 30;
 
 			if (info) return info_damage(0, 0, dam);
 
@@ -15052,7 +15055,7 @@ static cptr do_new_spell_chaos(int spell, int mode)
 	case 20:
 #ifdef JP
 		if (name) return "プラズマ球";
-		if (desc) return "プラズマの球を放つ。";
+		if (desc) return "強力なプラズマの球を放つ。";
 #else
 		if (name) return "Plasma Ball";
 		if (desc) return "Fires a ball of plasma.";
@@ -15060,8 +15063,8 @@ static cptr do_new_spell_chaos(int spell, int mode)
     
 		{
 			int dice = 1;
-			int sides = plev*3;
-			int base = plev*2 + 100;
+			int sides = plev * 4;
+			int base = plev * 2 + 100;
 			int rad = 2 + plev / 40;
 
 			if (info) return info_damage(dice, sides, base);
@@ -15270,7 +15273,7 @@ static cptr do_new_spell_chaos(int spell, int mode)
 #endif
     
 		{
-			int dam = 300 + plev * 4;
+			int dam = 300 + plev * 5;
 			int rad = 4;
 
 			if (info) return info_damage(0, 0, dam);
@@ -17482,14 +17485,14 @@ static cptr do_new_spell_nature(int spell, int mode)
 	case 13:
 #ifdef JP
 		if (name) return "鎌鼬";
-		if (desc) return "指定した位置に真空の刃を巻き起こす。防御力の高い敵には効きにくい。";
+		if (desc) return "指定した位置に真空の刃を巻き起こす。防御力の高い敵には当たらないことがある。";
 #else
 		if (name) return "Fire Bolt";
 		if (desc) return "Fires a bolt or beam of fire.";
 #endif
     
 		{
-			int dice = 1 + plev / 7;
+			int dice = 4 + plev / 6;
 			int sides = plev;
 
 			if (info) return info_damage(dice, sides, 0);
@@ -17583,7 +17586,7 @@ static cptr do_new_spell_nature(int spell, int mode)
 #endif
     
 		{
-			int dice = 3 + (plev - 1) / 5;
+			int dice = 3 + plev / 4;
 			int sides = 12;
 			if (info) return info_damage(dice, sides, 0);
 			if (cast)
@@ -17751,7 +17754,7 @@ static cptr do_new_spell_nature(int spell, int mode)
 #endif
     
 		{
-			int dam = plev*4 + 100;
+			int dam = plev*4 + 160;
 			int rad = 4;
 
 			if (info) return info_damage(0, 0, dam);
@@ -18096,7 +18099,7 @@ static cptr do_new_spell_necromancy(int spell, int mode)
 #endif
     
 		{
-			int dam = 10 + plev ;
+			int dam = 15 + plev ;
 			int rad = 1;
 
 			if (info) return info_damage(0, 0, dam);
@@ -18195,7 +18198,7 @@ static cptr do_new_spell_necromancy(int spell, int mode)
     
 		{
 			int dice = 8 + (plev - 5) / 4;
-			int sides = 8;
+			int sides = 11;
 
 			if (info) return info_damage(dice, sides, 0);
 
@@ -18550,7 +18553,7 @@ static cptr do_new_spell_necromancy(int spell, int mode)
     
 		{
 			int dam = plev * 2 + 100;
-			int sides = 100;
+			int sides = plev * 4;
 			int rad = plev / 20 + 2;
 
 			if (info) return info_damage(1, sides, dam);
@@ -18721,7 +18724,7 @@ static cptr do_new_spell_necromancy(int spell, int mode)
 #endif
     
 		{
-			int dam = plev * 7;
+			int dam = plev * 9;
 			int rad = plev / 7;
 
 			if (info) return info_damage(0, 0, dam);
@@ -21471,7 +21474,9 @@ static cptr do_new_spell_darkness(int spell, int mode)
 #endif
     
 		{
-			int dam = plev * 3 ;
+			int dam = plev * 3 + 25;
+
+			if (cp_ptr->magicmaster) dam += plev;
 
 			if (info) return info_damage(0, 0, dam);
 
@@ -21514,7 +21519,7 @@ static cptr do_new_spell_darkness(int spell, int mode)
 #endif
     
 		{
-			int dam = 100 + plev * 2;
+			int dam = 100 + plev * 5 / 2;
 			int rad = 4;
 
 			if (info) return info_damage(0, 0, dam);
@@ -25243,7 +25248,7 @@ static cptr do_new_spell_occult(int spell, int mode)
 			monster_type *m_ptr;
 			monster_race *r_ptr;
 			int i;
-			int dice = 10;
+			int dice = 12;
 			int sides = 25 + plev/2;
 			int num = 0;
 			if (info) return info_damage(dice, sides, 0);
