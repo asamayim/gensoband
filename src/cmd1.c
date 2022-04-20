@@ -3260,8 +3260,9 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 		{
 			fuiuchi = TRUE;
 			flag_katana_critical = TRUE;
-
 		}
+		if (mode == HISSATSU_FUIUCHI)
+			fuiuchi = TRUE;
 
 	}
 

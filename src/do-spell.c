@@ -17981,6 +17981,7 @@ static cptr do_new_spell_necromancy(int spell, int mode)
 	bool desc = (mode == SPELL_DESC) ? TRUE : FALSE;
 	bool info = (mode == SPELL_INFO) ? TRUE : FALSE;
 	bool cast = (mode == SPELL_CAST) ? TRUE : FALSE;
+	bool fail = (mode == SPELL_FAIL) ? TRUE : FALSE;
 
 #ifdef JP
 	static const char s_dam[] = "損傷:";
@@ -18312,29 +18313,24 @@ static cptr do_new_spell_necromancy(int spell, int mode)
 	case 13:
 #ifdef JP
 		if (name) return "死者召喚";
-		if (desc) return "1体のアンデッドを召喚し配下にする。召喚されたアンデッドが敵対することもある。";
+		if (desc) return "1体のアンデッドを召喚し配下にする。詠唱に失敗したとき敵対的なアンデッドが現れる。";
 #else
 		if (name) return "Raise the Dead";
 		if (desc) return "Summons an undead monster.";
 #endif
     
 		{
-			if (cast)
+			if (cast || fail)
 			{
-				int type;
-				bool pet = TRUE;
 				u32b mode = 0L;
 
-				if(plev + adj_general[p_ptr->stat_ind[A_WIS]] < randint1(80)) pet = FALSE;
 
-				type = SUMMON_UNDEAD;
-
-				if (pet) mode |= PM_FORCE_PET;
+				if (cast) mode |= PM_FORCE_PET;
 				else mode |= (PM_ALLOW_UNIQUE | PM_NO_PET);
 
-				if (summon_specific((pet ? -1 : 0), py, px, plev*5/4, type, mode))
+				if (new_summoning(1, py, px, plev, SUMMON_UNDEAD, mode))
 				{
-					if (pet)
+					if (cast)
 					{
 #ifdef JP
 						msg_print("地面から死者が這い出し、あなたに従った。");
@@ -18591,32 +18587,25 @@ static cptr do_new_spell_necromancy(int spell, int mode)
 	case 23:
 #ifdef JP
 		if (name) return "上位アンデッド召喚";
-		if (desc) return "強力なアンデッドを複数召喚し配下にする。召喚されたアンデッドが敵対することもある。";
+		if (desc) return "強力なアンデッドを複数召喚し配下にする。詠唱に失敗したとき敵対的なアンデッドが現れる。";
 #else
 		if (name) return "Darkness Storm";
 		if (desc) return "Fires a huge ball of darkness.";
 #endif
     
 		{
-			if (cast)
+			if (cast || fail)
 			{
-				int type;
-				bool pet =TRUE;
 				u32b mode = 0L;
 				int num,i;
 				bool msgflag=FALSE;
 
-				if(plev + adj_general[p_ptr->stat_ind[A_WIS]] < randint1(120)) pet = FALSE;
+				if (cast) mode = (PM_FORCE_PET | PM_ALLOW_GROUP);
+				else mode = (PM_ALLOW_UNIQUE | PM_NO_PET| PM_ALLOW_GROUP);
 
-				type = SUMMON_HI_UNDEAD;
+				num = 1 + randint1(3);
 
-				mode |= PM_ALLOW_GROUP;
-
-				if (pet) mode |= PM_FORCE_PET;
-				else mode |= (PM_ALLOW_UNIQUE | PM_NO_PET);
-				num = 1 + plev / 45 + randint0(1);
-
-				for(i=0;i<num;i++) if (summon_specific((pet ? -1 : 0), py, px, (plev * 3) / 2, type, mode) && !msgflag)
+				if (new_summoning(num, py, px, plev * 3 / 2, SUMMON_HI_UNDEAD, mode) && !msgflag)
 				{
 					msgflag = TRUE;
 #ifdef JP
@@ -18626,7 +18615,7 @@ static cptr do_new_spell_necromancy(int spell, int mode)
 #endif
 
 
-					if (pet)
+					if (cast)
 					{
 #ifdef JP
 						msg_print("古えの死せる者共があなたに仕えるため土から甦った！");
@@ -18650,7 +18639,7 @@ static cptr do_new_spell_necromancy(int spell, int mode)
 	case 24:
 #ifdef JP
 		if (name) return "屍竜召喚";
-		if (desc) return "ドラゴンのアンデッドを召喚する。触媒として竜の鱗などの物品を消費する。";
+		if (desc) return "ドラゴンのアンデッドを召喚する。触媒として竜の鱗などの物品を消費すると強力な竜が出やすい。";
 #else
 		if (name) return "Death Ray";
 		if (desc) return "Fires a beam of death.";
@@ -18670,21 +18659,15 @@ static cptr do_new_spell_necromancy(int spell, int mode)
 				{
 					item_tester_hook = item_tester_hook_dragonkind;
 					summon_mode |= PM_FORCE_PET;
-					if(!select_pay(&cost)) return NULL;
+					if(!select_pay(&cost)) cost = 0;
 
-					if(cost <= 0) //無価値なアイテムを使うと失敗する
-					{
-						summon_mode &= ~(PM_FORCE_PET);
-						summon_mode |= PM_NO_PET;
-					}
-					lev += cost / 2000;
-					if(lev > 100) lev = 100;
+					lev += cost / 1500;
+					if(lev > 120) lev = 120;
 				}
 
 				if (new_summoning(num, py, px, lev, SUMMON_UNDEAD_DRAGON, summon_mode))
 				{
-					if(summon_mode & PM_NO_PET) msg_print("触媒が悪かったらしい。竜が襲いかかってきた！");
-					else     msg_print("地の底から響くような唸り声が聞こえた・・");
+					msg_print("地の底から響くような唸り声が聞こえた・・");
 				}
 			}
 		}
@@ -21916,7 +21899,7 @@ static cptr do_new_spell_summon(int spell, int mode)
 #endif
     
 		{
-			int lev = 1 + plev / 2;
+			int lev = plev * 2 / 3;
 			int kind;
 			if (info) return format("召喚レベル：%d",lev);
 			if (cast || fail)
@@ -22524,7 +22507,7 @@ static cptr do_new_spell_summon(int spell, int mode)
 #endif
     
 		{
-			int lev = plev * 4 / 5 ;
+			int lev = plev + 5;
 			if (info) return format("基本召喚レベル：%d",lev);
 			if (cast || fail)
 			{
@@ -22711,7 +22694,7 @@ static cptr do_new_spell_summon(int spell, int mode)
 #endif
     
 		{
-			int lev = plev * 3 / 2;
+			int lev = plev * 2;
 			if (info) return format("召喚レベル：%d",lev);
 			
 			if(cast && p_ptr->chp < lev * 3)
@@ -22804,7 +22787,7 @@ static cptr do_new_spell_summon(int spell, int mode)
 #endif
     
 		{
-			int lev = plev;
+			int lev = plev * 3 / 2;
 			if (info) return format("基本召喚レベル：%d",lev);
 			if (cast || fail)
 			{
@@ -24661,23 +24644,23 @@ static cptr do_new_spell_occult(int spell, int mode)
 
 	case 4:
 		if (name) return "置いてけ掘";
-		if (desc) return "アイテムを拾って持っている敵が水地形に隣接しているときにしか使えない。敵一体に水属性の大ダメージを与えてアイテムを落とさせ、ユニークモンスターでない場合高確率で一撃で倒す。";
-    
+		if (desc) return "アイテムを拾って持っているモンスターにしか効果がない。モンスター一体を移動禁止状態にし、さらにそのモンスターが水地形に隣接している場合水属性の大ダメージを与えて時々一撃で倒す。";
+
 		{
 			int i;
 			char m_name[80];
-			int x,y,tx,ty;
+			int x, y, tx, ty;
 			monster_type *m_ptr;
 			monster_race *r_ptr;
 			bool flag_water = FALSE;
 			int dam = 200 + plev * 4;
-			int flg = (PROJECT_JUMP|PROJECT_KILL|PROJECT_STOP);
+			int flg = (PROJECT_JUMP | PROJECT_KILL | PROJECT_STOP);
 			if (info) return info_damage(0, 0, dam);
 			if (cast)
 			{
 
 				if (!get_aim_dir(&dir)) return NULL;
-				if(dir != 5 || !target_okay() || !projectable(target_row,target_col,py,px))
+				if (dir != 5 || !target_okay() || !projectable(target_row, target_col, py, px))
 				{
 					msg_print("視界内のターゲットを明示的に指定しないといけない。");
 					return NULL;
@@ -24695,9 +24678,9 @@ static cptr do_new_spell_occult(int spell, int mode)
 				r_ptr = &r_info[m_ptr->r_idx];
 				monster_desc(m_name, m_ptr, 0);
 
-				if(!m_ptr->hold_o_idx)
+				if (!m_ptr->hold_o_idx)
 				{
-					msg_format("%sは何も持っていない。",m_name);
+					msg_format("%sは何も持っていない。", m_name);
 					return NULL;
 				}
 
@@ -24705,35 +24688,36 @@ static cptr do_new_spell_occult(int spell, int mode)
 				{
 					ty = y + ddy_ddd[i];
 					tx = x + ddx_ddd[i];
-					if(!in_bounds(ty,tx)) continue;
-					if(cave_have_flag_bold(ty,tx,FF_WATER)) 
+					if (!in_bounds(ty, tx)) continue;
+					if (cave_have_flag_bold(ty, tx, FF_WATER))
 					{
 						flag_water = TRUE;
 						break;
 					}
 				}
-				if(!flag_water)
-				{
-					msg_format("%sの近くに水場がない。",m_name);
-					return NULL;
-				}
+
 				msg_print("どこからともなく「置・い・て・け～」と声がする..");
+				project(0, 0, m_ptr->fy, m_ptr->fx, 10 + randint1(10), GF_NO_MOVE, flg, -1);
 
-				if(!(r_ptr->flagsr & (RFR_RES_WATE | RFR_RES_ALL)) && !(r_ptr->flags1 & RF1_UNIQUE) && !(r_ptr->flags7 & (RF7_AQUATIC | RF7_UNIQUE2))
-				&& randint1((r_ptr->flags2 & (RF2_POWERFUL | RF2_GIGANTIC))?(dam/4):(dam/2)) > r_ptr->level )
+				if (flag_water)
 				{
-					msg_format("水面から幾多の手が伸び、%sを引きずり込んだ！",m_name);
-					dam = m_ptr->hp + 1;
+					msg_format("水面から幾多の手が伸び、%sを引きずり込んだ！", m_name);
 
-					project(0,0,m_ptr->fy,m_ptr->fx,dam,GF_DISP_ALL,flg,-1);
-				}
-				else
-				{
-					msg_format("水面から幾多の手が伸び、%sを引きずり込んだ！",m_name);
-					project(0,0,m_ptr->fy,m_ptr->fx,dam,GF_WATER,flg,-1);
-					if(m_ptr->r_idx) monster_drop_carried_objects(m_ptr);
+					if (!(r_ptr->flagsr & (RFR_RES_WATE | RFR_RES_ALL)) && !(r_ptr->flags1 & RF1_UNIQUE) && !(r_ptr->flags7 & (RF7_AQUATIC | RF7_UNIQUE2))
+						&& randint1((r_ptr->flags2 & (RF2_POWERFUL | RF2_GIGANTIC)) ? (dam / 5) : (dam / 3)) > r_ptr->level)
+					{
+						dam = m_ptr->hp + 1;
 
+						project(0, 0, m_ptr->fy, m_ptr->fx, dam, GF_DISP_ALL, flg, -1);
+					}
+					else
+					{
+						project(0, 0, m_ptr->fy, m_ptr->fx, dam, GF_WATER, flg, -1);
+						if (m_ptr->r_idx) monster_drop_carried_objects(m_ptr);
+
+					}
 				}
+
 
 			}
 		}
@@ -25101,7 +25085,7 @@ static cptr do_new_spell_occult(int spell, int mode)
 			int rad = MAX_SIGHT;
 
 			if (name) return "メリーさんの電話";
-			if (desc) return "周囲のランダムなモンスターの隣にテレポートし、そのまま隣接攻撃を仕掛ける。精神を持たないモンスターは対象にならない。";
+			if (desc) return "周囲のランダムなモンスターの隣にテレポートし、そのまま隣接攻撃を仕掛ける。この攻撃の一撃目は強烈な一撃になりやすい。精神を持たないモンスターは対象にならない。";
 			if (info) return info_radius(rad);
 
 			if(cast)
@@ -25147,7 +25131,7 @@ static cptr do_new_spell_occult(int spell, int mode)
 						char m_name[80];
 						monster_desc(m_name, &m_list[cave[ty][tx].m_idx], 0);
 						msg_format("あなたは%sの後ろに出現した！",m_name);
-						py_attack(ty,tx,0);
+						py_attack(ty,tx, HISSATSU_FUIUCHI);
 					}
 					else
 					{
@@ -25778,7 +25762,62 @@ static cptr do_new_spell_occult(int spell, int mode)
 		}
 		break;
 
+	case 27:
+		if (name) return "アザトートの呪詛";
+		if (desc) return "モンスター一体に対して強力な精神攻撃を行い、恐怖・朦朧・混乱・魔法力低下状態にする。通常の精神を持たないモンスターには効果がなく、デーモンやアンデッドやユニークモンスターには効きづらい。詠唱の成功失敗にかかわらず使用者の知能と賢さが一時的に低下する。";
+		{
+			monster_type *m_ptr;
+			monster_race *r_ptr;
+			int j;
+			char m_name[80];
+			int x, y;
+			bool flag_ok = TRUE;
+			int power;
+			if (cp_ptr->magicmaster) power = plev * 7;
+			else power = plev * 5;
 
+			if (info) return format("効力:%d", power);
+
+			if (cast)
+			{
+
+				if (!get_aim_dir(&dir)) return NULL;
+				if (dir != 5 || !target_okay() || !projectable(target_row, target_col, py, px))
+				{
+					msg_print("視界内のターゲットを明示的に指定しないといけない。");
+					return NULL;
+				}
+
+				y = target_row;
+				x = target_col;
+				m_ptr = &m_list[cave[y][x].m_idx];
+
+				if (!m_ptr->r_idx || !m_ptr->ml)
+				{
+					msg_format("そこには何もいない。");
+					return NULL;
+				}
+
+				msg_print("あなたは最も忌まわしき存在の真の名を唱えた...");
+				project(0, 0, y, x, power, GF_COSMIC_HORROR, (PROJECT_KILL | PROJECT_HIDE | PROJECT_JUMP), -1);
+
+			}
+			if (cast || fail)
+			{
+				msg_print("禁断の音節があなたの精神を蝕んだ！");
+				do
+				{
+					do_dec_stat(A_INT);
+					do_dec_stat(A_WIS);
+				} while (one_in_(3));
+			}
+
+		}
+		break;
+
+		//v1.1.96 異界への退散→アザトートの呪詛
+
+#if 0 
 	case 27:
 		if (name) return "異界への退散";
 		if (desc) return "「幻想郷の外から来たモンスター」一体をフロアから追放する。モンスターのレベルの倍(ユニークモンスターは四倍)のMPを追加で消費し、MPが足りていれば必ず追放に成功する。クエストダンジョンでは使えず、クエストのターゲットモンスターには効果がない。MPが足りなかった場合追放に失敗したうえ彫像化を受ける。";
@@ -25854,7 +25893,7 @@ static cptr do_new_spell_occult(int spell, int mode)
 		}
 		break;
 
-
+#endif
 	case 28:
 		if (name) return "黄金の蜂蜜酒の製造";
 		if (desc) return "「黄金の蜂蜜酒」を製造する。アイテム「*啓蒙*の薬」「竜の爪」「高草郡の光る竹」「ミラクルフルーツ」「一夜のクシナダ」のいずれか一つを消費する。";
