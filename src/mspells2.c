@@ -1089,7 +1089,8 @@ bool monst_spell_monst(int m_idx)
 
 	/* Check for spell failure (inate attacks never fail) */
 	//v1.1.94 –‚–@—Í’á‰º’†‚Í1/4‚ÅŽ¸”s‚·‚é‚±‚Æ‚É‚µ‚½
-	if (!spell_is_inate(thrown_spell) && (in_no_magic_dungeon || (MON_STUNNED(m_ptr) && one_in_(2)) || MON_DEC_MAG(m_ptr) && one_in_(4) ||  (m_ptr->mflag & MFLAG_NO_SPELL)))
+	//v1.1.96 ‹°•|‚Ì‚Æ‚«‚É‚à¬Œ÷—¦’á‰º@Œµ–§‚É‚Ímspells1‚Æ‚¿‚å‚Á‚ÆŠm—¦‚ªˆá‚¤‚ª‚Ü‚ ‚¢‚¢
+	if (!spell_is_inate(thrown_spell) && (in_no_magic_dungeon || (MON_STUNNED(m_ptr) && one_in_(2)) || MON_DEC_MAG(m_ptr) && one_in_(4) || MON_MONFEAR(m_ptr) && one_in_(4) ||  (m_ptr->mflag & MFLAG_NO_SPELL)))
 	{
 		disturb(1, 1);
 		/* Message */

@@ -2536,6 +2536,9 @@ bool make_attack_spell(int m_idx, int special_flag)
 	//v1.1.94 魔法力低下中はさらに失敗率25%上昇
 	if (MON_DEC_MAG(m_ptr)) failrate += 25;
 
+	//v1.1.96 恐怖中はさらに失敗率25%上昇
+	if (MON_MONFEAR(m_ptr)) failrate += 25;
+
 	//v1.1.46 女苑「プラックピジョン」による魔法失敗率上昇
 	failrate += pluck_pigeon_magic_fail(m_ptr);
 
