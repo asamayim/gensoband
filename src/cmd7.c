@@ -11142,7 +11142,9 @@ bool set_mana_shield(bool set, bool guard_break)
 ///v1.1.27 結界ガードによるダメージ軽減とMP減少
 void check_mana_shield(int *dam, int damage_type)
 {
-	int reduce_dam;
+	int reduce_dam, use_mana;
+
+	int shield_power;
 
 	if (!(p_ptr->special_defense & SD_MANA_SHIELD)) return;
 
@@ -11157,22 +11159,41 @@ void check_mana_shield(int *dam, int damage_type)
 	{
 		msg_print("結界を貫通された！");
 		reduce_dam = 0;
+		use_mana = 0;
 	}
 	else
 	{
-		//軽減可能ダメージ計算
+		//軽減ダメージ計算
 		reduce_dam = (*dam + 1) / 2;
-		if(p_ptr->csp < reduce_dam) reduce_dam = p_ptr->csp;
+
+		//消費MP計算 消費魔力減少のとき-25%
+		use_mana = reduce_dam;
+		if (p_ptr->dec_mana) use_mana = use_mana * 3 / 4;
+
+		//MPが足りないぶんはHPダメージに逆流(消費魔力減少の効果は発揮されたまま)
+		if (p_ptr->csp < use_mana)
+		{
+			reduce_dam -= use_mana - p_ptr->csp;
+			use_mana = p_ptr->csp;
+			//ガードブレイク
+			set_mana_shield(FALSE, TRUE);
+		}
 
 	}
 
-	//次の行動までに最大MP以上のダメージを食らったら防御が破れる
-	if(reduce_dam >= p_ptr->csp || count_damage_guard_break >= MIN(p_ptr->msp,500)) 
-		set_mana_shield(FALSE,TRUE);	
+	shield_power = MIN(p_ptr->msp, 500);
+	if (p_ptr->easy_spell) shield_power += shield_power / 2;
+
+	//次の行動までに最大MP以上のダメージを食らったらガードブレイク
+	if(count_damage_guard_break > shield_power)
+		set_mana_shield(FALSE,TRUE);
+
+	//paranoia
+	if (reduce_dam < 0) reduce_dam = 0;
 
 	//ダメージとMP減少
 	*dam -= reduce_dam;
-	p_ptr->csp -= reduce_dam;
+	p_ptr->csp -= use_mana;
 	p_ptr->redraw |= PR_MANA;
 
 }
