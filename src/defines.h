@@ -79,7 +79,7 @@
 ///sys131117 FAKE_VERSIONの定数を消した
 #define H_VER_MAJOR 1
 #define H_VER_MINOR 1
-#define H_VER_PATCH 95
+#define H_VER_PATCH 96
 #define H_VER_EXTRA 1
 
 /*:::＊＊＊◆◆◆アップロード時には必ずこれをコメントアウトする◆◆◆＊＊＊:::*/
