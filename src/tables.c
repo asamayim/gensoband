@@ -3303,7 +3303,7 @@ const player_class class_info[MAX_CLASS] =
 		14, 12, 15, 0,  4, 18, 18, 18,		
 		4, 30, 50		
 				
-		,{1,4,4,3,3,3,3,3,4,0,0,0,0,0,0,0}		
+		,{1,4,4,3,3,3,3,3,4,0,0,0,0,0,0,3}		
 		,A_INT
 		,5,4,80,		
 		{4,3,3,3,3,0,0,0,0,0		
@@ -3524,7 +3524,7 @@ const player_class class_info[MAX_CLASS] =
 		15, 15, 15, 0,  3, 12,  8,  8,		
 		1, 40, 50
 		
-		,{3,4,4,5,4,3,4,2,2,2,5,5,5,0,0,0}		
+		,{3,4,4,5,4,3,4,2,2,2,5,5,5,0,0,4}		
 		,A_INT
 		,3,2,100,		
 		{1,1,1,1,3,0,0,0,0,0		
@@ -3572,7 +3572,7 @@ const player_class class_info[MAX_CLASS] =
 		12, 13, 15, 1,  4, 20,  20,  8,		
 		4, 45, 30
 		
-		,{1,0,0,0,0,0,0,0,0,3,4,5,4,0,0,0}
+		,{1,0,0,0,0,0,0,0,0,3,4,5,4,0,0,4}
 		,A_INT
 		,4,3,90,		
 		{4,2,1,1,3,0,0,0,0,0		
@@ -3788,7 +3788,7 @@ const player_class class_info[MAX_CLASS] =
 		1,  1, 60, 1,  10, 32, 72, 60,		
 		1, 16, 12, 0,  0, 10, 26, 25,		
 		7, 35, 100
-		,{1,4,0,0,0,0,0,0,0,0,4,0,4,0,0,0}
+		,{1,4,0,0,0,0,0,0,0,0,4,0,4,0,0,4}
 		,A_INT
 		,6,6,80,
 		{3,1,1,4,1,0,0,0,0,0		
@@ -3834,7 +3834,7 @@ const player_class class_info[MAX_CLASS] =
 		21, 24, 30, 4, 16, 20, 40, 40,
 		12, 12, 11, 0,  1,  4,  21, 18,
 		3, 30, 50
-		,{1,4,4,4,4,0,0,0,0,4,4,4,4,0,0,0}
+		,{1,4,4,4,4,0,0,0,0,4,4,4,4,0,0,4}
 		,A_INT
 		,4,2,100,
 		{3,3,1,3,3,0,0,0,0,0
@@ -4001,7 +4001,7 @@ const player_class class_info[MAX_CLASS] =
 		11, 12, 10, 1,  4, 12, 20, 27,
 		4, 40, 75
 
-		,{1,0,4,0,0,0,3,0,0,0,3,0,0,0,0,0}
+		,{1,0,4,0,0,0,3,0,0,0,3,0,0,0,0,4}
 		,A_INT
 		,4,2,90,
 		{2,2,1,1,4,0,0,0,0,0
@@ -4192,7 +4192,7 @@ const player_class class_info[MAX_CLASS] =
 		12, 12, 12, 0,  5, 25, 20, 20,		
 		6, 30, 40	
 				
-		,{1,0,0,0,0,4,4,5,4,0,0,0,0,0,0,0}	
+		,{1,0,0,0,0,4,4,5,4,0,0,0,0,0,0,4}	
 		,A_INT
 		,4,4,80,	
 		{4,4,4,4,5,0,0,0,0,0		
@@ -4238,7 +4238,7 @@ const player_class class_info[MAX_CLASS] =
 		 8, 12, 12, 0, 3, 18, 24, 12,		
 		4, 20, 50
 				
-		,{1,0,0,0,0,0,0,0,0,2,2,0,0,0,0,0}	
+		,{1,0,0,0,0,0,0,0,0,2,2,0,0,0,0,2}	
 		,A_INT
 		,5,3,80,	
 		{4,1,1,3,2,0,0,0,0,0
@@ -4327,7 +4327,7 @@ const player_class class_info[MAX_CLASS] =
 		12, 12, 12, 1,  5, 15, 30, 27,
 		8, 80, 30
 				
-		,{1,4,5,4,4,0,0,0,0,4,5,4,4,0,0,0}
+		,{1,4,5,4,4,0,0,0,0,4,5,4,4,0,0,4}
 		,A_INT
 		,6,5,70,
 		{5,2,2,2,5,0,0,0,0,0
@@ -4369,7 +4369,7 @@ const player_class class_info[MAX_CLASS] =
 		16, 18, 15, 0,  4, 12, 15, 18,
 		0, 70, 30
 
-		,{1,5,5,5,5,5,5,0,5,0,5,0,0,0,0,0}
+		,{1,5,5,5,5,5,5,0,5,0,5,0,0,0,0,5}
 		,A_INT
 		,5,3,100,
 		{5,3,2,2,4,0,0,0,0,0
@@ -4680,7 +4680,7 @@ const player_class class_info[MAX_CLASS] =
 		39, 36, 30, 3, 30, 35, 64, 55,	
 		11, 10, 10, 0,  2, 12, 18, 18,	
 		0, 180, 70
-		,{1,4,4,4,4,4,4,4,4,0,4,4,4,0,0,0}		
+		,{1,4,4,4,4,4,4,4,4,0,4,4,4,0,0,4}		
 		,A_INT
 		,5,1,100,	
 		{4,4,4,4,4,0,0,0,0,0		
@@ -4724,7 +4724,7 @@ const player_class class_info[MAX_CLASS] =
 		15, 12, 14, 1,  5,  8,  18,  22,		
 		3, 30, 55
 	
-		,{1,3,3,0,0,3,0,0,4,0,0,0,0,0,0,0}	
+		,{1,3,3,0,0,3,0,0,4,0,0,0,0,0,0,3}	
 		,A_INT
 		,3,2,100,	
 		{4,1,3,2,4,0,0,0,0,0	
@@ -4812,7 +4812,7 @@ const player_class class_info[MAX_CLASS] =
 		16, 15, 12, 0,  3, 10, 21, 10,		
 		4, 70, 20	
 				
-		,{1,4,4,4,4,0,0,0,0,0,4,4,0,0,0,0}	
+		,{1,4,4,4,4,0,0,0,0,0,4,4,0,0,0,4}	
 		,A_INT
 		,1,1,100,	
 		{2,1,1,1,4,0,0,0,0,0	
@@ -4924,7 +4924,7 @@ const player_class class_info[MAX_CLASS] =
 		15, 16, 13, 0,  2, 12, 18, 14,	
 		3, 50, 30
 		
-		,{1,4,4,4,5,0,0,0,0,4,4,4,4,0,0,0}	
+		,{1,4,4,4,5,0,0,0,0,4,4,4,4,0,0,4}	
 		,A_INT
 		,4,3,100,	
 		{3,2,3,1,3,0,0,0,0,0
@@ -4946,7 +4946,7 @@ const player_class class_info[MAX_CLASS] =
 		12, 16, 12, 0,  2,  10, 20,  8,	
 		5, 20, 70
 		
-		,{1,5,4,4,4,3,3,3,4,4,5,5,4,0,0,0}
+		,{1,5,4,4,4,3,3,3,4,4,5,5,4,0,0,4}
 		,A_INT
 		,4,3,90,	
 		{4,2,1,1,2,0,0,0,0,0		
@@ -4969,7 +4969,7 @@ const player_class class_info[MAX_CLASS] =
 		15, 15, 12, 0,  3,  10, 14,  8,		
 		2, 20, 70
 		
-		,{3,5,5,5,5,4,4,3,4,4,5,5,5,0,0,0}
+		,{3,5,5,5,5,4,4,3,4,4,5,5,5,0,0,4}
 		,A_INT
 		,3,2,90,
 		{2,1,1,1,2,0,0,0,0,0		
@@ -5081,7 +5081,7 @@ const player_class class_info[MAX_CLASS] =
 		15, 14, 12, 0,  4, 10, 21, 21,		
 		6, 100, 20	
 		
-		,{1,0,0,0,0,0,0,0,0,5,5,5,5,0,0,0}
+		,{1,0,0,0,0,0,0,0,0,5,5,5,5,0,0,5}
 		,A_INT
 		,5,2,80,
 		{4,3,4,2,4,0,0,0,0,0
@@ -5368,7 +5368,7 @@ const player_class class_info[MAX_CLASS] =
 		10, 12, 12, 0,  5, 10, 22, 16,
 		6, 35, 60
 				
-		,{1,0,0,0,0,2,2,2,2,0,0,0,0,0,0,0}		
+		,{1,0,0,0,0,2,2,2,2,0,0,0,0,0,0,2}		
 		,A_INT
 		,4,3,80,		
 		{4,3,1,2,3,0,0,0,0,0		
@@ -5392,7 +5392,7 @@ const player_class class_info[MAX_CLASS] =
 		10, 12, 15, 0,  3,  7, 12, 10,	
 		2, 50, 40
 		
-		,{3,5,5,5,5,5,6,5,5,0,0,0,0,0,0,0}	
+		,{3,5,5,5,5,5,6,5,5,0,0,0,0,0,0,5}	
 		,A_INT
 		,3,2,100,	
 		{1,2,1,1,1,0,0,0,0,0
@@ -5658,7 +5658,7 @@ const player_class class_info[MAX_CLASS] =
 		16, 15, 12, 0,  4, 10, 16, 16,
 		4, 40, 25
 
-		,{ 1,0,0,0,0,0,0,0,0,5,5,5,5,0,0,0 }
+		,{ 1,0,0,0,0,0,0,0,0,5,5,5,5,0,0,5 }
 			,A_INT
 			,4,2,80,
 			{ 4,3,2,2,3,0,0,0,0,0
@@ -12192,6 +12192,7 @@ int engineer_guild_supply_table[MAX_MACHINE_SUPPLY][2] ={
 /*:::青魔、ものまね系用モンスター魔法新リスト*/
 /*:::これらのレベルや難易度などの各項目は職によっては無視される*/
 /*:::配列の添え字はRF4,5,6,9の順に0から*/
+//v1.1.96 主にブレス系のコスト低下
 const monspells2 monspell_list2[MAX_MONSPELLS2+1] =
 {
 /* level,  smana,  fail, use_stat, use_words, attack_spell,priority, name ,monspell_type*/
@@ -12200,38 +12201,38 @@ const monspells2 monspell_list2[MAX_MONSPELLS2+1] =
 { 1,    1,   10, A_CON, TRUE,FALSE,5,  "叫ぶ",NEW_MSPELL_TYPE_OTHER },
 { 1,    2,   20, A_CHR, FALSE,TRUE,1, "弾幕",NEW_MSPELL_TYPE_BOLT_BEAM_ROCKET },
 { 24,  25,  70, A_INT, TRUE, FALSE,3,"魔力消去",NEW_MSPELL_TYPE_OTHER },
-{ 36,  45,  70, A_STR, FALSE,TRUE,2, "ロケット",NEW_MSPELL_TYPE_BOLT_BEAM_ROCKET },
-{ 5,    6,  20, A_DEX, FALSE,TRUE,2, "射撃",NEW_MSPELL_TYPE_BOLT_BEAM_ROCKET },
-{ 30,  40,  70, A_CON, FALSE,TRUE,2, "聖なるブレス",NEW_MSPELL_TYPE_BREATH },
-{ 35,  42,  75, A_CON, FALSE,TRUE,2, "地獄の劫火のブレス",NEW_MSPELL_TYPE_BREATH },
+{ 36,  30,  70, A_STR, FALSE,TRUE,2, "ロケット",NEW_MSPELL_TYPE_BOLT_BEAM_ROCKET },
+{ 5,    4,  20, A_DEX, FALSE,TRUE,2, "射撃",NEW_MSPELL_TYPE_BOLT_BEAM_ROCKET },
+{ 30,  30,  70, A_CON, FALSE,TRUE,2, "聖なるブレス",NEW_MSPELL_TYPE_BREATH },
+{ 35,  30,  75, A_CON, FALSE,TRUE,2, "地獄の劫火のブレス",NEW_MSPELL_TYPE_BREATH },
 { 20,  25,  55, A_CON, FALSE,TRUE,2, "アクアブレス",NEW_MSPELL_TYPE_BREATH },
-{ 15,  30,  50, A_CON, FALSE,TRUE,1, "酸のブレス",NEW_MSPELL_TYPE_BREATH },
-{ 15,  30,  50, A_CON, FALSE,TRUE,1, "電撃のブレス",NEW_MSPELL_TYPE_BREATH },
+{ 15,  20,  50, A_CON, FALSE,TRUE,1, "酸のブレス",NEW_MSPELL_TYPE_BREATH },
+{ 15,  20,  50, A_CON, FALSE,TRUE,1, "電撃のブレス",NEW_MSPELL_TYPE_BREATH },
 
-{ 15,  30,  50, A_CON, FALSE,TRUE,1, "炎のブレス",NEW_MSPELL_TYPE_BREATH },
-{ 15,  30,  50, A_CON, FALSE,TRUE,1, "冷気のブレス",NEW_MSPELL_TYPE_BREATH },
-{ 20,  30,  50, A_CON, FALSE,TRUE,1, "ガスのブレス",NEW_MSPELL_TYPE_BREATH },
-{ 27,  27,  60, A_CON, FALSE,TRUE,2, "地獄のブレス",NEW_MSPELL_TYPE_BREATH },
+{ 15,  20,  50, A_CON, FALSE,TRUE,1, "炎のブレス",NEW_MSPELL_TYPE_BREATH },
+{ 15,  20,  50, A_CON, FALSE,TRUE,1, "冷気のブレス",NEW_MSPELL_TYPE_BREATH },
+{ 20,  20,  50, A_CON, FALSE,TRUE,1, "ガスのブレス",NEW_MSPELL_TYPE_BREATH },
+{ 27,  25,  60, A_CON, FALSE,TRUE,2, "地獄のブレス",NEW_MSPELL_TYPE_BREATH },
 { 25,  25,  60, A_CON, FALSE,TRUE,2, "閃光のブレス",NEW_MSPELL_TYPE_BREATH },
 { 25,  25,  60, A_CON, FALSE,TRUE,2, "暗黒のブレス",NEW_MSPELL_TYPE_BREATH },
-{ 45,  65,  80, A_CON, TRUE,TRUE, 2,"波動砲",NEW_MSPELL_TYPE_BOLT_BEAM_ROCKET },
-{ 28,  32,  60, A_CON, TRUE,TRUE,2, "衝撃波のブレス",NEW_MSPELL_TYPE_BREATH },
-{ 30,  32,  60, A_CON, FALSE,TRUE,2, "カオスのブレス",NEW_MSPELL_TYPE_BREATH },
-{ 30,  36,  60, A_CON, FALSE,TRUE,2, "劣化のブレス",NEW_MSPELL_TYPE_BREATH },
+{ 45,  45,  80, A_CON, TRUE,TRUE, 2,"波動砲",NEW_MSPELL_TYPE_BOLT_BEAM_ROCKET },
+{ 28,  25,  60, A_CON, TRUE,TRUE,2, "衝撃波のブレス",NEW_MSPELL_TYPE_BREATH },
+{ 30,  25,  60, A_CON, FALSE,TRUE,2, "カオスのブレス",NEW_MSPELL_TYPE_BREATH },
+{ 30,  25,  60, A_CON, FALSE,TRUE,2, "劣化のブレス",NEW_MSPELL_TYPE_BREATH },
 
-{ 35,  40,  70, A_CON, FALSE,TRUE,2, "因果混乱のブレス",NEW_MSPELL_TYPE_BREATH },
+{ 35,  35,  70, A_CON, FALSE,TRUE,2, "因果混乱のブレス",NEW_MSPELL_TYPE_BREATH },
 { 30,  30,  60, A_CON, FALSE,TRUE,2, "時間逆転のブレス",NEW_MSPELL_TYPE_BREATH },
-{ 25,  36,  55, A_CON, FALSE,TRUE,2, "遅鈍のブレス",NEW_MSPELL_TYPE_BREATH },
-{ 25,  32,  55, A_CON, FALSE,TRUE,2, "重力のブレス",NEW_MSPELL_TYPE_BREATH },
-{ 30,  36,  60, A_CON, FALSE,TRUE,2, "破片のブレス",NEW_MSPELL_TYPE_BREATH },
-{ 20,  30,  50, A_CON, FALSE,TRUE,2, "プラズマのブレス",NEW_MSPELL_TYPE_BREATH },
-{ 28,  32,  60, A_STR, FALSE,TRUE,2, "気弾",NEW_MSPELL_TYPE_BOLT_BEAM_ROCKET },
-{ 32,  40,  70, A_CON, FALSE,TRUE,2, "魔力のブレス",NEW_MSPELL_TYPE_BREATH },
+{ 25,  25,  55, A_CON, FALSE,TRUE,2, "遅鈍のブレス",NEW_MSPELL_TYPE_BREATH },
+{ 25,  25,  55, A_CON, FALSE,TRUE,2, "重力のブレス",NEW_MSPELL_TYPE_BREATH },
+{ 30,  25,  60, A_CON, FALSE,TRUE,2, "破片のブレス",NEW_MSPELL_TYPE_BREATH },
+{ 20,  25,  50, A_CON, FALSE,TRUE,2, "プラズマのブレス",NEW_MSPELL_TYPE_BREATH },
+{ 28,  25,  60, A_STR, FALSE,TRUE,2, "気弾",NEW_MSPELL_TYPE_BOLT_BEAM_ROCKET },
+{ 32,  30,  70, A_CON, FALSE,TRUE,2, "魔力のブレス",NEW_MSPELL_TYPE_BREATH },
 { 0,  0,  0, A_CON, FALSE, 0,FALSE,"(特別行動1は使用不可)",0 },
-{ 25,  35,  60, A_CON, FALSE,TRUE,2, "核熱のブレス",NEW_MSPELL_TYPE_BREATH },
+{ 25,  30,  60, A_CON, FALSE,TRUE,2, "核熱のブレス",NEW_MSPELL_TYPE_BREATH },
 
 { 28,  24,  75, A_INT, TRUE,TRUE, 3,"純ログルス",NEW_MSPELL_TYPE_BALL },
-{ 30,  33,  60, A_CON, FALSE,TRUE,2, "分解のブレス",NEW_MSPELL_TYPE_BREATH },
+{ 30,  30,  60, A_CON, FALSE,TRUE,2, "分解のブレス",NEW_MSPELL_TYPE_BREATH },
 { 18,  12,  50,  A_INT, TRUE,TRUE,4, "アシッド・ボール",NEW_MSPELL_TYPE_BALL }, //RF5
 { 16,  11,  50,  A_INT, TRUE,TRUE,4, "サンダー・ボール",NEW_MSPELL_TYPE_BALL },
 { 18,  13,  50,  A_INT, TRUE,TRUE,4, "ファイア・ボール",NEW_MSPELL_TYPE_BALL },
@@ -12322,7 +12323,7 @@ const monspells2 monspell_list2[MAX_MONSPELLS2+1] =
 { 40,  64,  90, A_INT, FALSE,TRUE, 2,"大型レーザー",NEW_MSPELL_TYPE_BOLT_BEAM_ROCKET },
 { 20,   16,  50, A_INT, TRUE,TRUE, 3,"音符のボルト",NEW_MSPELL_TYPE_BOLT_BEAM_ROCKET },
 { 27, 30,   60, A_INT, TRUE,FALSE, 4,"動物召喚",NEW_MSPELL_TYPE_SUMMMON },
-{ 25,   32,  55, A_INT, FALSE,TRUE, 3,"レーザー",NEW_MSPELL_TYPE_BOLT_BEAM_ROCKET },
+{ 25,   24,  55, A_INT, FALSE,TRUE, 3,"レーザー",NEW_MSPELL_TYPE_BOLT_BEAM_ROCKET },
 { 0,  0,  0, A_CON, FALSE,FALSE, 0,"(未実装)",0 },
 { 48,  80,  75, A_INT, TRUE,TRUE, 3,"ヘル・ファイア",NEW_MSPELL_TYPE_BALL },
 { 48,  80,  75, A_INT, TRUE,TRUE, 3,"ホーリー・ファイア",NEW_MSPELL_TYPE_BALL },
