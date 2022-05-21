@@ -6560,32 +6560,11 @@ static bool dimension_door_aux(int x, int y, int mode)
 		break;
 	case D_DOOR_MACHINE:
 		{
-			bool fail = FALSE;
-
-			if(!cave_player_teleportable_bold(y, x, 0L) || distance(y, x, py, px) > 49 ) fail = TRUE;
-			else if(randint1(100) < distance(y,x,py,px)) fail = TRUE;
-			if(fail)
+			//v1.1.97 テレポーターの失敗処理を別関数に統合。あと短距離なら少し暴発しにくくした
+			if(!cave_player_teleportable_bold(y, x, 0L) || randint1(100) + MAX_RANGE < distance(y,x,py,px)) 
 			{
-				cave_type    *c_ptr;
-				feature_type *f_ptr;
-				int i,x2,y2;
-				for(i=0;i<100;i++)
-				{
-					y2 = y + randint1(y) - randint1(y);
-					x2 = x + randint1(x) - randint1(x);
-					if(!in_bounds(y2,x2)) continue;
-					if(cave[y2][x2].m_idx) continue;
-					teleport_player_to(y2, x2, TELEPORT_ANYPLACE);
-					break;
-				}
-				if(i>99) teleport_player((plev + 2) * 2, TELEPORT_PASSIVE);
-
-				c_ptr = &cave[py][px];
-				f_ptr = &f_info[c_ptr->feat];
-				if (have_flag(f_ptr->flags, FF_LAVA)) msg_print("溶岩の上に出てしまった！");
-				else if (have_flag(f_ptr->flags, FF_WALL)) msg_print("*いしのなかにいる*");
-				else if( have_flag(f_ptr->flags, FF_DOOR) && have_flag(f_ptr->flags, FF_CLOSE))msg_print("*ドアのなかにいる*");
-				else msg_print("テレポーターが誤作動した！");
+				msg_print("テレポーターが誤作動した！");
+				teleporter_trap();
 			}
 			else
 			{
@@ -7851,6 +7830,51 @@ int yuma_vacuum_oil(int y, int x, bool check, int rad)
 }
 
 
+
+
+//v1.1.97 ＠がテレポーター罠に引っかかったときのテレポート処理。壁の中に出ることがある。
+//箱のテレポーター罠とエンジニア機械のテレポーターの失敗処理で使う
+void teleporter_trap(void)
+{
+	cave_type    *c_ptr;
+	feature_type *f_ptr;
+	int i, x2, y2;
+
+	int x = px, y = py;
+
+	if (p_ptr->anti_tele)
+	{
+		msg_print("しかし不思議な力がテレポートを防いだ。");
+		return;
+	}
+
+	///mod131228 時空耐性によるテレポアウェイ抵抗を実装してみた。
+	if (	p_ptr->pclass == CLASS_KOMACHI && p_ptr->lev > 29
+		||	IS_METAMORPHOSIS && r_info[MON_EXTRA_FIELD].flags2 & RFR_RES_TELE
+		||	p_ptr->resist_time && p_ptr->lev > randint1(100))
+	{
+		msg_print("あなたはテレポートに抵抗した！");
+		return;
+	}
+
+	for (i = 0; i<100; i++)
+	{
+		y2 = y + randint1(y) - randint1(y);
+		x2 = x + randint1(x) - randint1(x);
+		if (!in_bounds(y2, x2)) continue;
+		if (cave[y2][x2].m_idx) continue;
+		teleport_player_to(y2, x2, TELEPORT_ANYPLACE);
+		break;
+	}
+	if (i>99) teleport_player((p_ptr->lev + 2) * 2, TELEPORT_PASSIVE);
+
+	c_ptr = &cave[py][px];
+	f_ptr = &f_info[c_ptr->feat];
+	if (have_flag(f_ptr->flags, FF_LAVA)) msg_print("溶岩の上に出てしまった！");
+	else if (have_flag(f_ptr->flags, FF_WALL)) msg_print("*いしのなかにいる*");
+	else if (have_flag(f_ptr->flags, FF_DOOR) && have_flag(f_ptr->flags, FF_CLOSE))msg_print("*ドアのなかにいる*");
+
+}
 
 
 

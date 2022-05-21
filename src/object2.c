@@ -5000,6 +5000,7 @@ static void a_m_aux_4(object_type *o_ptr, int level, int power)
 #endif
 		case TV_CHEST:
 		{
+			//あばかれた箱:0 小さな木:5 大きな木:15 小さな鉄:25 大きな鉄:35 小さな鋼鉄:45 大きな鋼鉄:55
 			byte obj_level = k_info[o_ptr->k_idx].level;
 
 			/* Hack -- skip ruined chests */
@@ -5007,6 +5008,11 @@ static void a_m_aux_4(object_type *o_ptr, int level, int power)
 
 			/* Hack -- pick a "difficulty" */
 			o_ptr->pval = randint1(obj_level);
+
+			//v1.1.97 少しハイレベルなトラップを出しやすくする
+			if (obj_level > 40 && o_ptr->pval < (obj_level / 2) && one_in_(2)) o_ptr->pval += obj_level / 2;
+
+
 			//if (o_ptr->sval == SV_CHEST_KANDUME) o_ptr->pval = 6;
 			///mod140117 特殊箱は罠が仕掛けられていない
 			///mod140323 施錠もされてないことにした
@@ -5015,6 +5021,7 @@ static void a_m_aux_4(object_type *o_ptr, int level, int power)
 			o_ptr->xtra3 = dun_level + 5;
 
 			/* Never exceed "difficulty" of 55 to 59 */
+			//これ機能しているのか？最大でも55のはずだが
 			if (o_ptr->pval > 55) o_ptr->pval = 55 + (byte)randint0(5);
 
 			///mod140629 狐狸戦争
@@ -6881,6 +6888,9 @@ static s16b normal_traps[MAX_NORMAL_TRAPS];
  * Initialize arrays for normal traps
  */
 /*:::開門やハルマゲドンは別処理らしい*/
+//ここのインデックスはTRAP_***と一致していること
+//ビーム罠など追加の罠はchoose_random_trap()で別に処理している。
+
 void init_normal_traps(void)
 {
 	int cur_trap = 0;
@@ -6918,18 +6928,31 @@ s16b choose_random_trap(void)
 {
 	s16b feat;
 
+
 	/* Pick a trap */
 	while (1)
 	{
 
 		//v1.1.24 TRAPの19番目以降はハルマゲなどの特殊トラップなので互換性確保が面倒なためここで無理やり追加。
 		//折角なので輝夜刺客クエと月都万象展クエでは全部これになるようにしてみた
-		//v1.1.
+
 		if(p_ptr->inside_quest == QUEST_KILL_GUYA && one_in_(2) || p_ptr->inside_quest == QUEST_MOON_VAULT && !one_in_(5)|| dun_level > 19 && one_in_(19))
 			feat = f_tag_to_index_in_init("TRAP_BEAM");
 		else
 			/* Hack -- pick a trap */
 			feat = normal_traps[randint0(MAX_NORMAL_TRAPS)];
+		//今後トラップを増やすときはnormal_traps[]にハルマゲドンも新トラップも全部入れてランダムに選びハルマゲなどの特殊トラップをこのループで弾くようにするほうがいいかもしれない
+
+		//v1.1.97 あまり序盤に凶悪な罠は出ないようにしておく
+		if (feat == TRAP_TY_CURSE && dun_level < 30) continue;
+		if (feat == TRAP_POISON && dun_level < 30) continue;
+		if (feat == TRAP_FIRE && dun_level < 20) continue;
+		if (feat == TRAP_ACID && dun_level < 20) continue;
+		if (feat == TRAP_SLEEP && dun_level < 20) continue;
+
+		//地形変更罠は少し出づらくする
+		if (feat == TRAP_SPIKED_PIT && one_in_(2)) continue;
+		if (feat == TRAP_POISON_PIT && one_in_(2)) continue;
 
 		/* Accept non-trapdoors */
 		/*:::トラップドアを判定してる。厳密にはnormal_trapで選ばれる地形のうちFF_MOREのフラグを持っている地形を判別*/

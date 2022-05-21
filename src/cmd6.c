@@ -3820,7 +3820,8 @@ static void sagume_read_scroll_aux(int item, bool known)
 				break;
 			}
 			cave_set_feat(py, px, f_tag_to_index_in_init("TRAP_TRAPDOOR"));
-			if(!p_ptr->levitation) hit_trap(FALSE);
+			//if(!p_ptr->levitation) hit_trap(FALSE);
+			if(!p_ptr->levitation) activate_floor_trap(py,px,0L);
 			ident = TRUE;
 
 			break;
@@ -5875,10 +5876,17 @@ static int wand_effect(int sval, int dir, bool powerful, bool magic)
 			break;
 		}
 
+		//v1.1.96 トラップ・ドア破壊の魔法棒をトラップ発動の魔法棒に変更する
+		//トラップ解除の魔法棒と役割が大部分被っていたので丁度いい
 		case SV_WAND_TRAP_DOOR_DEST:
 		{
-			if (destroy_door(dir)) ident = TRUE;
-			if (powerful && destroy_doors_touch()) ident = TRUE;
+
+			//if (destroy_door(dir)) ident = TRUE;
+			//if (powerful && destroy_doors_touch()) ident = TRUE;
+
+			int flg = PROJECT_BEAM | PROJECT_GRID | PROJECT_ITEM;
+			return (project_hook(GF_ACTIV_TRAP, dir, 0, flg));
+
 			break;
 		}
 

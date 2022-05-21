@@ -4097,7 +4097,7 @@ D:$It fires a beam destroys all traps on the line when you use it.
 D:それは使うとトラップを破壊するビームを放つ。
 
 
-N:399:トラップ/ドア破壊:ブリキの
+N:399:トラップ発動:ブリキの
 E:Trap/Door Destruction:Tin
 G:-:W
 I:65:5:15
@@ -4105,7 +4105,7 @@ W:10:0:10:100
 A:10/1
 P:0:1d1:0:0:0
 D:$It fires a beam destroys all traps and doors on the line when you use it.
-D:それは使うとトラップやドアを破壊するビームを放つ。
+D:それは使うとトラップを発動させるビームを放つ。
 
 N:400:岩石溶解:金の
 E:Stone to Mud:Gold

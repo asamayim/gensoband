@@ -1762,7 +1762,7 @@ if (flags9 & (RF9_S_KWAI))        {vp[vn] = "妖怪呼集";color[vn++] = TERM_GREEN;
 if (flags9 & (RF9_TELE_APPROACH))        {vp[vn] = "隣接テレポート";color[vn++] = TERM_ORANGE;}
 if (flags9 & (RF9_TELE_HI_APPROACH))        {vp[vn] = "視界外隣接テレポート";color[vn++] = TERM_ORANGE;}
 if (flags9 & (RF9_MAELSTROM))        {vp[vn] = "メイルシュトロム";color[vn++] = TERM_BLUE;}
-if (flags9 & (RF9_ALARM))        {vp[vn] = "警報";color[vn++] = TERM_L_RED;}
+if (flags9 & (RF9_ALARM))        {vp[vn] = "警報+加速";color[vn++] = TERM_L_RED;}
 
 
 

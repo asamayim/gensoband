@@ -79,7 +79,7 @@
 ///sys131117 FAKE_VERSIONの定数を消した
 #define H_VER_MAJOR 1
 #define H_VER_MINOR 1
-#define H_VER_PATCH 96
+#define H_VER_PATCH 97
 #define H_VER_EXTRA 1
 
 /*:::＊＊＊◆◆◆アップロード時には必ずこれをコメントアウトする◆◆◆＊＊＊:::*/
@@ -1706,8 +1706,8 @@
 #define NOT_TRAP        -1
 #define TRAP_TRAPDOOR    0
 #define TRAP_PIT         1
-#define TRAP_SPIKED_PIT  2
-#define TRAP_POISON_PIT  3
+#define TRAP_SPIKED_PIT  2 //←v1.1.97 「スパイクの敷かれた落とし穴」を水地形生成の罠にした
+#define TRAP_POISON_PIT  3 //←v1.1.97 「毒スパイクの敷かれた落とし穴」を石油地形生成の罠にした
 #define TRAP_TY_CURSE    4
 #define TRAP_TELEPORT    5
 #define TRAP_FIRE        6
@@ -3594,9 +3594,9 @@
 #define PROJECT_WHO_EXPLODE_BOMB -5 //スターサファイア爆弾
 #define PROJECT_WHO_DEEPECO_BOMB -6 //魔理沙ディープエコロジカルボム
 #define PROJECT_WHO_CONTACT_YOG		 -7
-#define PROJECT_WHO_TRAP_BEAM	-8
+#define PROJECT_WHO_TRAP		-8 //v1.1.96 レーザートラップ→罠全般
 #define PROJECT_WHO_EXPLODE_ICE -9 //v1.1.68 閃光で爆発する氷塊
-
+//ここを増やすときproject_p()の死因個別定義も追加すること
 
 /*
  * Bit flags for the "enchant()" function
@@ -4075,7 +4075,7 @@
 #define GF_KILL_DOOR    41
 /*:::トラップ解除*/
 #define GF_KILL_TRAP    42
-#define GF_NO_MOVE	43 //v1.1.95 移動禁止状態にする
+#define GF_NO_MOVE		43 //v1.1.95 移動禁止状態にする
 #define GF_BERSERK		44 //v1.1.95 狂戦士化状態にする
 #define GF_SUPER_EGO	45
 
@@ -4095,6 +4095,9 @@
 #define GF_OLD_CONF             56
 #define GF_OLD_SLEEP    57
 #define GF_OLD_DRAIN    58
+#define GF_PIT_FALL     59 //v1.1.96 落とし穴属性
+#define GF_ACTIV_TRAP   60 //v1.1.96 トラップ発動
+
 /*:::特定種族をアウェイ*/
 #define GF_AWAY_UNDEAD  61
 #define GF_AWAY_EVIL    62
@@ -4291,6 +4294,45 @@
 #define CHEST_H_SUMMON          0x0200
 #define CHEST_RUNES_OF_EVIL     0x0400
 #define CHEST_ALARM             0x0800
+
+//v1.1.97 箱のトラップを一新。
+//chest_new_traps[]参照。
+//ビットフラグをやめマルチトラップを廃止。
+#define CHEST_TRAP_LOSE_STR		1
+#define CHEST_TRAP_LOSE_CON		2
+#define CHEST_TRAP_LOSE_MAG		3
+#define CHEST_TRAP_BA_POIS		4
+#define CHEST_TRAP_BA_SLEEP		5
+#define CHEST_TRAP_BA_CONF		6
+#define CHEST_TRAP_EXPLODE		7
+#define CHEST_TRAP_ALARM		8
+#define CHEST_TRAP_SUMMON		9
+#define CHEST_TRAP_S_BIRD		10
+#define CHEST_TRAP_S_ELEMENTAL	11
+#define CHEST_TRAP_S_DEMON		12
+#define CHEST_TRAP_S_DRAGON		13
+#define CHEST_TRAP_S_CHIMERA	14
+#define CHEST_TRAP_S_VORTEX		15
+#define CHEST_TRAP_S_KWAI		16
+#define CHEST_TRAP_SUIKI		17
+#define CHEST_TRAP_RUIN			18
+#define CHEST_TRAP_SLINGSHOT	19
+#define CHEST_TRAP_ARROW		20
+#define CHEST_TRAP_STEEL_ARROW	21
+#define CHEST_TRAP_TELEPORTER	22
+#define CHEST_TRAP_PUNCH		23
+#define CHEST_TRAP_BR_FIRE		24
+#define CHEST_TRAP_BR_ACID		25
+#define CHEST_TRAP_BA_TIME		26
+#define CHEST_TRAP_MIMIC		27
+#define CHEST_TRAP_MAGIC_DRAIN	28
+#define CHEST_TRAP_BA_BERSERK	29
+#define CHEST_TRAP_FUSION		30
+
+
+
+#define CHEST_TRAP_LIST_LENGTH	64
+
 
 
 /*
@@ -6471,6 +6513,7 @@ extern int PlayerUID;　
 #define MON_G_EAGLE			335
 #define MON_SABRE_TIGER   339
 #define MON_D_ELF_LORD    348
+#define MON_MIMIC_CHEST	353
 #define MON_FIRE_VOR      354
 #define MON_WATER_VOR     355
 #define MON_ARCH_VILE     357
@@ -7447,6 +7490,7 @@ extern int PlayerUID;　
 #define MPE_DO_PICKUP     0x00000020
 #define MPE_BREAK_TRAP    0x00000040
 #define MPE_DONT_SWAP_MON 0x00000080
+#define MPE_ACTIVATE_TRAP 0x00000100 //v1.1.97 トラップ強制発動
 
 
 #define MTIMED_CSLEEP   0 /* Monster is sleeping */

@@ -2581,13 +2581,21 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
 #endif
 			}
 		}
-
+		else if (o_ptr->pval >= CHEST_TRAP_LIST_LENGTH)
+		{
+			t = object_desc_str(t, "(ERROR)");
+		}
 		/* Describe the traps, if any */
 		else
 		{
 			/* Describe the traps */
-			switch (chest_traps[o_ptr->pval])
+			//v1.1.97 箱トラップ内容を一新
+
+//			switch (chest_traps[o_ptr->pval])
+			switch (chest_new_traps[o_ptr->pval])
 			{
+
+
 				case 0:
 				{
 #ifdef JP
@@ -2597,6 +2605,111 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
 #endif
 					break;
 				}
+				case CHEST_TRAP_LOSE_STR:
+					t = object_desc_str(t, "(腕力低下ダーツ)");
+					break;
+				case CHEST_TRAP_LOSE_CON:
+					t = object_desc_str(t, "(耐久低下ダーツ)");
+					break;
+				case CHEST_TRAP_LOSE_MAG:
+					t = object_desc_str(t, "(知能低下ダーツ)");
+					break;
+
+
+				case CHEST_TRAP_BA_POIS:
+					t = object_desc_str(t, "(毒ガス)");
+					break;
+				case CHEST_TRAP_BA_SLEEP:
+					t = object_desc_str(t, "(睡眠ガス)");
+					break;
+				case CHEST_TRAP_BA_CONF:
+					t = object_desc_str(t, "(混乱ガス)");
+					break;
+				case CHEST_TRAP_EXPLODE:
+					t = object_desc_str(t, "(爆弾)");
+					break;
+				case CHEST_TRAP_ALARM:
+					t = object_desc_str(t, "(アラーム)");
+					break;
+				case CHEST_TRAP_SUMMON:
+					t = object_desc_str(t, "(召喚のルーン)");
+					break;
+				case CHEST_TRAP_S_BIRD:
+					t = object_desc_str(t, "(鳥召喚のルーン)");
+					break;
+
+				case CHEST_TRAP_S_ELEMENTAL:
+					t = object_desc_str(t, "(精霊召喚のルーン)");
+					break;
+				case CHEST_TRAP_S_DEMON:
+					t = object_desc_str(t, "(悪魔召喚のルーン)");
+					break;
+
+				case CHEST_TRAP_S_DRAGON:
+					t = object_desc_str(t, "(竜召喚のルーン)");
+					break;
+				case CHEST_TRAP_S_CHIMERA:
+					t = object_desc_str(t, "(巨獣召喚のルーン)");
+					break;
+				case CHEST_TRAP_S_VORTEX:
+					t = object_desc_str(t, "(魔渦召喚のルーン)");
+					break;
+				case CHEST_TRAP_S_KWAI:
+					t = object_desc_str(t, "(妖怪召喚のルーン)");
+					break;
+
+				case CHEST_TRAP_SUIKI:
+					t = object_desc_str(t, "(水鬼鬼神長の罠)");
+					break;
+
+				case CHEST_TRAP_RUIN:
+					t = object_desc_str(t, "(破滅のトラップ)");
+					break;
+				case CHEST_TRAP_SLINGSHOT:
+					t = object_desc_str(t, "(石つぶて)");
+					break;
+				case CHEST_TRAP_ARROW:
+					t = object_desc_str(t, "(矢)");
+					break;
+				case CHEST_TRAP_STEEL_ARROW:
+					t = object_desc_str(t, "(鋼鉄の矢)");
+					break;
+				case CHEST_TRAP_TELEPORTER:
+					t = object_desc_str(t, "(テレポーター)");
+					break;
+				case CHEST_TRAP_PUNCH:
+					t = object_desc_str(t, "(パンチ)");
+					break;
+				case CHEST_TRAP_BR_FIRE:
+					t = object_desc_str(t, "(火炎放射)");
+					break;
+				case CHEST_TRAP_BR_ACID:
+					t = object_desc_str(t, "(酸の噴射)");
+					break;
+				case CHEST_TRAP_BA_TIME:
+					t = object_desc_str(t, "(逆玉手箱)");
+					break;
+				case CHEST_TRAP_MIMIC:
+					t = object_desc_str(t, "(ミミック)");
+					break;
+				case CHEST_TRAP_MAGIC_DRAIN:
+					t = object_desc_str(t, "(魔力吸収)");
+					break;
+				case CHEST_TRAP_BA_BERSERK:
+					t = object_desc_str(t, "(狂化ガス)");
+					break;
+				case CHEST_TRAP_FUSION:
+					t = object_desc_str(t, "(フュージョン)");
+					break;
+
+				default:
+				{
+					t = object_desc_str(t, "(ERROR)");
+					break;
+				}
+
+#if 0
+
 				case CHEST_LOSE_STR:
 				{
 #ifdef JP
@@ -2681,6 +2794,8 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
 #endif
 					break;
 				}
+#endif
+
 			}
 		}
 	}

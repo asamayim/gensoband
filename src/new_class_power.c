@@ -13994,8 +13994,10 @@ class_power_type class_power_alice[] =
 		"人形に武器を持たせる。人形によって装備できる武器の種類と重量が変わり、盾を持てる人形もいる。武器の修正値・スレイ・属性・切れ味以外の能力は効果を発揮しない。盾の場合AC・耐性以外の能力は効果を発揮しない。"},
 	{1,0,0,FALSE,FALSE,A_DEX,0,0,"人形武装解除",
 		"人形の装備しているアイテムを外す。"},
-	{10,16,30,FALSE,TRUE,A_INT,0,5,"魔彩光の上海人形",
+	{8,15,30,FALSE,TRUE,A_INT,0,5,"魔彩光の上海人形",
 		"閃光属性のビームを放つ。"},
+	{ 12,5,40,FALSE,FALSE,A_DEX,0,0,"トラップ発動",
+		"トラップを発動させるビームを放つ。発動したトラップにモンスターを巻き込むことができる。プレイヤーも範囲内にいるとダメージを受ける。" },
 	{16,20,40,FALSE,TRUE,A_DEX,0,0,"人形作成",
 		"モンスター「人形」を配下として数体召喚する。"},
 	{20,20,45,FALSE,TRUE,A_WIS,0,0,"トリップワイヤー",
@@ -14044,6 +14046,8 @@ cptr do_cmd_class_power_aux_alice(int num, bool only_info)
 			update_stuff();
 			break;
 		}
+
+
 	case 2:
 		{
 			dice = 2 + plev / 3;
@@ -14057,7 +14061,22 @@ cptr do_cmd_class_power_aux_alice(int num, bool only_info)
 			fire_beam(GF_LITE, dir, base + damroll(dice,sides));
 			break;
 		}
+
+
 	case 3:
+	{
+		int range = 6 + p_ptr->lev / 4;
+		if (only_info) return format("範囲:%d", range);
+		if (!get_aim_dir(&dir)) return NULL;
+
+		msg_print("あなたは魔糸を床に這わせた...");
+		fire_beam(GF_ACTIV_TRAP, dir, 0);
+
+
+		break;
+	}
+
+	case 4:
 		{
 			bool flag = FALSE;
 			int max = 1 + p_ptr->lev / 10;
@@ -14070,7 +14089,7 @@ cptr do_cmd_class_power_aux_alice(int num, bool only_info)
 			break;
 		}
 
-	case 4:
+	case 5:
 	{
 		int power = plev / 2;
 		int range = 3 + plev / 12;
@@ -14107,8 +14126,8 @@ cptr do_cmd_class_power_aux_alice(int num, bool only_info)
 	break;
 
 
-	case 5:
-	case 9:
+	case 6:
+	case 10:
 		{
 			int     item;
 			cptr    q, s;
@@ -14171,7 +14190,7 @@ cptr do_cmd_class_power_aux_alice(int num, bool only_info)
 
 			break;
 		}
-	case 6:
+	case 7:
 		{
 			monster_type *m_ptr;
 			int xx,yy;
@@ -14197,7 +14216,7 @@ cptr do_cmd_class_power_aux_alice(int num, bool only_info)
 		}
 		break;
 
-	case 7:
+	case 8:
 		{
 			int range = 2 + (plev-32) / 8;
 			int x, y;
@@ -14237,7 +14256,7 @@ cptr do_cmd_class_power_aux_alice(int num, bool only_info)
 
 
 
-	case 8:
+	case 9:
 		{
 			dice = plev / 2;
 			sides = 10 + chr_adj / 10;
@@ -14253,7 +14272,7 @@ cptr do_cmd_class_power_aux_alice(int num, bool only_info)
 			fire_spark(GF_DARK, dir, base + damroll(dice,sides),1);
 			break;
 		}
-	case 10:
+	case 11:
 		{
 			int dam = plev + chr_adj;
 			int x, y;
@@ -29246,6 +29265,10 @@ class_power_type class_power_rogue[] =
 {
 	{10,7,20,FALSE,FALSE,A_INT,0,0,"トラップ感知",
 		"周辺のトラップを感知する。"},
+
+	{15,5,40,FALSE,FALSE,A_DEX,0,0,"トラップ発動",
+		"トラップを発動させるビームを放つ。発動したトラップにモンスターを巻き込むことができる。プレイヤーも範囲内にいるとダメージを受ける。" },
+
 	{20,15,20,TRUE,FALSE,A_DEX,30,0,"ヒット＆アウェイ",
 		"敵に攻撃し、その後一瞬で離脱する。失敗することもある。装備が重いと失敗しやすい。"},
 	{30,20,50,FALSE,FALSE,A_INT,0,0,"鑑定",
@@ -29273,20 +29296,35 @@ cptr do_cmd_class_power_aux_rogue(int num, bool only_info)
 			detect_traps(DETECT_RAD_DEFAULT, TRUE);
 			break;
 		}
+
+
 	case 1:
+	{
+		int range = 5 + p_ptr->lev / 5;
+		if (only_info) return format("範囲:%d", range);
+		if (!get_aim_dir(&dir)) return NULL;
+
+		msg_print("あなたは巧みにロープを操った...");
+		fire_beam(GF_ACTIV_TRAP, dir, 0);
+
+
+		break;
+	}
+
+	case 2:
 		{
 			if(only_info) return format("");	
 			if(!hit_and_away()) return NULL;
 			break;
 		}
-	case 2:
+	case 3:
 		{
 			if(only_info) return format("");
 			if (!ident_spell(FALSE)) return NULL;
 
 			break;
 		}
-	case 3:
+	case 4:
 		{
 			if(only_info) return format("");
 			msg_format("周囲の敵を調査した・・");
@@ -32359,7 +32397,7 @@ bool check_class_skill_usable(char *errmsg,int skillnum, class_power_type *class
 	}
 	else if(p_ptr->pclass == CLASS_ALICE)
 	{
-		if((skillnum == 7) && p_ptr->do_martialarts)
+		if((skillnum == 8) && p_ptr->do_martialarts)
 		{
 				my_strcpy(errmsg, "人形の装備ができていない。", 150);
 				return FALSE;
@@ -34640,7 +34678,7 @@ const support_item_type support_item_list[] =
 	{50,15, 60,5,3,MON_ALICE,class_power_alice,do_cmd_class_power_aux_alice,2,
 	"上海人形","それは閃光属性のビームを放つ。"},
 	//首吊り蓬莱人形
-	{50,40, 100,5,8,MON_ALICE,class_power_alice,do_cmd_class_power_aux_alice,8,
+	{50,40, 100,5,8,MON_ALICE,class_power_alice,do_cmd_class_power_aux_alice,9,
 	"蓬莱人形","それは強力な暗黒属性のビームを放つ。"},
 //180
 	//ノイズメランコリー

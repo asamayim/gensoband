@@ -14108,8 +14108,14 @@ static cptr do_new_spell_element(int spell, int mode)
 				/*:::罠があれば消す。水と溶岩以外のアイテムを置ける地形なら深い穴にする。そのとき浮いていないモンスターがいたらダメージを与える*/
 				if (cave[y][x].m_idx)
 				{
+
 					int dam = damroll(dice,sides) + base;
 					int flg = PROJECT_STOP | PROJECT_GRID | PROJECT_KILL | PROJECT_HIDE;
+					project(0, 0, y, x, dam, GF_PIT_FALL, flg, -1);
+
+					//v1.1.97 モンスターに対する落とし穴ダメージをGF_PIT_FALL属性に統合した
+
+					/*
 					monster_type *m_ptr = &m_list[cave[y][x].m_idx];
 					char m_name[80];
 	
@@ -14137,7 +14143,9 @@ static cptr do_new_spell_element(int spell, int mode)
 							(void)set_monster_stunned(cave[y][x].m_idx, MON_STUNNED(m_ptr) + dam / 20);
 						}
 					}
+					*/
 				}
+
 				p_ptr->redraw |= (PR_MAP);
 			}
 		}
@@ -14569,22 +14577,26 @@ static cptr do_new_spell_chaos(int spell, int mode)
 		break;
 
 	case 1:
+		//v1.1.97 周辺トラップ破壊→トラップ発動ビーム
 #ifdef JP
-		if (name) return "トラップ/ドア破壊";
-		if (desc) return "隣接する罠と扉を破壊する。";
+		if (name) return "トラップ発動";
+		if (desc) return "トラップを発動させるビームを放つ。";
 #else
 		if (name) return "Trap / Door Destruction";
 		if (desc) return "Destroys all traps in adjacent squares.";
 #endif
     
 		{
-			int rad = 1;
 
-			if (info) return info_radius(rad);
+			if (info) return "";
 
 			if (cast)
 			{
-				destroy_doors_touch();
+				int flg = PROJECT_BEAM | PROJECT_GRID | PROJECT_ITEM;
+
+				if (!get_aim_dir(&dir)) return NULL;
+				fire_beam(GF_ACTIV_TRAP, dir, 0);
+
 			}
 		}
 		break;

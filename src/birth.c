@@ -6183,11 +6183,14 @@ static bool get_unique_player(void)
 	int mul_exp, mul_score;
 	char old_name[32];
 
+
 	while(1)
 	{
 
 		bool ok = TRUE;
-		put_str("あなたの登場作品を選んでください。", 10, 10);
+
+		put_str("あなたの登場作品を選んでください。(*:ランダム)", 10, 10);
+
 		cs = 0;
 		while(1)
 		{
@@ -6199,6 +6202,13 @@ static bool get_unique_player(void)
 			c = inkey();
 			if (c == 'Q') birth_quit();
 			if (c == 'S') return (FALSE);
+
+			if (c == '*')
+			{
+				k = randint0(ENTRY_MAX);
+				break;
+			}
+
 			if (c == ' ' || c == '\r' || c == '\n')
 			{
 				k = cs;
@@ -6220,36 +6230,36 @@ static bool get_unique_player(void)
 		clear_from(10);
 		entry = k;
 
-		cnt_table=0;
-		for(i=0;i<UNIQUE_PLAYER_NUM;i++)if(unique_player_table[i].entry == entry)
+
+		cnt_table = 0;
+		for (i = 0; i < UNIQUE_PLAYER_NUM; i++)if (unique_player_table[i].entry == entry)
 		{
-			if(cnt_table == 12)
+			if (cnt_table == 12)
 			{
 				put_str("ERROR:get_unique_player()のcnt_tableが一杯", 12, 10);
 				break;
 			}
 			table[cnt_table++] = unique_player_table[i];
 		}
-		if(cnt_table==0)		c_put_str(TERM_L_BLUE, format("作品ID:%dに誰も登録されていない", entry), 8 , 10);
+		if (cnt_table == 0)		c_put_str(TERM_L_BLUE, format("作品ID:%dに誰も登録されていない", entry), 8, 10);
 
-		put_str("あなたは誰ですか？", 10, 10);
+		put_str("あなたは誰ですか？(*:ランダム)", 10, 10);
 		put_str("(灰字は未実装 ESCで作品選択へ戻る)", 11, 10);
 
 		cs = 0;
-		while(1)
+		while (1)
 		{
-			for(n=0;n<cnt_table;n++)
+			for (n = 0; n < cnt_table; n++)
 			{
-				if(n == cs)
-					c_put_str(TERM_YELLOW, format("%c) %s",('a'+n),table[n].name), 12 + n, 10);
-				//藍はHARD以上限定
-				//紫も
-				else if((table[n].class_id == CLASS_RAN || table[n].class_id == CLASS_YUKARI) && difficulty < DIFFICULTY_HARD)
-					c_put_str(TERM_L_DARK, format("%c) %s",('a'+n),table[n].name), 12 + n, 10);
-				else if(!table[n].flag_fix)
-					c_put_str(TERM_L_DARK, format("%c) %s",('a'+n),table[n].name), 12 + n, 10);
-				else 
-					put_str( format("%c) %s",('a'+n),table[n].name), 12 + n, 10);
+				if (n == cs)
+					c_put_str(TERM_YELLOW, format("%c) %s", ('a' + n), table[n].name), 12 + n, 10);
+				//藍・紫はHARD以上限定
+				else if ((table[n].class_id == CLASS_RAN || table[n].class_id == CLASS_YUKARI) && difficulty < DIFFICULTY_HARD)
+					c_put_str(TERM_L_DARK, format("%c) %s", ('a' + n), table[n].name), 12 + n, 10);
+				else if (!table[n].flag_fix)
+					c_put_str(TERM_L_DARK, format("%c) %s", ('a' + n), table[n].name), 12 + n, 10);
+				else
+					put_str(format("%c) %s", ('a' + n), table[n].name), 12 + n, 10);
 
 			}
 			Term_gotoxy(0, 0);
@@ -6261,40 +6271,66 @@ static bool get_unique_player(void)
 			}
 			if (c == 'Q') birth_quit();
 			if (c == 'S') return (FALSE);
+
+			//v1.1.97 ランダム選択
+			if (c == '*')
+			{
+				int available_number_list[64];
+				int tmp_list_len = 0;
+
+				for (n = 0; n < cnt_table; n++)
+				{
+					if (!table[n].flag_fix)continue;
+					//藍・紫はHARD以上限定
+					if (table[k].class_id == CLASS_RAN && difficulty < DIFFICULTY_HARD) continue;
+					if (table[k].class_id == CLASS_YUKARI && difficulty < DIFFICULTY_HARD) continue;
+					available_number_list[tmp_list_len++] = n;
+				}
+
+				if (tmp_list_len)
+				{
+					k = available_number_list[randint0(tmp_list_len)];
+					break;
+				}
+				//該当ページの実装キャラがまだ一人もいない場合tmp_list_lenが0になり*を押しても何も起こらない
+			}
+
+
 			if (c == ' ' || c == '\r' || c == '\n')
 			{
 				k = cs;
-				if(!table[k].flag_fix)continue;
-				//藍はHARD以上限定
-				//紫も
-				if(table[k].class_id == CLASS_RAN && difficulty < DIFFICULTY_HARD) continue;
-				if(table[k].class_id == CLASS_YUKARI && difficulty < DIFFICULTY_HARD) continue;
+				if (!table[k].flag_fix)continue;
+				//藍・紫はHARD以上限定
+				if (table[k].class_id == CLASS_RAN && difficulty < DIFFICULTY_HARD) continue;
+				if (table[k].class_id == CLASS_YUKARI && difficulty < DIFFICULTY_HARD) continue;
 				break;
 			}
-			if (c == '2' && cs < cnt_table-1) cs++;
+			if (c == '2' && cs < cnt_table - 1) cs++;
 			if (c == '8' && cs > 0) cs--;
 			if (c == '?')
 			{
 				show_help("tbirth.txt#Class");
 			}
 
-			if (c >= 'a' && c <= 'a'+cnt_table-1)
+			if (c >= 'a' && c <= 'a' + cnt_table - 1)
 			{
 				k = c - 'a';
-				if(!table[k].flag_fix)continue;
+				if (!table[k].flag_fix)continue;
 
 				//藍はHARD以上限定
-				if(table[k].class_id == CLASS_RAN && difficulty < DIFFICULTY_HARD) continue;
-				if(table[k].class_id == CLASS_YUKARI && difficulty < DIFFICULTY_HARD) continue;
+				if (table[k].class_id == CLASS_RAN && difficulty < DIFFICULTY_HARD) continue;
+				if (table[k].class_id == CLASS_YUKARI && difficulty < DIFFICULTY_HARD) continue;
 
 				break;
 			}
 		}
 		clear_from(10);
-		if(!ok)
+		if (!ok)
 		{
 			continue; //作品選択まで戻る
 		}
+
+
 
 		roff_to_buf(table[k].info, 74, temp, sizeof(temp));
 		t = temp;

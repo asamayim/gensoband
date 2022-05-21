@@ -6944,7 +6944,7 @@ magic_type spell_base_info[MAX_MAGIC][32][6] =
 	{
 	/*:::混沌1*/
 	{{ 3,  2,22,  0},{ 7,  2,30,  5},{ 5,  2,28,  5},{ 3,  2,23,  5},{ 1,  1,20,  5},{ 1,  1,15,  5},},//マジックミサイル
-	{{ 4,  3,25,  0},{ 8,  4,32,  5},{ 6,  3,30,  5},{ 3,  3,25,  5},{ 1,  2,22,  5},{ 1,  1,15,  5},},//トラップ/ドア破壊
+	{{ 4,  3,25,  0},{ 8,  4,32,  5},{ 6,  3,30,  5},{ 3,  3,25,  5},{ 1,  2,22,  5},{ 1,  1,15,  5},},//トラップ/ドア破壊→トラップ発動
 	{{ 6,  4,30,  0},{11,  9,35,  5},{ 8,  8,35,  5},{ 4,  5,30,  5},{ 2,  2,25,  5},{ 2,  1,15,  5},},//閃光
 	{{ 9,  6,35,  0},{12, 12,45,  6},{ 9, 10,40,  6},{ 6,  6,34,  6},{ 5,  5,30,  6},{ 4,  2,20,  6},},//混乱の手
 	{{16, 14,45,  0},{15, 13,60,  8},{12, 11,60,  8},{10,  7,53,  8},{ 9,  6,48,  8},{ 6,  4,40,  8},},//魔力炸裂
@@ -7388,6 +7388,83 @@ const cptr realm_names[]
 	"unknown"
 };
 */
+
+//v1.1.97 chest_traps[]に代わってこちらの箱トラップリストを使う。
+//o_ptr->pval(1~60?)がインデックスになる。pvalが負なら解除済み、0なら空
+//ビットフラグを使うのをやめマルチトラップを廃止。0は施錠
+//過去のバージョンで生成された箱の施錠/解錠状態と互換を取るため0の部分は変えない
+
+//ここを変えるときはactivate_chest_trap(),object_desc()の該当部分も変える
+const int chest_new_traps[CHEST_TRAP_LIST_LENGTH] =
+{
+	0,                                      /* 0 == empty */
+	CHEST_TRAP_LOSE_STR,
+	CHEST_TRAP_LOSE_CON,
+	CHEST_TRAP_ALARM,
+	CHEST_TRAP_SLINGSHOT,
+	CHEST_TRAP_PUNCH,             /* 5 == best small wooden */
+	0,//←ここを0から変えると過去のバージョンで生成されたクエスト報酬箱などが罠付きに変化するので変えない
+	CHEST_TRAP_LOSE_STR,
+	CHEST_TRAP_LOSE_CON,
+	CHEST_TRAP_LOSE_MAG,
+	CHEST_TRAP_BA_POIS,
+	CHEST_TRAP_BA_POIS,
+	CHEST_TRAP_SLINGSHOT,
+	CHEST_TRAP_BA_SLEEP,
+	CHEST_TRAP_BA_CONF,
+	CHEST_TRAP_ARROW,                 /* 15 == best large wooden */
+	0,
+	CHEST_TRAP_MIMIC,
+	CHEST_TRAP_MIMIC,
+	CHEST_TRAP_LOSE_MAG,
+	CHEST_TRAP_BA_SLEEP,
+	CHEST_TRAP_BA_CONF,
+	CHEST_TRAP_SUMMON,
+	CHEST_TRAP_ARROW,
+	CHEST_TRAP_PUNCH,
+	CHEST_TRAP_BA_TIME,                        /* 25 == best small iron */
+	0,
+	CHEST_TRAP_S_BIRD,
+	CHEST_TRAP_S_ELEMENTAL,
+	CHEST_TRAP_S_DEMON,
+	CHEST_TRAP_S_DRAGON,
+	CHEST_TRAP_S_CHIMERA,
+	CHEST_TRAP_S_VORTEX,
+	CHEST_TRAP_S_KWAI,
+	CHEST_TRAP_BA_BERSERK,
+	CHEST_TRAP_TELEPORTER, /* 35 == best large iron */
+	0,
+	CHEST_TRAP_BA_BERSERK,
+	CHEST_TRAP_STEEL_ARROW,
+	CHEST_TRAP_STEEL_ARROW,
+	CHEST_TRAP_EXPLODE,
+	CHEST_TRAP_TELEPORTER,
+	CHEST_TRAP_BR_FIRE,
+	CHEST_TRAP_BR_ACID,
+	CHEST_TRAP_BA_TIME,
+	CHEST_TRAP_MAGIC_DRAIN,        /* 45 == best small steel */
+	0,
+	CHEST_TRAP_BR_FIRE,
+	CHEST_TRAP_BR_ACID,
+	CHEST_TRAP_EXPLODE,
+	CHEST_TRAP_SUIKI,
+	CHEST_TRAP_RUIN,
+	CHEST_TRAP_TELEPORTER,
+	CHEST_TRAP_MAGIC_DRAIN,
+	CHEST_TRAP_FUSION,
+	CHEST_TRAP_FUSION,  /* 55 == best large steel */
+	CHEST_TRAP_FUSION,//ここから下は多分出ない
+	CHEST_TRAP_FUSION,
+	CHEST_TRAP_FUSION,
+	CHEST_TRAP_FUSION,
+	CHEST_TRAP_FUSION,
+	CHEST_TRAP_FUSION,
+	CHEST_TRAP_FUSION,
+	CHEST_TRAP_FUSION,
+
+};
+
+
 
 /*
  * Each chest has a certain set of traps, determined by pval
@@ -12337,7 +12414,7 @@ const monspells2 monspell_list2[MAX_MONSPELLS2+1] =
 { 25,  15,  50, A_INT, FALSE,FALSE, 3,"隣接テレポート",NEW_MSPELL_TYPE_OTHER },
 { 35,  25,  70, A_INT, FALSE,FALSE, 2,"視界外隣接テレポート",NEW_MSPELL_TYPE_OTHER },
 { 40,  48,  85, A_INT, TRUE,FALSE, 3,"メイルシュトロム",NEW_MSPELL_TYPE_OTHER_ATTACK },
-{ 5,    5,   20, A_CON, TRUE,FALSE, 5, "警報",NEW_MSPELL_TYPE_OTHER },
+{ 5,    5,   20, A_CON, TRUE,FALSE, 5, "警報+加速",NEW_MSPELL_TYPE_OTHER },
 
 };
 
@@ -13284,10 +13361,10 @@ const cptr gf_desc_name[MAX_GF] =
 	//30
 	"地獄","劣化","因果混乱","時間逆転","重力",
 	"攻撃低下","防御低下","魔法低下","全能力低下","岩石溶解",
-	"ドア破壊","罠破壊","(未設定)","(未設定)","(未設定)",
+	"ドア破壊","罠破壊","移動禁止","狂化","スーパーエゴ",
 	"ドア生成","罠生成","森林生成","石油採掘","酒",
 	"クローン","チェンジ","回復モンスター","加速","減速",
-	"混乱","睡眠","生命力吸収","(未設定)","(未設定)",
+	"混乱","睡眠","生命力吸収","落下","トラップ発動",
 	//60
 	"死者アウェイ","邪悪アウェイ","テレポアウェイ","死者恐怖","邪悪恐怖",
 	"恐怖","アンデッド退散","聖浄","力","悪魔退散",
