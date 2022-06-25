@@ -1067,6 +1067,12 @@ bool convert_item_to_mana(void)
 				add_junko_flag_val(JKF2_WATER, 500 * amt);
 				break;
 
+			case SV_SOUVENIR_KODOKUZARA:
+				add_junko_flag_val(JKF1_ATTACK_FLOOR, 1000 * amt);
+				add_junko_flag_val(JKF2_POIS, 1000 * amt);
+				add_junko_flag_val(JKF2_HELL, 1000 * amt);
+				break;
+
 			}
 		}
 		else if (tv == TV_MATERIAL) //ëfçﬁ

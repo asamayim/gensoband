@@ -1327,6 +1327,9 @@ static bool monster_hook_battle_mon(int r_idx)
 	//v1.1.42 紫苑2は出ない
 	if (r_idx == MON_SHION_2) return FALSE; 
 
+	//v1.1.98 瑞霊は出ない
+	if (r_idx == MON_MIZUCHI) return FALSE;
+
 	if(r_idx == MON_MASTER_KAGUYA) return FALSE;//輝夜(可変)は出ない
 
 	if(r_ptr->flags7 & RF7_AQUATIC) return FALSE; //今のところ水棲は不可
@@ -4191,6 +4194,8 @@ static bool monster_hook_nightmare_diary(int r_idx)
 	if (r_idx == MON_SEIJA) return FALSE;//正邪は出ない
 	if (r_idx == MON_SUMIREKO) return FALSE; //菫子(お尋ね者バージョン)は出ない
 
+	//v1.1.98 瑞霊は出ない
+	if (r_idx == MON_MIZUCHI) return FALSE;
 
 	//＠が霊夢と魔理沙のときは可変パラメータのMON_REIMUとMON_MARISAを自分として出す。
 	//それ以外のときはランダムユニーク1を自分として出し、monster_is_you()に当てはまる自分モンスターは出さない。

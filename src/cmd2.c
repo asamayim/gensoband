@@ -1275,6 +1275,31 @@ static void chest_death(bool scatter, int y, int x, s16b o_idx)
 			}
 
 		}
+		//v1.1.98 連続昏睡事件Ⅱ
+		else if (o_ptr->sval == SV_CHEST_HANGOKU2)
+		{
+			int i = 5+randint1(15);
+			q_ptr = &forge;
+			for (; i > 0; i--)
+			{
+				int roll = randint1(100);
+
+				if(roll == 100)
+					object_prep(q_ptr, lookup_kind(TV_MATERIAL, SV_MATERIAL_METEORICIRON));
+				else if(roll > 90)
+					object_prep(q_ptr, lookup_kind(TV_FOOD, SV_FOOD_MAGIC_WATERMELON));
+				else if(roll > 75)
+					object_prep(q_ptr, lookup_kind(TV_MUSHROOM, SV_MUSHROOM_PUFFBALL));
+				else if (roll > 55)
+					object_prep(q_ptr, lookup_kind(TV_STICK, SV_WEAPON_FLOWER));
+				else
+					object_prep(q_ptr, lookup_kind(TV_MATERIAL, SV_MATERIAL_SKULL));
+
+				apply_magic(q_ptr, object_level, 0L);
+				(void)drop_near(q_ptr, -1, y, x);
+			}
+
+		}
 		/*:::サトリ・コンフリクト報酬　魔法職なら第一領域、スペマス系なら使用可能な領域からランダム、どちらでもないなら全くランダムな四冊目魔法書*/
 		else if(o_ptr->sval == SV_CHEST_SATORI) 
 		{
@@ -1615,6 +1640,9 @@ void activate_chest_trap(int y, int x, s16b o_idx, bool trap_player)
 	//箱を解除済みにする
 	o_ptr->pval = (0 - o_ptr->pval);
 	object_known(o_ptr);
+
+	//v1.1.98 トラップなし(施錠)のとき終了
+	if (trap_type == CHEST_TRAP_NOTHING) return;
 
 	//GF_ACTIV_TRAP経由でここに来た時箱が解錠されないとループになると思うので時間停止中でも解除しておく
 	if (SAKUYA_WORLD || world_player)

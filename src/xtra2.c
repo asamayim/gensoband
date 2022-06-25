@@ -2434,6 +2434,14 @@ msg_print("勝利！チャンピオンへの道を進んでいる。");
 				object_prep(q_ptr, lookup_kind(TV_MATERIAL, SV_MATERIAL_ISHIZAKURA));
 				(void)drop_near(q_ptr, -1, wy, wx);
 			}
+			//v1.1.98 頭蓋骨追加
+			for (num = 1 + randint1(2); num > 0; num--)
+			{
+				scatter(&wy, &wx, y, x, 3, 0);
+				object_prep(q_ptr, lookup_kind(TV_MATERIAL, SV_MATERIAL_SKULL));
+				(void)drop_near(q_ptr, -1, wy, wx);
+			}
+
 		}
 		break;
 	case MON_RINGO:
@@ -2467,6 +2475,16 @@ msg_print("勝利！チャンピオンへの道を進んでいる。");
 			(void)drop_near(q_ptr, -1, y, x);
 		}
 		break;
+		//v1.1.98
+	case MON_MIZUCHI:
+		if (drop_chosen_item)
+		{
+			q_ptr = &forge;
+			object_prep(q_ptr, lookup_kind(TV_SOUVENIR, SV_SOUVENIR_KODOKUZARA));
+			(void)drop_near(q_ptr, -1, y, x);
+		}
+		break;
+
 	case MON_NIGHTMARE_F:
 		if (drop_chosen_item && one_in_(3))
 		{
@@ -2841,10 +2859,16 @@ msg_print("勝利！チャンピオンへの道を進んでいる。");
 		{
 		case MON_SEIRAN:
 		case MON_RINGO:
-		case MON_UDONGE:
 			am_mode |= AM_GREAT;
 			sv = SV_FIRE_GUN_LUNATIC;
 			break;
+
+		case MON_UDONGE:
+			am_mode |= AM_GREAT;
+			sv = SV_FIRE_GUN_LUNATIC_2;
+			break;
+
+
 		case MON_EAGLE_RABBIT:
 			if(one_in_(2))sv = SV_FIRE_GUN_LUNATIC;
 			else sv = SV_FIRE_GUN_HANDGUN;

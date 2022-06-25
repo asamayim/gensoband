@@ -2383,7 +2383,7 @@ static void rd_extra(void)
 		rd_s16b(&p_ptr->future_use_counter8);
 
 		rd_s32b(&p_ptr->animal_ghost_align_flag);
-		rd_s32b(&p_ptr->ptype_new_flags2);
+		rd_s32b(&p_ptr->quest_special_flag);
 		rd_s32b(&p_ptr->ptype_new_flags3);
 		rd_s32b(&p_ptr->ptype_new_flags4);
 

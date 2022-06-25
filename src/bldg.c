@@ -2014,6 +2014,7 @@ struct marisa_store_type marisa_wants_table[] =
 
 	{ TV_SOUVENIR,SV_SOUVENIR_ELDER_THINGS_CRYSTAL ,800 },
 
+	{ TV_SOUVENIR,SV_SOUVENIR_KODOKUZARA ,1200 },
 
 	{0,0,0}//終端用ダミー
 };
@@ -2314,6 +2315,8 @@ struct marisa_store_type korin_wants_table[] =
 	{ TV_SOUVENIR,SV_SOUVENIR_NODENS_CHARIOT ,400000 },
 
 	{ TV_SOUVENIR,SV_SOUVENIR_ELDER_THINGS_CRYSTAL ,30000 },
+
+	{ TV_SOUVENIR,SV_SOUVENIR_KODOKUZARA ,66000 },
 
 	{0,0,0}//終端用ダミー
 };
@@ -4167,11 +4170,16 @@ put_str("今ここで受けられるクエストはないようだ。", 8, 0);
 
 	}
 
-
-
-
-
 	q_ptr = &quest[q_index];
+
+
+	//v1.1.98 連続昏睡事件Ⅱのクエストをすでに怨霊に憑依された状態で受けると特殊フラグを立てる
+	if (q_index == QUEST_HANGOKU2 && q_ptr->status == QUEST_STATUS_UNTAKEN && p_ptr->muta4 & MUT4_GHOST_HANGOKUOH)
+	{
+		p_ptr->quest_special_flag |= QUEST_SP_FLAG_HANGOKU2_POSSESSED;
+		if (cheat_xtra) msg_print("SPECIAL FLAG ON");
+
+	}
 
 	//151124 v1.0.82bでうっかりquest53～.txtを入れ忘れてアップロード。クエスト受領に失敗し、quest[53]の内容が空のままQUEST_STATUS_TAKENになった。
 	//それを修正するために該当状況でクエストパラメータを読み直す。
@@ -7799,6 +7807,86 @@ bool check_quest_unique_text(void)
 		break;
 
 
+	case QUEST_HANGOKU2://v1.1.98 連続昏睡事件Ⅱ
+		if (accept)
+		{
+			if (p_ptr->muta4 & MUT4_GHOST_HANGOKUOH)
+			{
+				strcpy(quest_text[line++], "妖精会議の会場を怨霊から護衛してほしいと頼まれた。");
+				strcpy(quest_text[line++], "全く愚かなことだ。");
+				strcpy(quest_text[line++], "その怨霊は目の前にいるというのに。");
+
+			}
+			else if (pc == CLASS_3_FAIRIES || pc == CLASS_LARVA || pr == RACE_FAIRY)
+			{
+				strcpy(quest_text[line++], "太陽の畑にミステリーサークルが出現した。");
+				strcpy(quest_text[line++], "今こそ妖精たちのの大会議が開かれるときだ。");
+				strcpy(quest_text[line++], "しかしミステリーサークルの中に強力な怨霊が居座っているらしい。");
+				strcpy(quest_text[line++], "妖精の未来のために自分が頑張って追い払わないと。");
+			}
+		}
+
+		if (comp)
+		{
+
+			if (p_ptr->muta4 & MUT4_GHOST_HANGOKUOH)
+			{
+				strcpy(quest_text[line++], "太陽の畑で妖怪に正体を見破られて戦いになった。");
+				strcpy(quest_text[line++], "しかしやはり最近の妖怪は腑抜けている。");
+				strcpy(quest_text[line++], "妖精たちがなかなか心惹かれる呪具を持っていたので頂戴しておいた。");
+
+			}
+			//あまりないと思うが、受領時には憑依されていたがその後どこかで新生の薬を飲むなどして憑依解除したとき
+			else if (p_ptr->quest_special_flag & QUEST_SP_FLAG_HANGOKU2_POSSESSED)
+			{
+				strcpy(quest_text[line++], "気がつくと足元に大妖怪が倒れ伏しており、");
+				strcpy(quest_text[line++], "辺りには怯えきった妖精たちがいた。");
+				strcpy(quest_text[line++], "何が起こっているのだろう？最近の記憶がない。");
+				strcpy(quest_text[line++], "でもそれはそれとしてくれるものは貰っておこう。");
+
+			}
+			else if (pc == CLASS_3_FAIRIES || pc == CLASS_LARVA || pr == RACE_FAIRY)
+			{
+				strcpy(quest_text[line++], "我々の勝利だ！");
+				strcpy(quest_text[line++], "仲間たちから称賛とともに賞品を送られた。");
+				strcpy(quest_text[line++], "この前の出店の売れ残りのような気がするが、");
+				strcpy(quest_text[line++], "そんなことはこの達成感の前では些細な問題だ。");
+			}
+
+		}
+
+		if (fail)
+		{
+			if (p_ptr->muta4 & MUT4_GHOST_HANGOKUOH)
+			{
+
+				//クエスト受領時から怨霊に憑依されているとき
+				if (p_ptr->quest_special_flag & QUEST_SP_FLAG_HANGOKU2_POSSESSED)
+				{
+					strcpy(quest_text[line++], "太陽の畑で妖怪に正体を見破られて戦いになった。");
+					strcpy(quest_text[line++], "なかなかの強敵で撤退を余儀なくされた。");
+					strcpy(quest_text[line++], "最近の妖怪もそう捨てたものではないのかもしれない。");
+				}
+				//瑞霊の特殊行動で強制失敗になったらここに来るはず
+				else
+				{
+					strcpy(quest_text[line++], "「何の策もなしに私の前に立つとは全く見くびられたものだな。");
+					strcpy(quest_text[line++], "さて、この体をどう使ってくれようか？」");
+
+				}
+
+			}
+			//クエスト受領時に怨霊憑依されていたが途中で新生の薬などで憑依解除したとき
+			else if (p_ptr->quest_special_flag & QUEST_SP_FLAG_HANGOKU2_POSSESSED)
+			{
+				strcpy(quest_text[line++], "気がつくと太陽の畑で大妖怪に追いかけ回されていた。");
+				strcpy(quest_text[line++], "何が起こっているのだろう？最近の記憶がない。");
+
+			}
+
+		}
+
+		break;
 
 
 	default:

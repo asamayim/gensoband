@@ -1443,6 +1443,7 @@ static int choose_attack_spell(int m_idx, byte spells[], byte num)
 			case MON_MAI:
 			case MON_SATONO:
 			case MON_BANORLUPART:
+			case MON_MIZUCHI:
 				if (randint0(100) < 70) success = TRUE;
 				break;
 			case MON_ROLENTO:
@@ -5041,7 +5042,39 @@ msg_format("%sは無傷の球の呪文を唱えた。", m_name);
 					}
 
 				}
+				break;
 
+				//v1.1.98 瑞霊　＠に憑依して消滅
+			case MON_MIZUCHI:
+
+				msg_format("%^sは巨大な手錠をあなたの首に向けて飛ばした！", m_name);
+
+				if (p_ptr->pclass == CLASS_BANKI)
+				{
+					msg_print("しかしあなたには首がなかった。");
+					break;
+				}
+				else if (p_ptr->prace == RACE_HANIWA)
+				{
+					msg_print("あなたには完全な耐性がある！");
+					break;
+				}
+				//太古の怨念の彫像化と同じ判定にしておこう
+				else if (randint1(125) < p_ptr->skill_sav)
+				{
+					msg_print("あなたは憑依に抵抗した！");
+					break;
+				}
+				else
+				{
+					msg_print("あなたの首に手錠がかかった！");
+					gain_random_mutation(217);
+					delete_monster_idx(m_idx);
+					aggravate_monsters(0, TRUE);
+
+					return TRUE;
+
+				}
 
 				break;
 

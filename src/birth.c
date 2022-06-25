@@ -2151,6 +2151,8 @@ static bool mon_hook_quest(int r_idx)
 	//v1.1.42 éáâëÇÕÉâÉìÉNÉGÇ…èoÇ»Ç¢
 	if (r_idx == MON_SHION_1 || r_idx == MON_SHION_2) return FALSE;
 
+
+
 	return TRUE;
 }
 
@@ -2797,7 +2799,9 @@ outfit_type birth_outfit_class[] = {
 	{CLASS_MOMIZI,2,0,TV_SWORD,SV_WEAPON_SCIMITAR,1},
 	{CLASS_MOMIZI,2,0,TV_SHIELD,SV_SMALL_LEATHER_SHIELD,1},
 	{CLASS_CIRNO,2,0,TV_CLOTHES, SV_CLOTHES,1},
+
 	{CLASS_ORIN,2,0,TV_CLOTHES, SV_CLOTH_DRESS,1},
+	{CLASS_ORIN,2,0,TV_MATERIAL, SV_MATERIAL_SKULL,1 },//v1.1.98
 
 	{CLASS_SHINMYOUMARU,2,0,TV_CLOTHES, SV_CLOTH_EASTERN,1},
 	{CLASS_SHINMYOUMARU,2,ART_SHINMYOUMARU,0,0,0},
@@ -3185,7 +3189,6 @@ void player_outfit(void)
 		add_outfit(q_ptr);
 
 	}
-
 
 
 

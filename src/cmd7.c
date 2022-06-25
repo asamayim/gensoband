@@ -6492,6 +6492,8 @@ void marisa_gain_power(object_type *o_ptr, int mult)
 				if (tv == TV_MATERIAL && sv == SV_MATERIAL_SKULL) gain = 25;
 				if(tv == TV_MATERIAL && sv == SV_MATERIAL_NIGHTMARE_FRAGMENT) gain = 100;
 				if(tv == TV_MATERIAL && sv == SV_MATERIAL_SAPPHIRE) gain = 200;
+				if (tv == TV_SOUVENIR && sv == SV_SOUVENIR_KODOKUZARA) gain = 500;
+
 				break;
 			case MARISA_POWER_ILLU:
 				if(tv == TV_MUSHROOM && sv == SV_MUSHROOM_BLINDNESS) gain = 3;

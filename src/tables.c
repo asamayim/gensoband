@@ -7397,13 +7397,13 @@ const cptr realm_names[]
 //ここを変えるときはactivate_chest_trap(),object_desc()の該当部分も変える
 const int chest_new_traps[CHEST_TRAP_LIST_LENGTH] =
 {
-	0,                                      /* 0 == empty */
+	CHEST_TRAP_NOTHING,                                      /* 0 == empty */
 	CHEST_TRAP_LOSE_STR,
 	CHEST_TRAP_LOSE_CON,
 	CHEST_TRAP_ALARM,
 	CHEST_TRAP_SLINGSHOT,
 	CHEST_TRAP_PUNCH,             /* 5 == best small wooden */
-	0,//←ここを0から変えると過去のバージョンで生成されたクエスト報酬箱などが罠付きに変化するので変えない
+	CHEST_TRAP_NOTHING,//←ここを0から変えると過去のバージョンで生成されたクエスト報酬箱などが罠付きに変化するので変えない
 	CHEST_TRAP_LOSE_STR,
 	CHEST_TRAP_LOSE_CON,
 	CHEST_TRAP_LOSE_MAG,
@@ -7423,7 +7423,7 @@ const int chest_new_traps[CHEST_TRAP_LIST_LENGTH] =
 	CHEST_TRAP_ARROW,
 	CHEST_TRAP_PUNCH,
 	CHEST_TRAP_BA_TIME,                        /* 25 == best small iron */
-	0,
+	CHEST_TRAP_NOTHING,
 	CHEST_TRAP_S_BIRD,
 	CHEST_TRAP_S_ELEMENTAL,
 	CHEST_TRAP_S_DEMON,
@@ -7433,7 +7433,7 @@ const int chest_new_traps[CHEST_TRAP_LIST_LENGTH] =
 	CHEST_TRAP_S_KWAI,
 	CHEST_TRAP_BA_BERSERK,
 	CHEST_TRAP_TELEPORTER, /* 35 == best large iron */
-	0,
+	CHEST_TRAP_NOTHING,
 	CHEST_TRAP_BA_BERSERK,
 	CHEST_TRAP_STEEL_ARROW,
 	CHEST_TRAP_STEEL_ARROW,
@@ -7443,7 +7443,7 @@ const int chest_new_traps[CHEST_TRAP_LIST_LENGTH] =
 	CHEST_TRAP_BR_ACID,
 	CHEST_TRAP_BA_TIME,
 	CHEST_TRAP_MAGIC_DRAIN,        /* 45 == best small steel */
-	0,
+	CHEST_TRAP_NOTHING,
 	CHEST_TRAP_BR_FIRE,
 	CHEST_TRAP_BR_ACID,
 	CHEST_TRAP_EXPLODE,
@@ -10748,7 +10748,8 @@ const martial_arts_new ma_blows_new[] =
 	{ "%sに回し蹴りを食らわせた。",							MELEE_MODE_UDONGE,21, 10, 5, 5, MELEE_STUN ,7},
 	{ "どこからか取り出した毒薬を%sに投げつけた。",   		MELEE_MODE_UDONGE,27, 20, 6, 6, MELEE_POIS ,6},
 	{ "%sを両足で踏みつけた。",								MELEE_MODE_UDONGE,32, 25, 4, 12, MELEE_STUN ,9},
-	{ "%sに怪光線を放った。",   							MELEE_MODE_UDONGE,38, 30, 8, 8, MELEE_CONFUSE ,5},
+	{ "%sに後ろ蹴りを食らわせた。",							MELEE_MODE_UDONGE,36, 30, 7, 7, MELEE_STUN ,9 },
+	{ "%sに怪光線を放った。",   							MELEE_MODE_UDONGE,40, 30, 8, 8, MELEE_CONFUSE ,5},
 	{ "%sに幻朧月睨（ルナティックレッドアイズ)を食らわせた！", MELEE_MODE_UDONGE,44, 40, 10, 10, MELEE_STUN3 ,12},
 
 	//v1.1.20 お燐 重量変更
@@ -12951,6 +12952,9 @@ const drug_material_type drug_material_table[] =
 	{TV_FLASK,SV_FLASK_OIL,5,
 	{0,0,5,-2,0,0,0,0}},
 
+	//蠱毒皿
+	{ TV_SOUVENIR,SV_SOUVENIR_KODOKUZARA,30000,
+	{ 0,0,0,0,1000,-1000,1000,0 } },
 
 
 	{0,0,0,{0,0,0,0,0,0,0,0}} //終端用ダミー
@@ -13344,6 +13348,8 @@ const gun_base_param_type gun_base_param_table[SV_FIRE_GUN_MAX+1] =
 	{GF_ARROW,GUN_FIRE_MODE_DEFAULT,4,5}, //マグナム
 	{GF_LITE,GUN_FIRE_MODE_BEAM,6,3}, //光線銃
 	{GF_ROCKET,GUN_FIRE_MODE_ROCKET,12,1}, //ロケラン
+	{GF_MISSILE,GUN_FIRE_MODE_BOLT,6,4 }, //v1.1.98 ルナティックガン改
+
 };
 
 

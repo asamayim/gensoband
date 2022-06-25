@@ -4861,7 +4861,10 @@ cptr do_cmd_class_power_aux_udonge_d(int num, bool only_info)
 			object_type *o_ptr = &inventory[INVEN_RARM + hand];
 			int timeout_base, bullets;
 
-			if (o_ptr->tval != TV_GUN || o_ptr->sval != SV_FIRE_GUN_LUNATIC) continue;
+//			if (o_ptr->tval != TV_GUN || o_ptr->sval != SV_FIRE_GUN_LUNATIC) continue;
+
+			//v1.1.98 ルナティックガン改も入れる
+			if (!(o_ptr->tval == TV_GUN && ( o_ptr->sval == SV_FIRE_GUN_LUNATIC || o_ptr->sval == SV_FIRE_GUN_LUNATIC_2))) continue;
 
 			timeout_base = calc_gun_timeout(o_ptr) * 1000;
 			bullets = calc_gun_load_num(o_ptr);
@@ -4913,7 +4916,10 @@ cptr do_cmd_class_power_aux_udonge_d(int num, bool only_info)
 			object_type *o_ptr = &inventory[INVEN_RARM + hand];
 			int timeout_base, bullets, timeout_max;
 
-			if (o_ptr->tval != TV_GUN || o_ptr->sval != SV_FIRE_GUN_LUNATIC) continue;
+			//if (o_ptr->tval != TV_GUN || o_ptr->sval != SV_FIRE_GUN_LUNATIC) continue;
+
+			//v1.1.98 ルナティックガン改も入れる
+			if (!(o_ptr->tval == TV_GUN && (o_ptr->sval == SV_FIRE_GUN_LUNATIC || o_ptr->sval == SV_FIRE_GUN_LUNATIC_2))) continue;
 
 			timeout_base = calc_gun_timeout(o_ptr) * 1000;
 			bullets = calc_gun_load_num(o_ptr);

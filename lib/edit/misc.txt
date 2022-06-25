@@ -23,10 +23,10 @@ M:WX:99
 M:WY:66
 
 # Maximum number of monsters in r_info.txt
-M:R:1368
+M:R:1369
 
 # Maximum number of items in k_info.txt
-M:K:901
+M:K:904
 
 # Maximum number of vaults in v_info.txt
 M:V:129

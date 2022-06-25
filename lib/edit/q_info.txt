@@ -257,4 +257,7 @@
 ?:[EQU $QUEST_NUMBER 71]
 %:quest71_t03_yakuza_battle1.txt
 
+#v1.1.92 ˜A‘±¨‡–Œ‡U
+?:[EQU $QUEST_NUMBER 72]
+%:quest72_t05_hangoku_2.txt
 

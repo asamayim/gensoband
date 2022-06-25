@@ -4881,6 +4881,15 @@ static cptr process_dungeon_file_expr(char **sp, char *fp)
 				sprintf(tmp, "%d", (int)(seed_town%atoi(b+7)));
 				v = tmp;
 			}
+			//v1.1.98 反獄王に憑依された状態で「連続昏睡事件Ⅱ」クエスト受領したとき ?:[EQU $POSSESSED 1]
+			//受領してからクエストダンジョンに行くまでに憑依解除していてもこの判定を通る
+			else if (streq(b + 1, "POSSESSED"))
+			{
+				if (p_ptr->quest_special_flag & QUEST_SP_FLAG_HANGOKU2_POSSESSED)
+					v = "1";
+				else
+					v = "0";
+			}
 
 			/* Variant name */
 			else if (streq(b+1, "VARIANT"))

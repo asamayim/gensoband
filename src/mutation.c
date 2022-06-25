@@ -175,7 +175,8 @@ bool gain_random_mutation(int choose_mut)
 	if (character_icky) no_wield_change = TRUE;
 
 	//蓬莱人は変異無効 箱によるオーラ除く
-	if(p_ptr->prace == RACE_HOURAI && choose_mut != 193)
+	//v1.1.98 瑞霊の憑依も受ける
+	if(p_ptr->prace == RACE_HOURAI && choose_mut != 193 && choose_mut != 217)
 	{
 		if(one_in_(3))msg_print("一瞬髪が逆立った気がしたが何も起こらなかった。");
 		else if(one_in_(2))msg_print("一瞬首筋がムズムズした気がしたが何も起こらなかった。");
@@ -2786,7 +2787,8 @@ muta_desc = "白いオーラは輝いて消えた。";
 
 			muta_class = &(p_ptr->muta4);
 			muta_which = MUT4_GHOST_HANGOKUOH;
-			muta_desc = "ここはどこだ？確か自分はあの酒を飲んで……";
+		//	muta_desc = "ここはどこだ？確か自分はあの酒を飲んで……";
+			muta_desc = "ここはどこだ？記憶が飛んでいる気がする…";
 			break;
 
 

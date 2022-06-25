@@ -3350,6 +3350,7 @@ int select_gun_melee_mode(void)
 		case SV_FIRE_GUN_HANDGUN:
 		case SV_FIRE_GUN_CRIMSON:
 		case SV_FIRE_GUN_MAGNUM:
+		case SV_FIRE_GUN_LUNATIC_2:
 			melee_mode[slot-INVEN_RARM] =  MELEE_MODE_GUN_HANDGUN;
 			timeout_base = calc_gun_timeout(o_ptr) * 1000;
 			timeout_max = timeout_base * (calc_gun_load_num(o_ptr) - 1); 

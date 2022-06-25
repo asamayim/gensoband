@@ -79,7 +79,7 @@
 ///sys131117 FAKE_VERSIONの定数を消した
 #define H_VER_MAJOR 1
 #define H_VER_MINOR 1
-#define H_VER_PATCH 97
+#define H_VER_PATCH 98
 #define H_VER_EXTRA 1
 
 /*:::＊＊＊◆◆◆アップロード時には必ずこれをコメントアウトする◆◆◆＊＊＊:::*/
@@ -225,8 +225,9 @@
 #define QUEST_MORIYA_2		69 //守矢の策動Ⅱ
 #define QUEST_REIMU_ATTACK	70 //巫女警報発令中
 #define QUEST_YAKUZA_1		71
+#define QUEST_HANGOKU2		72
 
-#define QUEST_MAX			72 //クエストの最後の番号+1
+#define QUEST_MAX			73 //クエストの最後の番号+1
 
 //v1.1.24 急流下りクエストでこのターン数以下で入賞
 #define QT_TURN1			250
@@ -2672,8 +2673,10 @@
 #define SV_FIRE_GUN_MAGNUM	8 //マグナム銃
 #define SV_FIRE_GUN_LASER	9 //光線銃
 #define SV_FIRE_GUN_ROCKET	10 //ロケラン
+#define SV_FIRE_GUN_LUNATIC_2	11 //ルナティックガン改
 
-#define SV_FIRE_GUN_MAX		10 //gun_base_param_table[]の配列サイズ object_prepでこの数字+1以上のsvalの銃が生成されようとしたらエラーにする
+
+#define SV_FIRE_GUN_MAX		11 //gun_base_param_table[]の配列サイズ object_prepでこの数字+1以上のsvalの銃が生成されようとしたらエラーにする
 
 //SVAL:マジックアイテム TV:34
 #define SV_MAGICITEM_MARISA	1
@@ -3063,6 +3066,8 @@
 #define SV_CHEST_10_GACHA		58
 //v1.1.91 動物霊戦争1
 #define SV_CHEST_YAKUZA1		59
+//v1.1.98 連続昏睡事件Ⅱ
+#define SV_CHEST_HANGOKU2		60
 
 //SVAL:人形 TV:61
 #define SV_FIGURINE_NORMAL	0
@@ -3235,7 +3240,7 @@
 #define SV_SOUVENIR_NODENS_CHARIOT		30
 #define SV_SOUVENIR_ELDER_THINGS_CRYSTAL	31	//v1.1.80
 #define SV_SOUVENIR_EMPTY_BOTTLE		32
-
+#define SV_SOUVENIR_KODOKUZARA			33 //v1.1.98 蠱毒皿
 
 
 //SVAL:素材TV:73
@@ -4298,6 +4303,7 @@
 //v1.1.97 箱のトラップを一新。
 //chest_new_traps[]参照。
 //ビットフラグをやめマルチトラップを廃止。
+#define CHEST_TRAP_NOTHING		0
 #define CHEST_TRAP_LOSE_STR		1
 #define CHEST_TRAP_LOSE_CON		2
 #define CHEST_TRAP_LOSE_MAG		3
@@ -6142,6 +6148,8 @@ extern int PlayerUID;　
 #define QUEST_STATUS_FAILED_DONE          6/*:::失敗、連絡済*/
 #define QUEST_STATUS_STAGE_COMPLETED      7/*:::塔専用？各フロアの完了フラグ*/
 
+//v1.1.98 一部クエストに関する特殊フラグ
+#define QUEST_SP_FLAG_HANGOKU2_POSSESSED	0x00000001L	//連続昏睡事件Ⅱのクエストをすでに怨霊に憑依された状態で受ける
 
 /*
  * Quest type
@@ -7048,8 +7056,10 @@ extern int PlayerUID;　
 //v1.1.91
 #define MON_YUMA			1366
 #define MON_MIMIC_ALCOHOL	1367
+//v1.1.98
+#define MON_MIZUCHI			1368
 
-#define MON_IDX_MAX			1367	//最大IDX+1 この数値をちゃんと増やさないと音楽再生のところでバグるかも
+#define MON_IDX_MAX			1369	//最大IDX+1 この数値をちゃんと増やさないと音楽再生のところでバグるかも
 
 
 

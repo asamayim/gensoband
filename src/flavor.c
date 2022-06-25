@@ -2596,7 +2596,7 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
 			{
 
 
-				case 0:
+				case CHEST_TRAP_NOTHING:
 				{
 #ifdef JP
 					t = object_desc_str(t, "(é{è˘)");

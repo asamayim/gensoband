@@ -1634,9 +1634,16 @@ static void do_cmd_quaff_potion_aux(int item)
 	}
 
 	//v1.1.84 反獄王の入った酒　特殊★
-	if (o_ptr->name1 == ART_HANGOKU_SAKE)
+	//v1.1.98 連続昏睡事件Ⅱ受領後はこの酒の効果がなくなる
+	if (o_ptr->name1 == ART_HANGOKU_SAKE && quest[QUEST_HANGOKU2].status == QUEST_STATUS_UNTAKEN)
 	{
-		if (p_ptr->prace == RACE_LUNARIAN)
+		if (p_ptr->muta4 & MUT4_GHOST_HANGOKUOH)
+		{
+			msg_print("今更こんなものを飲んでも仕方がない。");
+			return;
+		}
+
+		else if (p_ptr->prace == RACE_LUNARIAN)
 		{
 			char i;
 			msg_print("この酒はあなたにとって耐え難い穢れに満ちている。");
@@ -1729,8 +1736,9 @@ static void do_cmd_quaff_potion_aux(int item)
 		}
 
 		//v1.1.84 特殊★の処理は別にやる
-		if (q_ptr->name1 == ART_HANGOKU_SAKE)
+		if (q_ptr->name1 == ART_HANGOKU_SAKE&& quest[QUEST_HANGOKU2].status == QUEST_STATUS_UNTAKEN)
 		{
+
 			if (p_ptr->prace == RACE_LUNARIAN)
 			{
 				take_hit(DAMAGE_LOSELIFE, 5000, "反獄王", -1);
