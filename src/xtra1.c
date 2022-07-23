@@ -7730,6 +7730,11 @@ void calc_bonuses(void)
 			if (have_flag(flgs, TR_TUNNEL)) p_ptr->skill_dig += (tmp_addstat * 10);
 			if (have_flag(flgs, TR_SPEED)) new_speed += tmp_addstat;
 
+			//v1.1.99 アイテムの罠解除能力と魔法防御能力
+			if (have_flag(flgs, TR_DISARM)) p_ptr->skill_dis += tmp_addstat * 5;
+			if (have_flag(flgs, TR_SAVING)) p_ptr->skill_sav += tmp_addstat * 4;
+
+
 			if (have_flag(flgs, TR_ESP_EVIL)) p_ptr->esp_evil = TRUE;
 			if (have_flag(flgs, TR_ESP_GOOD)) p_ptr->esp_good = TRUE;
 			if (have_flag(flgs, TR_ESP_ANIMAL)) p_ptr->esp_animal = TRUE;
@@ -8027,10 +8032,18 @@ void calc_bonuses(void)
 			if (have_flag(flgs, TR_STEALTH)) p_ptr->skill_stl += pv / 2;
 			if (have_flag(flgs, TR_SEARCH)) p_ptr->skill_srh += (pv * 5 / 2);
 
+
+
 			if (have_flag(flgs, TR_SEARCH)) p_ptr->skill_fos += (pv * 5 / 2);
 			if (have_flag(flgs, TR_INFRA)) p_ptr->see_infra += pv / 2;
 			if (have_flag(flgs, TR_TUNNEL)) p_ptr->skill_dig += (pv * 10);
 			if (have_flag(flgs, TR_SPEED)) new_speed += pv / 2;
+
+			//v1.1.99 アイテムの罠解除能力と魔法防御能力
+			if (have_flag(flgs, TR_DISARM)) p_ptr->skill_dis += pv * 5 / 2;
+			if (have_flag(flgs, TR_SAVING)) p_ptr->skill_sav += pv * 2;
+
+
 		}
 
 		//追加射撃の個数2つごとに本来の指輪一つとして扱う		
@@ -8091,11 +8104,11 @@ void calc_bonuses(void)
 		/* Affect searching ability (factor of five) */
 		if (have_flag(flgs, TR_SEARCH)) p_ptr->skill_srh += (pv * 5);
 
-		//v1.1.32 作業服
-		if(o_ptr->tval == TV_CLOTHES && o_ptr->sval == SV_CLOTH_WORKER)
-		{
-			 p_ptr->skill_dis += MAX(pv,1) * 10;
-		}
+
+		//v1.1.99 アイテムの罠解除能力と魔法防御能力
+		if (have_flag(flgs, TR_DISARM)) p_ptr->skill_dis += pv * 5;
+
+		if (have_flag(flgs, TR_SAVING)) p_ptr->skill_sav += pv * 4;
 
 		/* Affect searching frequency (factor of five) */
 		if (have_flag(flgs, TR_SEARCH)) p_ptr->skill_fos += (pv * 5);
@@ -11385,6 +11398,20 @@ void calc_bonuses(void)
 		if (p_ptr->lev >= s_ptr->slevel) p_ptr->no_flowed = TRUE;
 	}
 #endif
+
+
+	//テスト
+	if (cheat_xtra)
+	{
+		msg_format("show1: (%d,%d)", p_ptr->dis_to_h[0], p_ptr->dis_to_d[0]);
+		msg_format("real1: (%d,%d)", p_ptr->to_h[0], p_ptr->to_d[0]);
+		msg_format("show2: (%d,%d)", p_ptr->dis_to_h[1], p_ptr->dis_to_d[1]);
+		msg_format("real2: (%d,%d)", p_ptr->to_h[1], p_ptr->to_d[1]);
+
+
+
+	}
+
 
 
 }

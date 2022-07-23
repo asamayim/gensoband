@@ -696,7 +696,13 @@ static flag_desc pval_flags1_desc[] =
 	{ TR_INFRA,      "赤外線視力" },
 	{ TR_TUNNEL,     "採掘" },
 	{ TR_BLOWS,      "攻撃回数" },
-	{ TR_SPEED,      "スピード" }
+	{ TR_SPEED,      "スピード" },
+	//v1.1.99
+	{ TR_DISARM,      "罠解除" },
+	{ TR_SAVING,      "魔法防御" }
+
+
+
 #else
 	{ TR_STEALTH,    "Stealth" },
 	{ TR_SEARCH,     "Searching" },

@@ -2721,3 +2721,5 @@ extern void activate_chest_trap(int y, int x, s16b o_idx, bool trap_player);
 extern void teleporter_trap(void);
 
 extern bool monster_delay(int m_idx, int add_energy);
+
+extern void gain_physical_mutation(void);

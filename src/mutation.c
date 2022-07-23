@@ -4374,3 +4374,20 @@ bool mutation_power_aux(u32b power)
 
 	return TRUE;
 }
+
+//肉体的なランダム突然変異を獲得する。変容魔法の「肉体変容」を使ったときと魔法の森の謎の豆を食べたとき呼ばれる
+void gain_physical_mutation(void)
+{
+	int attempt = 10;
+
+	//肉体的な突然変異のリスト
+	//gain_random_mutation()に渡すパラメータ
+	int muta_lis[] =
+	{
+		1,5,8,17,19,24,31,35,38,46,62,65,81,83,85,95,98,100,109,120,123,126,129,136,138,141,143,146,154,157,161,163,165,168,171,173,182,185
+	};
+
+	while ((attempt-- > 0) && !gain_random_mutation(muta_lis[randint0(sizeof(muta_lis) / sizeof(int)) - 1]));
+
+
+}

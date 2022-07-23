@@ -716,6 +716,12 @@ static void rd_item(object_type *o_ptr)
 
 	}
 
+	//v1.1.99 作業服にpval付与
+	if (h_older_than(1, 1, 99, 0) && o_ptr->tval == TV_CLOTHES && o_ptr->sval == SV_CLOTH_WORKER)
+	{
+		if (!o_ptr->pval) o_ptr->pval = 1;
+
+	}
 
 	//v1.1.25 アイテム価格情報をデータ化
 	if(h_older_than(1,1,25,0))

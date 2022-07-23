@@ -12401,6 +12401,7 @@ void grassroots_trading_cards(void)
 
 			case SV_FOOD_EEL:
 			case SV_FOOD_TENTAN:
+			case SV_FOOD_STRANGE_BEAN:
 				msg_select = "íÜÅXé†ó{Ç™Ç†ÇËÇªÇ§Ç∂Ç·Ç»Ç¢Ç©ÅB";
 				ref_cost = 20;
 				break;

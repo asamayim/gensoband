@@ -79,7 +79,7 @@
 ///sys131117 FAKE_VERSIONの定数を消した
 #define H_VER_MAJOR 1
 #define H_VER_MINOR 1
-#define H_VER_PATCH 98
+#define H_VER_PATCH 99
 #define H_VER_EXTRA 1
 
 /*:::＊＊＊◆◆◆アップロード時には必ずこれをコメントアウトする◆◆◆＊＊＊:::*/
@@ -972,9 +972,10 @@
  * used for get_random_ego()
  */
 /*:::エゴ生成に使う特殊装備部位値　*/
-#define INVEN_EGO_AMMO     23
-#define INVEN_EGO_BOW     22
-#define INVEN_EGO_GUN     21
+#define INVEN_EGO_AMMO		23
+#define INVEN_EGO_BOW		22
+#define INVEN_EGO_GUN		21
+#define INVEN_EGO_FLOWER	20
 
 /*
  * Total number of inventory slots (hard-coded).
@@ -2209,6 +2210,17 @@
 #define EGO_ARROW_SLAY_DEITY	198
 //v1.1.77
 #define EGO_HEAD_DETECTIVE	199
+//v1.1.99
+#define EGO_BODY_YAMAWARO	200
+#define EGO_BODY_YAMAJORO	201
+#define EGO_SHIELD_MANEKI	202
+#define EGO_HANDS_DAIONRYOU 203
+#define EGO_BODY_HANIWA		204
+#define EGO_CLOAK_JIZO		205
+#define EGO_BOOTS_PEGASUS	206
+#define EGO_WEAPON_YAMANBA	207
+#define EGO_WEAPON_DANCER	208
+
 
 
 /* Activation effects for random artifacts */
@@ -3466,6 +3478,7 @@
 #define SV_FOOD_MAGIC_WATERMELON	9 //魔法スイカ
 #define SV_FOOD_DATURA				10 //チョウセンアサガオの葉
 #define SV_FOOD_FORBIDDEN_FRUIT		11
+#define SV_FOOD_STRANGE_BEAN		12 //魔法の森の巨大な豆
 
 //新しく珍しいのを追加したらgrassroots_trading_cards()の尤魔のところに処理追加
 
@@ -4469,8 +4482,13 @@
 ///mod131228 TRフラグ入れ替えに伴い変更
 //#define is_pval_flag(INDEX) ((TR_STR <= (INDEX) && (INDEX) <= TR_MAGIC_MASTERY) || (TR_STEALTH <= (INDEX) && (INDEX) <= TR_BLOWS))
 //#define have_pval_flags(ARRAY) !!((ARRAY)[0] & (0x00003f7f))
-#define is_pval_flag(INDEX) (TR_STR <= (INDEX) && (INDEX) <= TR_BLOWS)
-#define have_pval_flags(ARRAY) !!((ARRAY)[0] & (0x00001fff))
+
+//v1.1.98 TR_DISARMとTR_SAVING追加
+//#define is_pval_flag(INDEX) (TR_STR <= (INDEX) && (INDEX) <= TR_BLOWS)
+#define is_pval_flag(INDEX) (TR_STR <= (INDEX) && (INDEX) <= TR_BLOWS || (INDEX) == TR_SAVING || (INDEX) == TR_DISARM)
+#define have_pval_flags(ARRAY) !!((ARRAY)[0] & (0x00001fff) || ((ARRAY)[3] & 0x80000000) || ((ARRAY)[4] & 0x00000001))
+
+// !! は「常に1か0が得られる」という効果があるらしい
 
 
 ///res mon item アイテムフラグ　耐性とかスレイ触るときに変更
@@ -4629,7 +4647,13 @@
 
 #define TR_HOUSE					126	//v1.1.79 種族「座敷わらし」が移動屋敷として住めるアイテム
 //あとひとつだけフラグを増やせると思う
-#define TR_FLAG_MAX            127 //v1.1.79 TR_HOUSE追加のため126→127
+//#define TR_FLAG_MAX            127 //v1.1.79 TR_HOUSE追加のため126→127
+
+#define TR_DISARM			127 //v1.1.99 解除
+#define TR_SAVING			128 //v1.1.99 魔法防御
+
+#define TR_FLAG_MAX            129 //解除と魔法防御を追加
+
 
 //v1.1.94 TR_FLAG_SIZEを4→8にした
 #define TR_FLAG_OLD_SIZE       4
@@ -8171,8 +8195,9 @@ extern int PlayerUID;　
 #define BLDG_EX_KEIKI		37 //霊長園
 #define BLDG_EX_CHIMATA		38 //月虹市場
 #define BLDG_EX_YUMA		39 //尤魔
+#define BLDG_EX_ZASHIKI		40 //座敷わらしのテレワーク　拠点使用可能
 
-#define BLDG_EX_MAX			40 //最後の建物番号+1
+#define BLDG_EX_MAX			41 //最後の建物番号+1
 
 
 

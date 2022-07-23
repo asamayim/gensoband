@@ -3210,7 +3210,7 @@ void exbldg_search_around(void)
 			if(houtou)
 			{
 				msg1 = "「…物は相談なんだが。";
-				msg1_2 = "何も言わずにその宝塔を$1000000で売ってほしい。」";
+				msg1_2 = "何も言わずにその宝塔を$1,000,000で売ってほしい。」";
 				msg2 = "売りますか？";
 				msg3 = "すでに宝塔を手放した。";
 			}
@@ -3257,10 +3257,45 @@ void exbldg_search_around(void)
 		msg3 = "造形神は気分良さげに別のものを作り始めている。";
 		break;
 
+
+	case BLDG_EX_ZASHIKI: //座敷わらしのテレワーク
+
+		msg1 = "眼鏡をかけた座敷わらしが話しかけてきた...";
+		if (p_ptr->prace == RACE_ZASHIKIWARASHI)
+		{
+			if(one_in_(3)) 
+				msg1_2 = "「あなたが留守の間、私が代理で拠点を担当しますね」";
+			else if (one_in_(2)) 
+				msg1_2 = "「やはり時代はリモートね！でも快適なのにすごく仕事が増えている気がするの」";
+			else 
+				msg1_2 = "「テレワークもいいけどあなたのようなモバイルワークも楽しそうね」";
+
+		}
+		else
+		{
+			if (one_in_(3))
+				msg1_2 = "「私があなたの探索拠点の担当になりました。お世話します。」";
+			else if (one_in_(2))
+				msg1_2 = "「少しだけあなたの探索をお手伝いしましょう」";
+			else
+				msg1_2 = "「あなたの家に泥棒が入らないのは私がちゃんと見張っているからですよ？」";
+
+		}
+
+		msg2 = "拠点を使いますか？";
+		msg3 = "「それでは、探索頑張ってくださいね。」";
+		break;
+
+
+
+
 		default:
 		msg_print("ERROR:exbldg_search_around()にこのidxのメッセージが登録されていない");
 		return;
 	}
+
+
+
 
 	if(ex_buildings_param[ex_bldg_num] == 255 && !houtou) //捜索済みフラグ
 	{
@@ -4043,6 +4078,16 @@ void exbldg_search_around(void)
 		}
 		break;
 
+		case BLDG_EX_ZASHIKI://座敷わらし　拠点利用
+		{
+			hack_flag_access_home = TRUE;
+			do_cmd_store();
+			hack_flag_access_home = FALSE;
+			//建物から別の建物に入ったのでフラグ再設定と再描画
+			character_icky = TRUE;
+			show_building(&building[ex_bldg_num]);
+			break;
+		}
 		default:
 		msg_print("ERROR:exbldg_search_around()にこの建物の処理が登録されていない");
 	}

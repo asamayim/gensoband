@@ -688,6 +688,35 @@ static void do_cmd_eat_food_aux(int item)
 			}
 			break;
 
+			case SV_FOOD_STRANGE_BEAN:
+			{
+				msg_print("不気味な味と食感だ...");
+
+				if (one_in_(2) && !(p_ptr->resist_pois || IS_OPPOSE_POIS()))
+				{
+					msg_print("あなたは苦しくなってきた。");
+					take_hit(DAMAGE_NOESCAPE, 100 + randint1(100), "食あたり", -1);
+				}
+				else if (one_in_(2) && !p_ptr->sustain_con)
+				{
+					if (do_dec_stat(A_CON))
+						msg_print("あなたは体調を崩した。");
+				}
+				else if (one_in_(2) && !p_ptr->sustain_str)
+				{
+					if (do_dec_stat(A_STR))
+						msg_print("あなたは体調を崩した。");
+				}
+				else
+				{
+					//変容魔法「肉体変容」と同じ効果
+					gain_physical_mutation();
+				}
+			}
+			break;
+
+
+
 		}
 	}
 

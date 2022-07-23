@@ -6553,6 +6553,14 @@ bool earthquake_aux(int cy, int cx, int r, int m_idx)
 					continue;
 				}
 
+				//v1.1.99 すでに倒れているモンスターは埋まらないことにした(アンバーの王族の血の呪い)
+				if (m_ptr->hp < 0)
+				{
+					map[16 + yy - cy][16 + xx - cx] = FALSE;
+					if (cheat_xtra) msg_print("TESTMSG:埋まらない");
+					continue;
+				}
+
 				/* Most monsters cannot co-exist with rock */
 				if (!(r_ptr->flags2 & (RF2_KILL_WALL)) &&
 				    !(r_ptr->flags2 & (RF2_PASS_WALL)))

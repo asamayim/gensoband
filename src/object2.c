@@ -1014,6 +1014,10 @@ s32b flag_cost(object_type *o_ptr, int plusses, bool flag_junko)
 	if ((have_flag(flgs, TR_BLOWS)) && (plusses > 0))
 		total += (8000  * plusses);
 
+	if (have_flag(flgs, TR_DISARM)) total += (1000 * plusses);
+	if (have_flag(flgs, TR_SAVING)) total += (1500 * plusses);
+
+
 	tmp_cost = 0;
 	count = 0;
 	if (have_flag(flgs, TR_CHAOTIC)) {total += 3000;count++;}
@@ -1305,6 +1309,9 @@ s32b object_value_real(object_type *o_ptr)
 		if (have_flag(flgs, TR_MAGIC_MASTERY)) value += (o_ptr->pval * 100);
 		if (have_flag(flgs, TR_STEALTH)) value += (o_ptr->pval * 100L);
 		if (have_flag(flgs, TR_SEARCH)) value += (o_ptr->pval * 100L);
+
+		if (have_flag(flgs, TR_DISARM)) value += (o_ptr->pval * 100L);
+		if (have_flag(flgs, TR_SAVING)) value += (o_ptr->pval * 100L);
 
 		/* Give credit for infra-vision and tunneling */
 		if (have_flag(flgs, TR_INFRA)) value += (o_ptr->pval * 50L);
@@ -2797,20 +2804,34 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 				}
 				while (1)
 				{
-					/* Roll for an ego-item */
-					o_ptr->name2 = get_random_ego(INVEN_RARM, TRUE);
+					//ランダムエゴ生成
+					//v1.1.99 ベースアイテム「花」は専用のエゴ生成を行う
+					if(o_ptr->tval == TV_STICK && o_ptr->sval == SV_WEAPON_FLOWER)
+						o_ptr->name2 = get_random_ego(INVEN_EGO_FLOWER, TRUE);
+					else
+						o_ptr->name2 = get_random_ego(INVEN_RARM, TRUE);
+
 					//斧以外の刃のある武器に地霊（地震）エゴはつかない
-					if(object_has_a_blade(o_ptr)){
+					if(object_has_a_blade(o_ptr))
+					{
 						if(o_ptr->name2 == EGO_WEAPON_QUAKE && o_ptr->tval != TV_AXE)continue;
 					}
 					//刃のない武器に業物、大業物エゴはつかない
-					else{
-						if(o_ptr->name2 == EGO_WEAPON_SHARP
-							|| o_ptr->name2 == EGO_WEAPON_EXSHARP)continue;
-					//刃のない槍（ランスとか）と「その他武器」には地霊エゴはつかない
-						if((o_ptr->tval == TV_SPEAR || o_ptr->tval == TV_OTHERWEAPON)
-							&& (o_ptr->name2 == EGO_WEAPON_QUAKE)) continue;
+					else
+					{
+						if(o_ptr->name2 == EGO_WEAPON_SHARP	|| o_ptr->name2 == EGO_WEAPON_EXSHARP)continue;
+						//刃のない槍（ランスとか）と「その他武器」には地霊エゴはつかない
+						if((o_ptr->tval == TV_SPEAR || o_ptr->tval == TV_OTHERWEAPON) && (o_ptr->name2 == EGO_WEAPON_QUAKE)) continue;
+
+						//v1.1.99 山姥エゴも刃のない武器にはつかない
+						if (o_ptr->name2 == EGO_WEAPON_YAMANBA )continue;
+
 					}
+
+					//v1.1.99 ダンサーエゴは軽い武器にしかつかない
+					if (o_ptr->name2 == EGO_WEAPON_DANCER &&  o_ptr->weight > 30) continue;
+
+
 
 					break;
 				}
@@ -2919,7 +2940,8 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 						one_ability(o_ptr);
 				}
 				//地霊エゴに深層で追加攻撃付与のチャンス
-				if(o_ptr->name2 == EGO_WEAPON_QUAKE)
+				//v1.1.99 蜈蚣エゴ(鈴蘭エゴから変化)にも同じ処理を行う
+				if(o_ptr->name2 == EGO_WEAPON_QUAKE || o_ptr->name2 == EGO_WEAPON_BRANDPOIS)
 				{
 					if (one_in_(3) && (level > 60))
 						add_flag(o_ptr->art_flags, TR_BLOWS);
@@ -2966,7 +2988,12 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 				/* Roll for ego-item */
 				if (randint0(MAX_DEPTH) < level)
 				{
-					o_ptr->name2 = get_random_ego(INVEN_RARM, FALSE);
+					//v1.1.99 ベースアイテム「花」は専用のエゴ生成を行う
+					if(o_ptr->tval == TV_STICK && o_ptr->sval == SV_WEAPON_FLOWER)
+						o_ptr->name2 = get_random_ego(INVEN_EGO_FLOWER, FALSE);
+					else
+						o_ptr->name2 = get_random_ego(INVEN_RARM, FALSE);
+
 					switch (o_ptr->name2)
 					{
 					case EGO_WEAPON_GHOST:
@@ -3330,6 +3357,12 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
 					o_ptr->name2 = get_random_ego(INVEN_BODY, TRUE);
 					//人魚、妖精エゴは鎧には付かない
 					if(o_ptr->tval == TV_ARMOR && (o_ptr->name2 == EGO_BODY_NINGYO || o_ptr->name2 == EGO_BODY_FAIRY)) continue;
+
+					//v1.1.99 山童、山女郎は鎧にはつかない
+					if (o_ptr->tval == TV_ARMOR && (o_ptr->name2 == EGO_BODY_YAMAWARO || o_ptr->name2 == EGO_BODY_YAMAJORO)) continue;
+					//v1.1.99 埴輪は鎧にしかつかない
+					if (o_ptr->tval != TV_ARMOR && o_ptr->name2 == EGO_BODY_HANIWA) continue;
+
 					//鬼神長、魔界神エゴは出にくい
 					if(o_ptr->name2 == EGO_BODY_KISHIN && ( !(weird_luck()) || (level < 30))) continue;
 					if(o_ptr->name2 == EGO_BODY_MAKAISHIN && (!(weird_luck()) || (level < 50) || (o_ptr->tval == TV_ARMOR) )) continue;
@@ -5640,7 +5673,8 @@ void apply_magic(object_type *o_ptr, int lev, u32b mode)
 			{
 				o_ptr->to_h = 5 - randint1(10);
 				while(one_in_(2) && o_ptr->to_h > -95) o_ptr->to_h -= 5;
-				o_ptr->to_d = 5 + randint1(10);
+				//v1.1.99 もう少しダメージ増やす
+				o_ptr->to_d = 10 + randint1(15);
 				while(one_in_(2) && o_ptr->to_d < 45) o_ptr->to_d += 5;
 				if(o_ptr->to_d > 20 && randint0(o_ptr->to_d) > 5) add_flag(o_ptr->art_flags, TR_TY_CURSE);
 				if(o_ptr->to_d > 30) o_ptr->to_a -= (o_ptr->to_d - 20);
@@ -8897,7 +8931,8 @@ static bool item_tester_hook_drain_essence(object_type *o_ptr)
  */
 /*:::鍛冶師用*/
 /*:::武具のTRフラグ→抽出エッセンス→付与時必要エッセンス数の対応表*/
-//{add(add+1の値がo_ptr->xtra3に格納される),
+//{add,add_name,type,essence,value}
+//add:(add+1)の値がo_ptr->xtra3に格納される
 //add_name(エッセンス付与のときメニューに出る名前),
 //type(どのページに出るか),
 //essence(どのエッセンスを使うか　複数使う特殊なものは-1),
@@ -8916,8 +8951,12 @@ essence_type essence_info[] =
 	{TR_SEARCH, "探索", 4, TR_SEARCH, 15},
 	{TR_INFRA, "赤外線視力", 4, TR_INFRA, 15},
 	{TR_TUNNEL, "採掘", 4, TR_TUNNEL, 15},
+	//v1.1.99 解除と魔法防御を追加
+	{ TR_DISARM, "罠解除", 4, TR_DISARM, 15 },
+	{ TR_SAVING, "魔法防御上昇", 4, TR_SAVING, 30 },
 	{TR_SPEED, "スピード", 4, TR_SPEED, 12},
 	{TR_BLOWS, "追加攻撃", 4, TR_BLOWS, 20},
+
 	{TR_CHAOTIC, "カオス攻撃", 1, TR_CHAOTIC, 25},
 	{TR_VAMPIRIC, "吸血攻撃", 1, TR_VAMPIRIC, 50},
 	{TR_FORCE_WEAPON, "理力", 1, TR_FORCE_WEAPON, 75},
@@ -9014,7 +9053,7 @@ essence_type essence_info[] =
 	{TR_ESP_DEMON, "悪魔ESP", 6, TR_SLAY_DEMON, 40},       
 	{TR_ESP_KWAI, "妖怪ESP", 6, TR_SLAY_KWAI, 40},   
 
-	{TR_BOOMERANG, "帰還投擲", 1, TR_THROW, 20},   //TR_BOOMERANG(118)はmagic_num1[108]に入らないのでTHROWに放り込んでいる.その代わりにTHROWは使われない
+	{TR_BOOMERANG, "ブーメラン", 1, TR_THROW, 20},   //TR_BOOMERANG(118)はmagic_num1[108]に入らないのでTHROWに放り込んでいる.その代わりにTHROWは使われない
 
 	{ESSENCE_ATTACK, "攻撃", 10, TR_ES_ATTACK, 30},
 	{ESSENCE_AC, "防御", 10, TR_ES_AC, 15},
@@ -9050,7 +9089,7 @@ essence_type essence_info[] =
 
 /*:::エッセンス一覧*/
 /*:::配列の添え字はTR_????の値に一致する*/
-static cptr essence_name[] = 
+static cptr essence_name[TR_FLAG_MAX+1] = 
 {
 	"腕力",
 	"知能",
@@ -9115,7 +9154,7 @@ static cptr essence_name[] =
 	"消費魔力減少",
 	"強力射撃",
 	"高速射撃",
-	"帰還投擲", //TR_THROWの場所を使う
+	"ブーメラン", //TR_THROWの場所を使う
 	"",
 	"反射",
 	"免疫",
@@ -9152,7 +9191,7 @@ static cptr essence_name[] =
 	"テレポート",
 	"二刀適性",
 	"高速移動",
-	"テレパシー",
+	"テレパシー",//100
 	"",
 	"",
 	"",
@@ -9160,6 +9199,27 @@ static cptr essence_name[] =
 	"反魔法",
 	"攻撃",
 	"防御",
+	"",
+	"",
+	"",//110
+	"",
+	"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",//120
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"罠解除",
+		"魔法防御上昇",
 	NULL
 };
 
@@ -9588,9 +9648,11 @@ static void drain_essence(void)
 			add_flag(old_flgs, TR_SLAY_EVIL);
 			add_flag(old_flgs, TR_FORCE_WEAPON);
 		}
-		else if(tv == TV_MATERIAL && sv == SV_MATERIAL_IZANAGIOBJECT) //伊弉諾物質　/神(二倍)
+		else if(tv == TV_MATERIAL && sv == SV_MATERIAL_IZANAGIOBJECT) //伊弉諾物質　/神(二倍) +抗も追加
 		{
 			add_flag(old_flgs, TR_SLAY_DEITY);
+			add_flag(old_flgs, TR_SAVING);
+
 		}
 		else if (tv == TV_MATERIAL && sv == SV_MATERIAL_RYUUZYU) //龍珠　/竜(二倍)
 		{
@@ -9632,6 +9694,9 @@ static void drain_essence(void)
 		{
 			for(i=0;i<106;i++) add_flag(old_flgs, i);
 			add_flag(old_flgs, TR_BOOMERANG); //v1.1.77b
+			add_flag(old_flgs, TR_SAVING); //v1.1.77b
+			add_flag(old_flgs, TR_DISARM); //v1.1.77b
+
 			o_ptr->pval = 2 + randint0(3);
 		}
 		else if(tv == TV_MATERIAL && sv == SV_MATERIAL_SCRAP_IRON) //鉄クズ ランダム
@@ -9640,7 +9705,12 @@ static void drain_essence(void)
 			do
 			{
 				int flag = randint0(106);
-				add_flag(old_flgs, flag);
+
+				//v1.1.99 新フラグを適当に追加
+				if (one_in_(100)) add_flag(old_flgs, TR_SAVING);
+				else if (one_in_(100)) add_flag(old_flgs, TR_DISARM);
+				else add_flag(old_flgs, flag);
+
 			}while(!one_in_(3));
 		}
 		else if(tv == TV_MATERIAL && sv == SV_MATERIAL_MYSTERIUM) //ミステリウム ランダム大量
@@ -9651,7 +9721,12 @@ static void drain_essence(void)
 			for(;chance>0;chance--)
 			{
 				int flag = randint0(106);
-				add_flag(old_flgs, flag);
+
+				//v1.1.99 新フラグを適当に追加
+				if (one_in_(100)) add_flag(old_flgs, TR_SAVING);
+				else if (one_in_(100)) add_flag(old_flgs, TR_DISARM);
+
+				else add_flag(old_flgs, flag);
 			}
 		}
 		else if(tv == TV_MATERIAL && sv == SV_MATERIAL_COAL) //炭　対暗黒
@@ -10964,7 +11039,7 @@ static bool add_essence(int mode)
 							if (p_ptr->magic_num1[TR_BLOWS] < es_ptr->value) able[ctr] = FALSE;
 							break;
 						case ESSENCE_PSY_SPEAR:
-							strcat(dummy, "(理力+永久光源+帰還投擲)");
+							strcat(dummy, "(理力+永久光源+ブーメラン)");
 							if (p_ptr->magic_num1[TR_FORCE_WEAPON] < es_ptr->value) able[ctr] = FALSE;
 							if (p_ptr->magic_num1[TR_LITE] < es_ptr->value) able[ctr] = FALSE;
 							if (p_ptr->magic_num1[TR_THROW] < es_ptr->value) able[ctr] = FALSE;

@@ -6053,15 +6053,18 @@ static void display_player_other_flag_info(void)
 	display_flag_aux(row+ 5, col, "探索        :", TR_SEARCH, &f, 0);
 	display_flag_aux(row+ 6, col, "採掘        :", TR_TUNNEL, &f, 0);
 
-	display_flag_aux(row+ 8, col, "魔法難度減少:", TR_EASY_SPELL, &f, 0);
-	display_flag_aux(row+ 9, col, "消費魔力減少:", TR_DEC_MANA, &f, 0);
-	display_flag_aux(row+10, col, "祝福        :", TR_BLESSED, &f, 0);
-	display_flag_aux(row+11, col, "光源        :", TR_LITE, &f, 0);
+	//v1.1.99 追加
+	display_flag_aux(row + 7, col, "罠解除　　　:", TR_DISARM, &f, 0);
+	display_flag_aux(row + 8, col, "魔法防御上昇:", TR_SAVING, &f, 0);
+
+	display_flag_aux(row+ 9, col, "魔法難度減少:", TR_EASY_SPELL, &f, 0);
+	display_flag_aux(row+10, col, "消費魔力減少:", TR_DEC_MANA, &f, 0);
+	display_flag_aux(row+11, col, "祝福        :", TR_BLESSED, &f, 0);
+	display_flag_aux(row+12, col, "光源        :", TR_LITE, &f, 0);
 	///mod141219 光源は中で例外処理することにした
 	//display_flag_aux(row+11, col, "光源        :", TR_SH_FIRE, &f, 0);
-	display_flag_aux(row+12, col, "乗馬        :", TR_RIDING, &f, 0);
-	display_flag_aux(row+13, col, "投擲        :", TR_THROW, &f, 0);//要らんかも
-
+	display_flag_aux(row+13, col, "乗馬        :", TR_RIDING, &f, 0);
+	display_flag_aux(row+14, col, "投擲        :", TR_THROW, &f, 0);//要らんかも
 	display_flag_aux(row+15, col, "経験値吸収  :", TR_DRAIN_EXP, &f, 0);
 	display_flag_aux(row+16, col, "乱テレポート:", TR_TELEPORT, &f, 0);
 	display_flag_aux(row+17, col, "反感        :", TR_AGGRAVATE, &f, 0);

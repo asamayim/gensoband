@@ -663,6 +663,10 @@ static flag_insc_table flag_insc_plus[] =
 	{ "探", "Sr", TR_SEARCH, -1 },
 	{ "赤", "If", TR_INFRA, -1 },
 	{ "掘", "Dg", TR_TUNNEL, -1 },
+	//v1.1.99 追加
+	{ "解", "Da", TR_DISARM, -1 },
+	{ "抗", "Sv", TR_SAVING, -1 },
+
 	{ NULL, NULL, 0, -1 }
 };
 
@@ -1083,8 +1087,9 @@ static char *get_ability_abbreviation(char *ptr, object_type *o_ptr, bool kanji,
 
 	//Hack - グリマリには+3符と記述
 	if(o_ptr->name1 == ART_GRIMOIRE_OF_MARISA) ADD_INSC("符");
-	//v1.1.32 作業服に解と記述
-	if(o_ptr->tval == TV_CLOTHES && o_ptr->sval == SV_CLOTH_WORKER) ADD_INSC("解");
+
+	//v1.1.32 作業服に解と記述 廃止
+	//if(o_ptr->tval == TV_CLOTHES && o_ptr->sval == SV_CLOTH_WORKER) ADD_INSC("解");
 
 	/* Resistance */
 	if (have_flag_of(flag_insc_resistance, flgs))
@@ -3250,6 +3255,26 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
 				/* Dump " to infravision" */
 #ifdef JP
 				t = object_desc_str(t, "赤外線視力");
+#else
+				t = object_desc_str(t, " to infravision");
+#endif
+			}
+			//v1.1.99 魔法防御
+			else if (have_flag(flgs, TR_SAVING))
+			{
+				/* Dump " to infravision" */
+#ifdef JP
+				t = object_desc_str(t, "魔法防御");
+#else
+				t = object_desc_str(t, " to infravision");
+#endif
+			}
+			//v1.1.99 解除
+			else if (have_flag(flgs, TR_DISARM))
+			{
+				/* Dump " to infravision" */
+#ifdef JP
+				t = object_desc_str(t, "解除");
 #else
 				t = object_desc_str(t, " to infravision");
 #endif

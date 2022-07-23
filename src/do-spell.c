@@ -20642,14 +20642,10 @@ static cptr do_new_spell_transform(int spell, int mode)
 #endif
     
 		{
-			//gain_random_mutation()‚Å•ÏˆÙŒˆ’è‚·‚é‚½‚ß‚Ì”’l‚ÌƒŠƒXƒg
-			int muta_lis[] = {1,5,8,17,19,24,31,35,38,46,62,65,81,83,85,95,98,100,109,120,123,126,129,136,138,141,143,146,154,157,161,163,165,168,171,173,182,185};
-
-			int attempt = 10;
 
 			if (cast)
 			{
-				while(( attempt-- > 0) && !gain_random_mutation(muta_lis[randint0(sizeof(muta_lis) / sizeof(int))-1]));
+				gain_physical_mutation();
 			}
 		}
 		break;

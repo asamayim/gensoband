@@ -9438,6 +9438,10 @@ void hina_yakuotoshi(int gain_exp)
 			if(have_flag(flgs,TR_CHR)) need_exp += -(o_ptr->pval) * 10;
 			if(have_flag(flgs,TR_STEALTH)) need_exp += -(o_ptr->pval) * 10;
 			if(have_flag(flgs,TR_SEARCH)) need_exp += -(o_ptr->pval) * 10;
+
+			if (have_flag(flgs, TR_DISARM)) need_exp += -(o_ptr->pval) * 10;
+			if (have_flag(flgs, TR_SAVING)) need_exp += -(o_ptr->pval) * 10;
+
 		}
 
 		//マイナス修正値 1ごとに2000

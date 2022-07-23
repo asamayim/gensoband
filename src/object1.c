@@ -741,6 +741,8 @@ bool screen_object(object_type *o_ptr, u32b mode)
 		if (have_flag(flgs, TR_LITE))info[i++] = "それは眩いばかりの輝きを放っている。";
 		if (have_flag(flgs, TR_BLESSED))info[i++] = "それは神に祝福されている。";
 
+		if (have_flag(flgs, TR_DISARM))info[i++] = "それは見るものを試すような複雑な文様が刻まれている。";
+		if (have_flag(flgs, TR_SAVING))info[i++] = "それを見るとなにかに守られているような気になってくる。";
 
 
 	}
@@ -1123,10 +1125,17 @@ bool screen_object(object_type *o_ptr, u32b mode)
 
 		}
 		//v1.1.32 作業服 
-		if(o_ptr->tval == TV_CLOTHES && o_ptr->sval == SV_CLOTH_WORKER)
+		//v1.1.99 フラグとして正式追加
+		if(o_ptr->tval == TV_CLOTHES && o_ptr->sval == SV_CLOTH_WORKER || have_flag(flgs,TR_DISARM))
 		{
 			info[i++]="それは解除能力に影響を及ぼす。";
 		}
+		//v1.1.99 魔法防御
+		if (have_flag(flgs, TR_SAVING))
+		{
+			info[i++] = "それは魔法防御能力に影響を及ぼす。";
+		}
+
 
 		if (have_flag(flgs, TR_INFRA))
 		{

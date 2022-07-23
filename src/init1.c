@@ -841,6 +841,8 @@ static cptr k_info_flags[] =
 	"FULL_NAME",
 	"FIXED_FLAVOR",
 	"HOUSE", //v1.1.79
+	"DISARM",
+	"SAVING",
 };
 
 

@@ -6699,7 +6699,7 @@ byte calc_ex_dun_bldg_prob(int ex_bldg_idx)
 		if(p_ptr->pclass == CLASS_PATCHOULI || p_ptr->pclass == CLASS_REMY || p_ptr->pclass == CLASS_FLAN || p_ptr->pclass == CLASS_SAKUYA || p_ptr->pclass == CLASS_MEIRIN) return 60;
 		else return 30;
 	case BLDG_EX_SMITH:
-		return 20;
+		return 15;
 	case BLDG_EX_MYSTIA:
 		if(p_ptr->pclass == CLASS_MYSTIA) return 0;
 		else if(lev < 30) return 15;
@@ -6809,9 +6809,12 @@ byte calc_ex_dun_bldg_prob(int ex_bldg_idx)
 		else if (lev < 60) return 10;
 		else return 15;
 
-
+	case BLDG_EX_ZASHIKI:
+		if (p_ptr->prace == RACE_ZASHIKIWARASHI) return 30;
+		else return 10;
 
 	default:
+		msg_format("WARNING:建物idx(%d)の出現確率が設定されていない",ex_bldg_idx);
 		return 0;
 	
 
@@ -7423,6 +7426,33 @@ void	init_extra_dungeon_buildings(void)
 		}
 		break;
 
+		case BLDG_EX_ZASHIKI:
+		{
+			sprintf(building[i].name, "奇妙な場所");
+			sprintf(building[i].owner_name, "テレワーク中の座敷わらし達");
+
+			sprintf(building[i].act_names[0], "解呪");
+			building[i].letters[0] = 'a';
+			building[i].actions[0] = BACT_REMOVE_CURSE;
+			building[i].member_costs[0] = 500;
+
+			sprintf(building[i].act_names[1], "鑑定");
+			building[i].letters[1] = 'i';
+			building[i].actions[1] = BACT_IDENT_ONE;
+			building[i].member_costs[1] = 50;
+
+			sprintf(building[i].act_names[2], "探索拠点を使う(一度のみ)");
+			building[i].letters[2] = 'h';
+			building[i].actions[2] = BACT_EX_SEARCH_AROUND;
+
+
+		}
+		break;
+
+
+
+
+
 	}
 	}
 }
@@ -7454,7 +7484,7 @@ static byte build_type_ex(void)
 	building_ex_idx[0] = get_extra_dungeon_building_idx();
 
 	//テスト用
-	if(p_ptr->wizard) building_ex_idx[0] = BLDG_EX_GRASSROOTS;
+	if(p_ptr->wizard) building_ex_idx[0] = BLDG_EX_ZASHIKI;
 
 	/* Find and reserve some space in the dungeon.  Get center of room. */
 	if (!find_space(&yval, &xval, ysize, xsize)) return 0;

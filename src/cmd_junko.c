@@ -1486,6 +1486,10 @@ void junko_gain_equipment_flags(object_type *o_ptr, int amt, u32b flgs[TR_FLAG_S
 	if (have_flag(flgs, TR_SEARCH)) add_junko_flag_val(JKF1_DETECT_OBJ, flag_val * pv / 2);
 	if (have_flag(flgs, TR_BLOWS)) add_junko_flag_val(JKF1_MULTI_HIT, flag_val * pv / 2);
 
+	if (have_flag(flgs, TR_DISARM)) add_junko_flag_val(JKF1_DISARM, flag_val * pv / 2);
+	if (have_flag(flgs, TR_SAVING)) add_junko_flag_val(JKF1_RES_MAGIC, flag_val * pv / 2);
+
+
 	if (have_flag(flgs, TR_RES_ACID) && have_flag(flgs, TR_RES_ELEC) && have_flag(flgs, TR_RES_FIRE) && have_flag(flgs, TR_RES_COLD))
 		add_junko_flag_val(JKF1_RES_ELEM, flag_val);
 

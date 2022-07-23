@@ -11997,6 +11997,9 @@ const int adj_general[STAT_HYPERMAX-2] =
 
 };
 
+
+//特産物テーブル
+//{ダンジョンidx,Tval,Sval,最低階層,最大階層,基本発見率,最大生成数}
 const struct souvenir_type souvenir_table[] =
 {
 
@@ -12143,7 +12146,8 @@ const struct souvenir_type souvenir_table[] =
 
 	{ DUNGEON_FOREST,TV_MUSHROOM	,SV_MUSHROOM_PUFFBALL      ,25,36,100,4 },
 	{ DUNGEON_FOREST,TV_FOOD	,SV_FOOD_MAGIC_WATERMELON  ,24,32,120,3 },
-	{ DUNGEON_FOREST,TV_FOOD	,SV_FOOD_DATURA  ,24,28,30,1 },
+	{ DUNGEON_FOREST,TV_FOOD	,SV_FOOD_DATURA  ,24,28,80,2 },
+	{ DUNGEON_FOREST,TV_FOOD	,SV_FOOD_STRANGE_BEAN  ,27,32,60,2 },
 
 
 	//夢の世界 30-70
@@ -12940,6 +12944,10 @@ const drug_material_type drug_material_table[] =
 	//魔法スイカ
 	{ TV_FOOD,SV_FOOD_MAGIC_WATERMELON ,300,
 	{ 100,0,0,0,0,200,200,0 } },
+
+	//奇妙な豆
+	{ TV_FOOD,SV_FOOD_STRANGE_BEAN ,500,
+	{ 0,0,0,0,250,250,250,0 } },
 
 	//チョウセンアサガオの葉
 	{ TV_FOOD,SV_FOOD_DATURA ,100,
@@ -14819,3 +14827,7 @@ ability_card_type ability_card_list[ABILITY_CARD_LIST_LEN] =
 	//空色の勾玉は出さない
 
 };
+
+
+
+

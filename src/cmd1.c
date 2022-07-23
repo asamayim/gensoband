@@ -3949,7 +3949,7 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 	bool            weak = FALSE;
 	bool            drain_msg = TRUE;
 	int             drain_result = 0, drain_heal = 0;
-	bool            can_drain = FALSE;
+	bool            can_drain = FALSE; //吸血できるか　
 	bool            can_feed = FALSE;
 	int             num_blow;
 	int             drain_left = MAX_VAMPIRIC_DRAIN;
@@ -3969,12 +3969,14 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 	//v1.1.42 ドレミー・スイートの格闘攻撃でモンスターを眠らせるフラグカウント
 	bool		counting_sheep = 0;
 
+	bool	flag_vamp_armour = FALSE; //防具による吸血があるかどうか
+
 	int			martial_arts_method = 0;//格闘のときにランダムに選ばれる格闘分類タイプ MELEE_MODE_***
 
 	//v1.1.94
 	int		skill_type = 0;	//該当するスキル ref_skill_exp()に使う
 
-
+	int i;
 
 	//v1.1.69 潤美特技発動のとき武器攻撃が加重モードになる
 	// py_attack()中に記述すると追加格闘が出なくなるのでここに書いた
@@ -4003,6 +4005,26 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 	if(p_ptr->do_martialarts) monk_attack = TRUE;
 
 	if(check_invalidate_inventory(INVEN_RARM + hand)) weapon_invalid = TRUE;
+
+
+	if (check_equip_specific_fixed_art(ART_ECSEDI, TRUE)) flag_vamp_armour = TRUE;
+
+	//v1.1.99 吸血フラグ付きの防具を着けているとき両手に吸血効果が乗る
+	//もとは★エリーザベトだけだったが大怨霊エゴグローブも追加したので扱いを整理
+	for (i = INVEN_RIBBON; i <= INVEN_FEET; i++)
+	{
+		object_type *tmp_o_ptr = &inventory[i];
+		u32b tmp_flgs[TR_FLAG_SIZE];
+
+		object_flags(tmp_o_ptr, tmp_flgs);
+
+		if (have_flag(tmp_flgs, TR_VAMPIRIC))
+		{
+			if (cheat_xtra) msg_print("TESTMEG:VAMP ARMOUR");
+			flag_vamp_armour = TRUE;
+			break;
+		}
+	}
 
 	//職業ごとに不意打ち判定などの特殊処理
 	switch (p_ptr->pclass)
@@ -4487,8 +4509,8 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 
 				if(weapon_invalid) can_drain = FALSE;
 			}
-			//エリザベートのドレス
-			if(monster_living(r_ptr) && check_equip_specific_fixed_art(ART_ECSEDI,TRUE))
+			//v1.1.99 吸血防具フラグ
+			if(monster_living(r_ptr) && flag_vamp_armour)
 			{
 					can_drain = TRUE;
 			}

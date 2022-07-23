@@ -2532,13 +2532,16 @@ msg_print("勝利！チャンピオンへの道を進んでいる。");
 
 		//魔理沙は低確率で色々落とす
 	case MON_MARISA:
-		if (drop_chosen_item && randint1(dun_level) > 50 )
+		if (drop_chosen_item && one_in_(2))
 		{
 			q_ptr = &forge;
-			if(one_in_(3))
+
+			if(one_in_(3) && randint1(dun_level) > 50)
 				object_prep(q_ptr, lookup_kind(TV_SOUVENIR, SV_SOUVENIR_MARISA_TUBO));
-			else
+			else if(one_in_(2) && randint1(dun_level) > 30)
 				object_prep(q_ptr, lookup_kind(TV_ALCOHOL, SV_ALCOHOL_MAMUSHI));
+			else 
+				object_prep(q_ptr, lookup_kind(TV_FOOD, SV_FOOD_STRANGE_BEAN));
 
 			(void)drop_near(q_ptr, -1, y, x);
 		}
