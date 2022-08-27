@@ -2096,6 +2096,8 @@ bool yuma_will_trade(object_type *o_ptr)
 
 	if (o_ptr->tval == TV_SOUVENIR && o_ptr->sval == SV_SOUVENIR_DOUJU) return TRUE; //道寿の壺
 
+	if (o_ptr->tval == TV_MATERIAL && o_ptr->sval == SV_MATERIAL_TAKAKUSAGORI) return TRUE; //高草郡の竹
+
 	return FALSE;
 }
 
@@ -6926,14 +6928,14 @@ bool check_quest_unique_text(void)
 
 		break;
 
-		//オベロン打倒メインクエスト
-	case QUEST_OBERON:
+		//太歳星君打倒メインクエスト
+	case QUEST_TAISAI:
 		if(pc == CLASS_SEIJA)
 		{
 			if(accept)
 			{
-				strcpy(quest_text[line++], "鉄獄の底にはとにかく偉い王様が住んでいるらしい。");
-				strcpy(quest_text[line++], "あなたはそれを聞き、何としてもその面に泥を塗ってやろうと決意した。");
+				strcpy(quest_text[line++], "鉄獄の底から強力な神が這い出そうとしているらしい。");
+				strcpy(quest_text[line++], "あなたはそれを聞き、何としてもそれを埋め直してやろうと決意した。");
 			}
 		}
 		else if(pc == CLASS_YUKARI)
@@ -6941,8 +6943,8 @@ bool check_quest_unique_text(void)
 			if(accept)
 			{
 				strcpy(quest_text[line++], "アンバーの王の力で幻想郷の地下が鉄獄と繋がってしまった。");
-				strcpy(quest_text[line++], "このままでは幻想郷に異界の怪物たちがあふれてしまう。");
-				strcpy(quest_text[line++], "手遅れになる前に彼らをここから追い払わないといけない。");
+				strcpy(quest_text[line++], "その影響であろうことか地中の太歳星君が掘り出されてしまった。");
+				strcpy(quest_text[line++], "手遅れになる前に埋め直さないといけない。");
 			}
 		}
 
@@ -12387,6 +12389,11 @@ void grassroots_trading_cards(void)
 			msg_select = "ほう、いくらでも油が出るのか？この私に打って付けじゃないか。";
 			ref_cost = 200;
 		}
+		else if (o_ptr->tval == TV_MATERIAL && o_ptr->sval == SV_MATERIAL_TAKAKUSAGORI)
+		{
+			msg_select = "これは霊薬の材料か。悪くない。";
+			ref_cost = 50;
+		}
 		else if (o_ptr->tval == TV_FOOD)
 		{
 
@@ -13154,18 +13161,23 @@ bool bldg_remove_curse( void)
 	int i;
 	u32b flag_curse=0L;
 	u32b flag_perma=0L;
-	bool flag_reimu;
 
+	//1:霊夢 2:守矢 3:座敷わらし
+	int msg_mode = 0;
+	
 	int ex_bldg_num = f_info[cave[py][px].feat].subtype;
 	int ex_bldg_idx = building_ex_idx[ex_bldg_num];
 
 	if (p_ptr->town_num == TOWN_HAKUREI)
-		flag_reimu = TRUE;
-	//v1.1.33 else忘れ修正
+		msg_mode = 1;
+	else if (p_ptr->town_num == TOWN_MORIYA)
+		msg_mode = 2;
 	else if(EXTRA_MODE && building_ex_idx[ex_bldg_num] == BLDG_EX_REIMU)
-		flag_reimu = TRUE;
-	else
-		flag_reimu = FALSE;
+		msg_mode = 1;
+	else if (EXTRA_MODE && building_ex_idx[ex_bldg_num] == BLDG_EX_MORIYA)
+		msg_mode = 2;
+	else if(EXTRA_MODE && building_ex_idx[ex_bldg_num] == BLDG_EX_ZASHIKI)
+		msg_mode = 3;
 
 	for(i=INVEN_RARM;i<INVEN_TOTAL;i++)
 	{
@@ -13185,19 +13197,27 @@ bool bldg_remove_curse( void)
 	}
 	else if(flag_curse & ~flag_perma)
 	{
-		if (flag_reimu)
+		switch (msg_mode)
 		{
+		case 1:
 			if (p_ptr->pclass == CLASS_REIMU)
 				msg_print("分社の戸が開き諏訪子が出てきて呪いを吸い取ってくれた。");
 			else
 				msg_print("霊夢はあなたの目の前に手をかざして妙な手つきで指を動かした。");
-		}
-		else
-		{
-			if(p_ptr->pclass == CLASS_KANAKO)
-				msg_print("諏訪湖がニヤニヤしながら出てきて呪いを吸い取った。");
+			break;
+		case 2:
+			if (p_ptr->pclass == CLASS_KANAKO)
+				msg_print("諏訪子がニヤニヤしながら出てきて呪いを吸い取った。");
 			else
 				msg_print("神奈子が出てきて「ハァーー！！」と気合を放った！");
+			break;
+
+		case 3:
+			msg_print("座敷わらしたちが手際よく解呪してくれた。");
+			break;
+
+		default:
+			msg_print("ERROR:この建物の解呪成功メッセージが設定されていない");
 		}
 
 		if(remove_all_curse())
@@ -13209,22 +13229,28 @@ bool bldg_remove_curse( void)
 	}
 	else
 	{
-		if (flag_reimu)
+
+		switch (msg_mode)
 		{
+		case 1:
 			if (p_ptr->pclass == CLASS_REIMU)
 				msg_print("分社の戸が開き諏訪子が出てきて、何も言わずに引っ込んだ。");
 			else
 				msg_print("霊夢「ごめんなさい。その呪いは私の手にも負えないわ。」");
-
-		}
-		else
-		{
+			break;
+		case 2:
 			if (p_ptr->pclass == CLASS_KANAKO)
-				msg_print("諏訪湖「ありゃまぁ、ひどい祟りに見初められたもんだねえ。まあ仲良く付き合うんだね。」");
+				msg_print("諏訪子「ありゃまぁ、ひどい祟りに見初められたもんだねえ。まあ仲良く付き合うんだね。」");
 			else
 				msg_print("神奈子「済まぬがその呪いは神の手にも負えぬ。『凡庸の巻物』を探せ。」");
-
+			break;
+		case 3:
+			msg_print("座敷わらしたちがヒソヒソと相談しあっている。我が家からの引っ越しを検討しているようだ...");
+			break;
+		default:
+			msg_print("ERROR:この建物の解呪失敗メッセージが設定されていない");
 		}
+
 		return FALSE;
 	}
 
@@ -13783,7 +13809,7 @@ msg_print("お金が足りません！");
 			//easyでは紫を倒しても50階までしか行けない
 			if (difficulty == DIFFICULTY_EASY ) max_depth = 50;
 
-			//if (quest[QUEST_OBERON].status != QUEST_STATUS_FINISHED) max_depth = 98;
+			//if (quest[QUEST_TAISAI].status != QUEST_STATUS_FINISHED) max_depth = 98;
 			//else if(quest[QUEST_SERPENT].status != QUEST_STATUS_FINISHED) max_depth = 99;
 		}
 

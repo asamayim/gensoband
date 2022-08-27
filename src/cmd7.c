@@ -3867,10 +3867,11 @@ cptr cast_monspell_new_aux(int num, bool only_info, bool fail, int xtra)
 
 			if(powerful)
 			{
+				//v2.0 ­‚µŽã‘Ì‰»
 				rad = 5;
-				base = cast_lev * 4;
+				base = cast_lev * 3;
 				dice = 1;
-				sides = 300;
+				sides = 250;
 			}
 			else
 			{
@@ -7967,7 +7968,7 @@ void kanako_get_point(monster_type *m_ptr)
 			p_ptr->magic_num2[0] |= KANAKO_BEAT_0_CTHULHU;
 		}
 
-		if(m_ptr->r_idx == MON_OBERON)
+		if(m_ptr->r_idx == MON_TAISAI)
 		{
 			get_point += 250; //*2
 			 p_ptr->magic_num2[0] |= KANAKO_BEAT_0_OBERON;
@@ -8926,16 +8927,16 @@ int moon_vault_mon_list[][3] =
 	{MON_UDONGE,3,5},
 	{MON_TEWI,7,5},
 
-	{MON_G_USAGI,3,7},
-	{MON_G_USAGI,4,7},
-	{MON_G_USAGI,5,7},
-	{MON_G_USAGI,6,7},
-	{MON_G_USAGI,7,7},
-	{MON_G_USAGI,3,8},
-	{MON_G_USAGI,4,8},
-	{MON_G_USAGI,5,8},
-	{MON_G_USAGI,6,8},
-	{MON_G_USAGI,7,8},
+	{MON_YOUKAI_RABBIT2,3,7},
+	{MON_YOUKAI_RABBIT2,4,7},
+	{MON_YOUKAI_RABBIT2,5,7},
+	{MON_YOUKAI_RABBIT2,6,7},
+	{MON_YOUKAI_RABBIT2,7,7},
+	{MON_YOUKAI_RABBIT2,3,8},
+	{MON_YOUKAI_RABBIT2,4,8},
+	{MON_YOUKAI_RABBIT2,5,8},
+	{MON_YOUKAI_RABBIT2,6,8},
+	{MON_YOUKAI_RABBIT2,7,8},
 
 	{MON_FAIRY_EX,3,12},
 	{MON_FAIRY_EX,4,12},

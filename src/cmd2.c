@@ -444,7 +444,7 @@ void do_cmd_go_down(void)
 		do_cmd_quest();
 	}
 	/*::: Mega Hack - Extraモードでオベロン打倒後に階段を降りるとサーペントクエストを受領し混沌の領域101階へ*/
-	else if(EXTRA_MODE && dun_level == 100 && quest[QUEST_OBERON].status == QUEST_STATUS_FINISHED)
+	else if(EXTRA_MODE && dun_level == 100 && quest[QUEST_TAISAI].status == QUEST_STATUS_FINISHED)
 	{
 		int tmp = p_ptr->inside_quest;
 

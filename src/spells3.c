@@ -7167,6 +7167,8 @@ void cast_musou_hu_in(int reimu_idx)
 	int ry = reimu_m_ptr->fy;
 	int rx = reimu_m_ptr->fx;
 
+	if (num > 9) num = 9;//v2.0 [‘w‚Ì–²‘z••ˆó‚ğã‘Ì‰»
+
 	if(p_ptr->inside_battle) num = battle_mon_base_level / 10;
 
 	for(;num > 0;num--)

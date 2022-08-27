@@ -601,6 +601,7 @@ bool monst_spell_monst(int m_idx)
 			&& (m_ptr->r_idx != MON_SEIJA)
 			&& (m_ptr->r_idx != MON_TSUCHINOKO)
 			&& (m_ptr->r_idx != MON_CHIMATA)
+			&& (m_ptr->r_idx != MON_TAISAI)
 			&& (r_ptr->d_char != 'B'))
 			f6 &= ~(RF6_SPECIAL);
 
@@ -839,6 +840,7 @@ bool monst_spell_monst(int m_idx)
 			}
 			else if(m_ptr->r_idx == MON_TSUCHINOKO);
 			else if (m_ptr->r_idx == MON_CHIMATA);
+			else if (m_ptr->r_idx == MON_TAISAI);
 
 			else f6 &= ~(RF6_SPECIAL);
 		}
@@ -4097,6 +4099,22 @@ bool monst_spell_monst(int m_idx)
 				//(void)project(m_idx, 5, y, x, GF_RAINBOW, dam, (PROJECT_KILL | PROJECT_PLAYER | PROJECT_JUMP), -1);
 
 				break;
+				//太歳星君特殊行動　広範囲地震連発　体力が減っているほど範囲と回数が増加
+			case MON_TAISAI:
+			{
+				int tmp_rad = 5 + (m_ptr->maxhp - m_ptr->hp) / 1000;
+				int tmp_num = 2 + (m_ptr->maxhp - m_ptr->hp) / 3000;
+
+
+				if (see_m)	msg_format("%^sは大地震を起こした！", m_name);
+				for (k = 0; k < tmp_num; k++)
+				{
+					earthquake_aux(m_ptr->fy, m_ptr->fx, tmp_rad, m_idx);
+					tmp_rad += randint1(2);
+
+				}
+			}
+			break;
 
 
 		default:
@@ -4546,6 +4564,10 @@ bool monst_spell_monst(int m_idx)
 				{
 					msg_format("%^sは配下の埴輪達を呼び出した。", m_name);
 				}
+				else if (m_ptr->r_idx == MON_LUNASA || m_ptr->r_idx == MON_MERLIN || m_ptr->r_idx == MON_LYRICA)
+				{
+					msg_format("%^sは姉妹を呼び出した。", m_name);
+				}
 
 				else
 				{
@@ -4710,6 +4732,7 @@ bool monst_spell_monst(int m_idx)
 			}
 			break;
 		case MON_EIRIN:
+		case MON_TEWI:
 			{
 				int k;
 				int num = 5 + randint0(6);
@@ -4815,11 +4838,21 @@ bool monst_spell_monst(int m_idx)
 
 			for (k = 0; k < num; k++)
 			{
-				count += summon_specific(m_idx, y, x, rlev, SUMMON_HANIWA, s_mode);
+				count += summon_specific(m_idx, m_ptr->fy, m_ptr->fx, rlev, SUMMON_HANIWA, s_mode);
 			}
 		}
 		break;
 
+		case MON_LUNASA:
+		case MON_MERLIN:
+		case MON_LYRICA:
+		{
+
+			count += summon_named_creature(m_idx, m_ptr->fy, m_ptr->fx, MON_LUNASA, 0);
+			count += summon_named_creature(m_idx, m_ptr->fy, m_ptr->fx, MON_MERLIN, 0);
+			count += summon_named_creature(m_idx, m_ptr->fy, m_ptr->fx, MON_LYRICA, 0);
+		}
+		break;
 
 		default:
 			summon_kin_type = r_ptr->d_char;
@@ -5491,8 +5524,9 @@ bool monst_spell_monst(int m_idx)
 			if (r_ptr->flags2 & RF2_POWERFUL)
 			{
 				rad = 5;
-				dam = (rlev * 4) + damroll(1,300);
-			}
+				//v2.0 少し弱体化　壁抜けで軽減できないからヘルファイアとかより期待値が低くていいか
+				//dam = (rlev * 4) + damroll(1, 300);
+				dam = (rlev * 3) + damroll(1,250);			}
 			else
 			{
 				rad = 4;

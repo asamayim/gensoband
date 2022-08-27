@@ -3590,9 +3590,26 @@ int find_martial_arts_method(int findmode)
 	if(p_ptr->pclass == CLASS_BENBEN && music_singing(MUSIC_NEW_TSUKUMO_DOUBLESCORE)) return MELEE_MODE_BENBEN;
 	//爪強化　このときkick限定にはならないはず
 	if(p_ptr->clawextend) return MELEE_MODE_EX_CLAW;
+
+
+	//銃装備時格闘
+	//v2.0 特定の攻撃手段のときガン=カタのダメージボーナスを得られてしまうので不整合をなくすため優先度を少し上げた
+	if (!kick && (inventory[INVEN_RARM].tval == TV_GUN || inventory[INVEN_LARM].tval == TV_GUN))
+	{
+		//v1.1.21 ガン=カタ以外のとき1/2でキック攻撃
+		int tmp = select_gun_melee_mode();
+		//if (cheat_xtra) msg_format("gun_melee_mode:%d", tmp);
+		if (tmp == MELEE_MODE_GUN_TWOHAND || !one_in_(2)) return tmp;
+		else kick = TRUE;
+
+	}
+
+
+
 	//伸腕攻撃　変容魔法や河童レイシャル　追加格闘が出ないのでパンチのみ 一部クラスは専用攻撃優先
 	if(findmode == MELEE_FIND_LONGARM)
 	{
+
 		if(p_ptr->pclass == CLASS_REMY) return MELEE_MODE_REMY_OTHER;
 		else if(p_ptr->pclass == CLASS_MINDCRAFTER) return MELEE_MODE_MIND;
 		else if(p_ptr->pclass == CLASS_MAMIZOU) return MELEE_MODE_MAMIZOU;
@@ -3627,17 +3644,6 @@ int find_martial_arts_method(int findmode)
 		if(p_ptr->concent == 2) return MELEE_MODE_KISUME3;
 		if(p_ptr->concent == 3) return MELEE_MODE_KISUME4;
 		else return MELEE_MODE_KISUME5;
-	}
-
-	//銃装備時格闘
-	if(!kick && (inventory[INVEN_RARM].tval == TV_GUN || inventory[INVEN_LARM].tval == TV_GUN))
-	{
-		//v1.1.21 ガン=カタ以外のとき1/2でキック攻撃
-		int tmp = select_gun_melee_mode();
-		//if (cheat_xtra) msg_format("gun_melee_mode:%d", tmp);
-		if(tmp == MELEE_MODE_GUN_TWOHAND || !one_in_(2)) return tmp;
-		else kick = TRUE;
-
 	}
 
 

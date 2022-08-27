@@ -65,10 +65,10 @@ struct hist_type
 
 static cptr info_difficulty[5] ={
 	"練習用のモードです。プレイヤーの能力が上がり、ゲームオーバーになってもコンティニューが可能です。このモードは50階で終了します。スコアが大幅に低下します。",
-	"通常のモードです。敵の体力が低く、またあまりひどいことが起こりにくいように調整されているため本家の変愚蛮怒よりかなり簡単です。50階クリア時点でゲームクリア扱いになります。",
-	"敵がやや力強くなり、しばしば序盤から強敵が出現し、いくつかの事柄に不規則性が出ます。基本的に本家変愚蛮怒と同様の設定ですがそれでも本家変愚蛮怒より簡単です。スコアがやや上昇します。HARD以降でないと選択できない職業や性格が存在します。",
-	"敵が凄まじく力強く素早く注意深くなり、有り得ないほどの強敵が頻繁に出現し、理不尽なまでの様々な困難があなたに襲い掛かります。スコアが大幅に上昇します。",
-	"極めて特殊なモードです。鉄獄1階からゲームが開始されそこから降りるのみです。レベルが上がりやすくなり、深層のアイテムが出現しやすくなり、消耗品が複数まとめて生成され、「アイテムカード」が出現します。ランダムクエストはなくなり、一定階ごとに特定のクエストダンジョンが生成されます。十全な準備を整えられない中で最善を尽くすことが求められます。"
+	"通常のモードです。敵の体力が低く、またあまりひどいことは起こりにくいように調整されています。50階クリア時点でゲームクリア扱いになります。",
+	"敵がやや力強くなり、しばしば序盤から強敵が出現し、いくつかの事柄に不規則性が出ます。基本的に変愚蛮怒と同様の設定ですが、強いキャラクターでプレイすれば変愚蛮怒より簡単です。スコアはNORMALの2倍です。HARD以降でないと選択できない職業や性格が存在します。",
+	"敵が凄まじく力強く素早く注意深くなり、有り得ないほどの強敵が頻繁に出現し、理不尽なまでの様々な困難があなたに襲い掛かります。スコアはNORMALの8倍です。",
+	"極めて特殊なモードです。鉄獄1階からゲームが開始されそこから降りるのみです。レベルが上がりやすくなり、深層のアイテムが出現しやすくなり、消耗品が複数まとめて生成され、「アイテムカード」が出現します。ランダムクエストはなくなり、一定階ごとに特定のクエストダンジョンが生成されます。十全な準備を整えられない中で最善を尽くすことが求められます。スコアはNORMALの4倍です。"
 };
 
 static cptr race_jouhou[MAX_RACES] =
@@ -2264,9 +2264,9 @@ static void init_dungeon_quests(void)
 	if(EXTRA_MODE)//Extraモードでは最初からオベロンクエスト受領し、紫クエストは未受領　ほかクエスト無効化処理もない
 	{
 		init_flags = INIT_ASSIGN;
-		p_ptr->inside_quest = QUEST_OBERON;
+		p_ptr->inside_quest = QUEST_TAISAI;
 		process_dungeon_file("q_info.txt", 0, 0, 0, 0);
-		quest[QUEST_OBERON].status = QUEST_STATUS_TAKEN;
+		quest[QUEST_TAISAI].status = QUEST_STATUS_TAKEN;
 	}
 	else
 	{
@@ -2277,12 +2277,12 @@ static void init_dungeon_quests(void)
 		}
 		/* Init the two main quests (Oberon + Serpent) */
 		init_flags = INIT_ASSIGN;
-		//p_ptr->inside_quest = QUEST_OBERON;
+		//p_ptr->inside_quest = QUEST_TAISAI;
 		p_ptr->inside_quest = QUEST_YUKARI;
 
 		process_dungeon_file("q_info.txt", 0, 0, 0, 0);
 
-		//quest[QUEST_OBERON].status = QUEST_STATUS_TAKEN;
+		//quest[QUEST_TAISAI].status = QUEST_STATUS_TAKEN;
 		quest[QUEST_YUKARI].status = QUEST_STATUS_TAKEN;
 
 		/*:::Hack - 藍は紫クエストを完了済み(スコアには参入しない)*/
@@ -2290,10 +2290,10 @@ static void init_dungeon_quests(void)
 		if(p_ptr->pclass == CLASS_RAN || p_ptr->pclass == CLASS_YUKARI)
 		{
 			quest[QUEST_YUKARI].status = QUEST_STATUS_FINISHED;
-			p_ptr->inside_quest = QUEST_OBERON;
+			p_ptr->inside_quest = QUEST_TAISAI;
 			init_flags |= INIT_ASSIGN;
 			process_dungeon_file("q_info.txt", 0, 0, 0, 0);
-			quest[QUEST_OBERON].status = QUEST_STATUS_TAKEN;
+			quest[QUEST_TAISAI].status = QUEST_STATUS_TAKEN;
 
 		}
 		/*:::Hack - 魔理沙専用クエスト*/

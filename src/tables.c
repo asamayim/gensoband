@@ -9285,7 +9285,7 @@ const option_type option_info[] =
 #ifdef WORLD_SCORE
 #ifdef JP
 	{ &send_score,                  TRUE,  OPT_PAGE_GAMEPLAY, 4, 7,
-	"send_score",                   "スコアサーバ(勝手版用)にゲームデータを送る" },
+	"send_score",                   "スコアサーバにゲームデータを送る" },
 #else
 	{ &send_score,                  TRUE,  OPT_PAGE_GAMEPLAY, 4, 6,
 	"send_score",                   "Send score dump to the world score server" },
@@ -12394,7 +12394,7 @@ const monspells2 monspell_list2[MAX_MONSPELLS2+1] =
 { 36,  38,  80, A_INT, TRUE,TRUE, 3,"汚染の球",NEW_MSPELL_TYPE_BALL },
 { 32,  32,  80, A_INT, TRUE,TRUE, 3,"原子分解",NEW_MSPELL_TYPE_BALL },
 { 32,  25,  70, A_INT, TRUE,TRUE, 3,"破邪の光球",NEW_MSPELL_TYPE_BALL },
-{ 36,  55,  85, A_INT, TRUE,TRUE, 2,"メテオストライク",NEW_MSPELL_TYPE_BALL },
+{ 36,  50,  80, A_INT, TRUE,TRUE, 2,"メテオストライク",NEW_MSPELL_TYPE_BALL },
 { 42,  35,  85, A_INT, TRUE,TRUE, 3,"空間歪曲",NEW_MSPELL_TYPE_BALL },
 { 3,   2,   25, A_INT, TRUE,FALSE, 4,"魔除けのまじない",NEW_MSPELL_TYPE_OTHER_ATTACK },
 { 9,   5,   30, A_INT, TRUE,FALSE, 4,"聖なる言葉",NEW_MSPELL_TYPE_OTHER_ATTACK },

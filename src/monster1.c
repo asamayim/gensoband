@@ -3364,7 +3364,7 @@ case RBE_DR_MANA:  q = "魔力を奪う"; break;
 	 * Notice "Quest" monsters, but only if you
 	 * already encountered the monster.
 	 */
-	if ((flags1 & RF1_QUESTOR) && ((r_ptr->r_sights) && (r_ptr->max_num) && ((r_idx == MON_OBERON) || (r_idx == MON_SERPENT) ||(r_idx == MON_YUKARI) )))
+	if ((flags1 & RF1_QUESTOR) && ((r_ptr->r_sights) && (r_ptr->max_num) && ((r_idx == MON_TAISAI) || (r_idx == MON_SERPENT) ||(r_idx == MON_YUKARI) )))
 	{
 #ifdef JP
 		hook_c_roff(TERM_VIOLET, "このモンスターこそが倒すべきボスであるらしい・・");

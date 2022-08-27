@@ -3700,7 +3700,7 @@ static void init_windows(void)
 	td = &data[0];
 	WIPE(td, term_data);
 #ifdef JP
-	td->s = "変愚蛮怒（勝手版）";
+	td->s = "幻想蛮怒";
 #else
 	td->s = angband_term_name[0];
 #endif
@@ -3857,7 +3857,7 @@ static void init_windows(void)
 	WIPE(td, term_data);
 	///system たぶんウィンドウタイトルはここ
 #ifdef JP
-	td->s = "変愚蛮怒（勝手版）";
+	td->s = "幻想蛮怒";
 #else
 	td->s = angband_term_name[0];
 #endif

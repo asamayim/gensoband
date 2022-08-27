@@ -77,10 +77,10 @@
  * Upper compatibility is always guaranteed.
  */
 ///sys131117 FAKE_VERSIONの定数を消した
-#define H_VER_MAJOR 1
-#define H_VER_MINOR 1
-#define H_VER_PATCH 99
-#define H_VER_EXTRA 1
+#define H_VER_MAJOR 2
+#define H_VER_MINOR 0
+#define H_VER_PATCH 0
+#define H_VER_EXTRA 0
 
 /*:::＊＊＊◆◆◆アップロード時には必ずこれをコメントアウトする◆◆◆＊＊＊:::*/
 //#define SCORE_SERVER_TEST
@@ -199,7 +199,7 @@
 #define QUEST_WANTED_SUMIREKO	35
 #define QUEST_HECATIA			36
 #define QUEST_YUKARI         37
-#define QUEST_OBERON         38
+#define QUEST_TAISAI         38
 #define QUEST_SERPENT        39
 //40-48はランクエ
 #define QUEST_MOON_VAULT     50
@@ -6721,7 +6721,7 @@ extern int PlayerUID;　
 #define MON_G_CTHULHU     857
 #define MON_SAURON        858
 #define MON_UNICORN_ORD   859
-#define MON_OBERON        860
+#define MON_TAISAI        860
 #define MON_MORGOTH       861
 #define MON_SERPENT       862
 #define MON_ONE_RING      864
@@ -6815,7 +6815,7 @@ extern int PlayerUID;　
 #define MON_CHARGE_MAN	1081
 #define MON_JURAL	1082
 
-#define MON_G_USAGI		1083
+#define MON_YOUKAI_RABBIT2		1083
 #define MON_G_MUKADE	1088
 ///mod140107 追加モンスター
 #define MON_RUMIA		1089
@@ -7083,7 +7083,10 @@ extern int PlayerUID;　
 //v1.1.98
 #define MON_MIZUCHI			1368
 
-#define MON_IDX_MAX			1369	//最大IDX+1 この数値をちゃんと増やさないと音楽再生のところでバグるかも
+#define MON_SUIRYUU			1378
+#define MON_OBERON		    1379
+
+#define MON_IDX_MAX			1380	//最大IDX+1 この数値をちゃんと増やさないと音楽再生のところでバグるかも
 
 
 
@@ -8653,6 +8656,7 @@ extern int PlayerUID;　
 //v1.1.94 防御低下状態になったモンスターのACを計算。 -25か-25%の低い方(最低0)
 #define MONSTER_DECREASED_AC(AC) ( MAX(0, (MIN((AC) - (AC) / 4, (AC) - 25))))
 
-
+//v2.0 太歳星君打倒後にオベロンが鉄国の主として出て来れるかの判定　打倒直後にオベロンが飛んできて*破壊*とかしないようにしたいがどうしたものか
+#define CHECK_GUARDIAN_CAN_POP ((dungeon_type == DUNGEON_ANGBAND) ? (quest[QUEST_TAISAI].status == QUEST_STATUS_FINISHED) : TRUE)
 
 

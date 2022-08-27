@@ -1256,14 +1256,14 @@ static void rd_lore(int r_idx)
 	rd_byte(&tmp8u);
 
 	/* Repair the lore flags */
+	//もしロード前とロード後でモンスターの能力が変わっている場合に、
+	//＠が記憶しているモンスターフラグのうち現在存在しないフラグを削除している
 	r_ptr->r_flags1 &= r_ptr->flags1;
 	r_ptr->r_flags2 &= r_ptr->flags2;
 	r_ptr->r_flags3 &= r_ptr->flags3;
 	r_ptr->r_flags4 &= r_ptr->flags4;
 	r_ptr->r_flags5 &= r_ptr->flags5;
 	r_ptr->r_flags6 &= r_ptr->flags6;
-
-	///mod140102 モンスター新魔法フラグ追加に伴いflags9追加。正直この操作何のために必要なのかわからないがとりあえず同じようにやっとく
 	r_ptr->r_flags9 &= r_ptr->flags9;
 
 	r_ptr->r_flagsr &= r_ptr->flagsr;
@@ -2341,7 +2341,7 @@ static void rd_extra(void)
 				}
 				else if(i == DUNGEON_ANGBAND)
 				{
-					if(quest[QUEST_OBERON].status == QUEST_STATUS_FINISHED) 
+					if(quest[QUEST_TAISAI].status == QUEST_STATUS_FINISHED) 
 						flag_dungeon_complete[i] = 1;
 				}
 				else if(i == DUNGEON_CHAOS)

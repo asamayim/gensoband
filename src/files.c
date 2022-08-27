@@ -7823,7 +7823,7 @@ static void dump_aux_recall(FILE *fff)
 			if (!r_info[d_info[y].final_guardian].max_num) seiha = TRUE;
 		}
 		/*:::オベロンとサーペント倒しても帰還が最深でないと制覇マークがつかなかったので修正*/
-		else if(y == DUNGEON_ANGBAND && quest[QUEST_OBERON].status == QUEST_STATUS_FINISHED) seiha = TRUE;
+		else if(y == DUNGEON_ANGBAND && quest[QUEST_TAISAI].status == QUEST_STATUS_FINISHED) seiha = TRUE;
 		else if(y == DUNGEON_CHAOS && quest[QUEST_SERPENT].status == QUEST_STATUS_FINISHED) seiha = TRUE;
 		else if (max_dlv[y] == d_info[y].maxdepth) seiha = TRUE;
 #endif
@@ -8730,7 +8730,7 @@ static void dump_aux_home_museum(FILE *fff)
 errr make_character_dump(FILE *fff)
 {
 #ifdef JP
-	fprintf(fff, "  [変愚蛮怒勝手版 %d.%d.%dT キャラクタ情報]\n\n",
+	fprintf(fff, "  [幻想蛮怒 %d.%d.%dT キャラクタ情報]\n\n",
 		H_VER_MAJOR, H_VER_MINOR, H_VER_PATCH);
 #else
 	fprintf(fff, "  [Hengband %d.%d.%d Character Dump]\n\n",
@@ -9347,7 +9347,7 @@ msg_format("'%s'をオープンできません。", name);
 		{
 			prt(format(
 #ifdef JP
-				"[変愚蛮怒勝手版 %d.%d.%dT, %s, %d/%d]",
+				"[幻想蛮怒 %d.%d.%dT, %s, %d/%d]",
 #else
 				"[Hengband %d.%d.%d, %s, Line %d/%d]",
 #endif
@@ -10204,7 +10204,7 @@ prt("ゲームをセーブしています... 失敗！", 0, 0);
 			prt("強制的に人里に戻して再セーブを試みます。", 6, 5);
 			prt("念のため続行前にsaveフォルダのアクセス権などを見直して下さい。", 7, 5);
 			prt("userフォルダに緊急ダンプが出力されます。", 8, 5);
-			prt("この勝手版作者に送っていただけると幸いです。", 9, 5);
+			prt("バグ発見のために作者に送っていただけると幸いです。", 9, 5);
 			prt("何かキーを押すと続行します。", 12, 5);
 			(void)inkey();
 			(void)file_character("heng_katte_panic_dump.txt");
@@ -10400,7 +10400,7 @@ if(test) msg_format("SOUVENIR(MAX1000k):%d",value_items_max);
 			questpoint += quest[i].level * quest[i].level * (60 - quest[i].complev) * (EXTRA_MODE?2:1);
 			//特定クエストにボーナス
 			if(i == QUEST_YUKARI)	questpoint += 100000;
-			if(i == QUEST_OBERON)	questpoint += 500000;
+			if(i == QUEST_TAISAI)	questpoint += 500000;
 			if(i == QUEST_SERPENT)	questpoint += 1000000;
 
 		}
@@ -10413,8 +10413,18 @@ if(test) msg_format("QUEST:%d",questpoint);
 	for(i=1;i<max_r_idx;i++)
 	{
 		monster_race *r_ptr = &r_info[i];
-		if ((r_ptr->flags1 & RF1_UNIQUE) && (r_ptr->r_akills)) monpoint += r_ptr->level * r_ptr->level;
-		if ((r_ptr->flags3 & RF3_ANG_AMBER) && r_ptr->r_akills) monpoint += 10000;
+
+		if(!(r_ptr->flags1 & RF1_UNIQUE) || !r_ptr->r_akills) continue;
+
+		monpoint += r_ptr->level * r_ptr->level;
+
+		//旧ラスボスのオベロンを倒すとスコアが大幅に上がる。EXTRAでは困難なのでさらにボーナス
+		if (i == MON_OBERON)
+		{
+			if(EXTRA_MODE) monpoint += 600000;
+			else monpoint += 300000;
+		}
+		else if ((r_ptr->flags3 & RF3_ANG_AMBER) && r_ptr->r_akills) monpoint += 10000;
 	}
 
 	///mod160326 UNIQUE2打倒時もユニークと同様にスコア算出
@@ -10424,7 +10434,7 @@ if(test) msg_format("UNIQUE:%d",monpoint);
 	point_l += monpoint;
 
 	//オベロン倒して引退するときターンに応じてボーナス(キャノンボウラーはボーナス多い)
-	if(finish_the_game && (quest[QUEST_OBERON].status == QUEST_STATUS_FINISHED))
+	if(finish_the_game && (quest[QUEST_TAISAI].status == QUEST_STATUS_FINISHED))
 	{
 		if(score_turn < TURNS_PER_TICK * TOWN_DAWN * 30) turnbonus += (TURNS_PER_TICK * TOWN_DAWN * 30 - score_turn);
 		//v1.1.53b 難易度LUNATICのときはどうせ反感同然なので何の性格でも同様のボーナスを得られることにした

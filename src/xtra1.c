@@ -4718,7 +4718,7 @@ void calc_bonuses(void)
 	///mod160513 ‹ßÚUŒ‚•Ší‚ðŽ‚½‚¸e‚ðŽ‚Á‚Ä‚¢‚é‚Æ‚«Ae‚É‚æ‚é“ÁŽêŠi“¬ƒtƒ‰ƒO‚ð—§‚Ä‚é
 	//v1.1.70  && !p_ptr->mimic_form‚Ì‹Lq‚ðíœ‚µ•Ïg’†‚Å‚àeŠi“¬‰Â”\‚ÉB
 	else if(!p_ptr->migite && !p_ptr->hidarite && p_ptr->pclass != CLASS_KISUME
-		&& p_ptr->pclass != CLASS_ALICE && !p_ptr->clawextend)
+		&& p_ptr->pclass != CLASS_ALICE && !p_ptr->clawextend )
 	{
 		if(inventory[INVEN_RARM].tval == TV_GUN)
 		{
@@ -10442,7 +10442,8 @@ void calc_bonuses(void)
 		if(p_ptr->mimic_form == MIMIC_SLIME)tmp_blows = 1 + plev / 15 + (p_ptr->stat_ind[A_DEX]+3) / 20;
 
 		//“ñ’šŒe‚Ì‚Æ‚«eˆÐ—Í‚Ìˆê•”‚ðŠi“¬ƒ_ƒ[ƒW‚É‰Á‚¦‚é
-		if(flag_gun_kata && select_gun_melee_mode() == MELEE_MODE_GUN_TWOHAND)
+		//v2.0 ˆ¤“†—l‚ÆŒõ‘¬ˆÚ“®Žg—pŽž‚ÍƒKƒ“ƒJƒ^‚ðŽg‚í‚È‚¢
+		if(flag_gun_kata && select_gun_melee_mode() == MELEE_MODE_GUN_TWOHAND && !(p_ptr->kamioroshi & KAMIOROSHI_ATAGO) && !p_ptr->lightspeed)
 		{
 			tmp_bonus = 0;
 			tmp_bonus += inventory[INVEN_RARM].to_d + inventory[INVEN_RARM].dd * (inventory[INVEN_RARM].ds+1) / 2;

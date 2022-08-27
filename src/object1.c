@@ -282,6 +282,9 @@ void object_flags_known(object_type *o_ptr, u32b flgs[TR_FLAG_SIZE])
 	for (i = 0; i < TR_FLAG_SIZE; i++)
 		flgs[i] = k_ptr->flags[i];
 
+	//v1.2.0 “Š±‚ÌŽw—Ö‚Ìƒtƒ‰ƒOˆ—‚ð–Y‚ê‚Ä‚¢‚½‚Ì‚Å’Ç‰Á
+	if (o_ptr->tval == TV_RING && o_ptr->sval == SV_RING_MIGHTY_THROW) add_flag(flgs,TR_THROW);
+
 	/* Must be identified */
 	if (!object_is_known(o_ptr)) return;
 

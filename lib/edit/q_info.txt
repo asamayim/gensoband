@@ -157,8 +157,9 @@
 %:quest37_yukari.txt
 
 # オベロン（移動）
+#v2.0 オベロン→太歳星君
 ?:[EQU $QUEST_NUMBER 38]
-%:quest38_oberon.txt
+%:quest38_taisai.txt
 
 # サーペント（移動）
 ?:[EQU $QUEST_NUMBER 39]

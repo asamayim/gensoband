@@ -1443,7 +1443,6 @@ static int choose_attack_spell(int m_idx, byte spells[], byte num)
 			case MON_MAI:
 			case MON_SATONO:
 			case MON_BANORLUPART:
-			case MON_MIZUCHI:
 				if (randint0(100) < 70) success = TRUE;
 				break;
 			case MON_ROLENTO:
@@ -1892,6 +1891,34 @@ bool make_attack_spell(int m_idx, int special_flag)
 	{
 		f9 &= ~(RF9_TELE_APPROACH | RF9_TELE_HI_APPROACH);
 	}
+
+	//v1.2.00 村紗は＠の近くに水がないと視界外隣接テレポを使わない
+	if (m_ptr->r_idx == MON_MURASA)
+	{
+		bool find_water = FALSE;
+		int j;
+
+		for (j = 1; j <= 9; j++)
+		{
+			int tmp_x, tmp_y;
+
+			tmp_x = px + ddx[j];
+			tmp_y = py + ddy[j];
+
+			if (!in_bounds(tmp_y, tmp_x)) continue;
+			if (cave_have_flag_bold(tmp_y, tmp_x, FF_WATER))
+			{
+				find_water = TRUE;
+				break;
+			}
+		}
+
+		if (!find_water)
+		{
+			f9 &= ~(RF9_TELE_HI_APPROACH);
+		}
+	}
+
 	//配下は*破壊*や時間停止を使わない
 	if(is_pet(m_ptr))
 	{
@@ -3398,7 +3425,8 @@ else msg_format("%^sが魔力のブレスを吐いた。", m_name);
 				{
 					if (!blind)	msg_format("金色の小槌でぶん殴られた！");
 					else msg_format("何かが頭上に振り下ろされた！");
-					dam = 100 + randint0(100);
+					//v1.2.00 50ポイント弱体化
+					dam = 50 + randint0(100);
 					breath(y, x, m_idx, GF_MISSILE, dam, 0, FALSE, -1, FALSE);
 					earthquake_aux(y, x, 4, m_idx);
 				}
@@ -5078,6 +5106,22 @@ msg_format("%sは無傷の球の呪文を唱えた。", m_name);
 
 				break;
 
+			//太歳星君特殊行動　広範囲地震連発　体力が減っているほど範囲と回数が増加
+			case MON_TAISAI:
+			{
+				int tmp_rad = 7 + (m_ptr->maxhp - m_ptr->hp) / 1000;
+				int tmp_num = 2 + (m_ptr->maxhp - m_ptr->hp) / 5000;
+
+				msg_format("%^sは大地震を起こした！", m_name);
+				for (k = 0; k < tmp_num; k++)
+				{
+					earthquake_aux(m_ptr->fy, m_ptr->fx, tmp_rad, m_idx);
+					tmp_rad += randint1(2);
+
+				}
+			}
+			break;
+
 			default:
 				if (r_ptr->d_char == 'B')
 				{
@@ -5465,6 +5509,11 @@ else	msg_format("%^sの大いなる悪意があなたの精神を絡め取った…", m_name);
 				if (blind)	msg_format("%^sが何かを叫ぶと、辺りに異様な気配が満ちた。", m_name);
 				else	msg_format("%^sは配下の埴輪達を呼び出した。", m_name);
 			}
+			else if (m_ptr->r_idx == MON_LUNASA || m_ptr->r_idx == MON_MERLIN || m_ptr->r_idx == MON_LYRICA)
+			{
+				if (blind)	msg_format("突然アップテンポながらニヒルな死生観のある音楽に包まれた。");
+				else	msg_format("%^sは姉妹を呼び出した。", m_name);
+			}
 
 			else
 			{
@@ -5577,6 +5626,7 @@ else	msg_format("%^sの大いなる悪意があなたの精神を絡め取った…", m_name);
 				}
 				break;
 			case MON_EIRIN:
+			case MON_TEWI:
 				{
 					int k;
 					int num = 5 + randint0(6);
@@ -5732,8 +5782,19 @@ else	msg_format("%^sの大いなる悪意があなたの精神を絡め取った…", m_name);
 				int num = 4 + randint1(3);
 				for (k = 0; k < num; k++)
 				{
-					count += summon_specific(m_idx, y, x, rlev, SUMMON_HANIWA, (PM_ALLOW_GROUP | PM_ALLOW_UNIQUE | PM_FORCE_ENEMY));
+					count += summon_specific(m_idx, m_ptr->fy, m_ptr->fx, rlev, SUMMON_HANIWA, (PM_ALLOW_GROUP | PM_ALLOW_UNIQUE | PM_FORCE_ENEMY));
 				}
+			}
+			break;
+
+			case MON_LUNASA:
+			case MON_MERLIN:
+			case MON_LYRICA:
+			{
+
+				count += summon_named_creature(m_idx, m_ptr->fy, m_ptr->fx, MON_LUNASA, 0);
+				count += summon_named_creature(m_idx, m_ptr->fy, m_ptr->fx, MON_MERLIN, 0);
+				count += summon_named_creature(m_idx, m_ptr->fy, m_ptr->fx, MON_LYRICA, 0);
 			}
 			break;
 
@@ -6465,10 +6526,14 @@ else msg_format("%^sが破邪の光球の呪文を唱えた。", m_name);
 			if (blind) msg_format("%^sが何か複雑な呪文を唱えた。何かが頭上から降ってきた！", m_name);
 			else msg_format("%^sがメテオストライクの呪文を唱えた！", m_name);
 #endif
+
+
 			if (r_ptr->flags2 & RF2_POWERFUL)
 			{
 				rad = 5;
-				dam = (rlev * 4) + damroll(1,300);
+				//v2.0 少し弱体化　壁抜けで軽減できないからヘルファイアとかより期待値が低くていいか
+				//dam = (rlev * 4) + damroll(1, 300);
+				dam = (rlev * 3) + damroll(1,250);
 			}
 			else
 			{
@@ -6939,7 +7004,16 @@ msg_format("%sが瞬時に間合いを詰めてきた。", m_name);
 				repair_monsters = TRUE;
 			}
 
-			if (m_ptr->r_idx == MON_KOISHI && p_ptr->pclass != CLASS_KOISHI) msg_format("今何か…気のせいか？");
+			if (m_ptr->r_idx == MON_KOISHI && p_ptr->pclass != CLASS_KOISHI)
+			{
+				msg_format("今何か…気のせいか？");
+			}
+			else if (m_ptr->r_idx == MON_MURASA)
+			{
+#ifdef JP
+				msg_format("%sが水の中から現れた！", m_name);
+#endif
+			}
 			else if (distance(y, x, m_ptr->fy, m_ptr->fx) < 3)
 			{
 #ifdef JP

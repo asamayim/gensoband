@@ -1297,7 +1297,7 @@ void check_quest_completion(monster_type *m_ptr)
 
 
 					/* Finish the two main quests without rewarding */
-				//	if ((i == QUEST_OBERON) || (i == QUEST_SERPENT))
+				//	if ((i == QUEST_TAISAI) || (i == QUEST_SERPENT))
 					///mod140305 紫を倒しても報酬は出ない
 					if ((i == QUEST_YUKARI) )
 					{
@@ -1309,7 +1309,7 @@ void check_quest_completion(monster_type *m_ptr)
 					/*:::Hack Easyでは紫を倒しても50階から下にはいけない*/
 					if ((i == QUEST_YUKARI) && difficulty == DIFFICULTY_EASY) create_stairs = FALSE;
 
-					if ((i == QUEST_OBERON) ||(i == QUEST_SERPENT) )
+					if ((i == QUEST_TAISAI) ||(i == QUEST_SERPENT) )
 					{
 						///mod140118 オベロンクエを達成しても階段が出ないようにする
 						create_stairs = FALSE;
@@ -1319,7 +1319,7 @@ void check_quest_completion(monster_type *m_ptr)
 					}
 
 					//Hack - Extraモードではオベロンを倒したとき階段が出る(混沌の領域へ飛ぶ)
-					if(EXTRA_MODE && i == QUEST_OBERON)
+					if(EXTRA_MODE && i == QUEST_TAISAI)
 					{
 						create_stairs = TRUE;
 					}
@@ -2681,6 +2681,18 @@ msg_print("勝利！チャンピオンへの道を進んでいる。");
 		}
 		break;
 
+
+	case MON_SUIRYUU:
+		///水龍の鱗
+		if (drop_chosen_item)
+		{
+			q_ptr = &forge;
+			object_prep(q_ptr, lookup_kind(TV_MATERIAL, SV_MATERIAL_ICESCALE));
+			q_ptr->number = 1;
+			(void)drop_near(q_ptr, -1, y, x);
+		}
+		break;
+
 	default:
 		if (!drop_chosen_item) break;
 
@@ -2984,15 +2996,16 @@ msg_print("勝利！チャンピオンへの道を進んでいる。");
 		switch (m_ptr->r_idx)
 		{
 		case MON_OBERON:
-			if (one_in_(3))
-			{
-				a_idx = ART_JUDGE;
-				chance = 33;
-			}
-			else
+			//v2.0 オベロンを倒したらアンバーの王冠か審判の宝石を100%落とすことにした
+			if (!a_info[ART_AMBER].cur_num)
 			{
 				a_idx = ART_AMBER;
-				chance = 50;
+				chance = 100;
+			}
+			else if(!a_info[ART_JUDGE].cur_num)
+			{
+				a_idx = ART_JUDGE;
+				chance = 100;
 			}
 			break;
 		///del131224 Tシャツ廃止
@@ -3579,16 +3592,16 @@ msg_print("勝利！チャンピオンへの道を進んでいる。");
 		else if(!EXTRA_MODE)
 		{
 			int tmp;
-			if (difficulty >= DIFFICULTY_HARD && one_in_(2) )
+			if (difficulty >= DIFFICULTY_HARD && one_in_(2) || p_ptr->pclass == CLASS_SEIJA)
 			{
 				msg_print("「あとは任せた！おやすみー！」");
 
 			}
 			else
 			{
-				msg_print("「いつの間にこれほどの力を・・」");
+				msg_print("「いつの間にこれほどの力を…」");
 				msg_print("「しょうがないわね。この先に進みたければ勝手になさい。」");
-				msg_print("「出来れば一番下にいる迷惑な余所者を追い払ってくれたら助かるわ。」");
+				msg_print("「出来れば一番下にいる厄介者を埋め直してくれたら助かるわ。」");
 
 			}
 			//ノーマルは紫を倒せば引退可能
@@ -3596,11 +3609,11 @@ msg_print("勝利！チャンピオンへの道を進んでいる。");
 
 			/*:::Mega Hack - 紫を倒した時オベロンクエスト受領*/
 			tmp = p_ptr->inside_quest;
-			p_ptr->inside_quest = QUEST_OBERON;
+			p_ptr->inside_quest = QUEST_TAISAI;
 			init_flags |= INIT_ASSIGN;
 			process_dungeon_file("q_info.txt", 0, 0, 0, 0);
 	
-			quest[QUEST_OBERON].status = QUEST_STATUS_TAKEN;
+			quest[QUEST_TAISAI].status = QUEST_STATUS_TAKEN;
 			p_ptr->inside_quest = tmp;
 		}
 		//Extraモードでは何もしない
@@ -3615,7 +3628,7 @@ msg_print("勝利！チャンピオンへの道を進んでいる。");
 		/* Redraw the "title" */
 		p_ptr->redraw |= (PR_TITLE);
 
-		do_cmd_write_nikki(NIKKI_BUNSHOU, 0, "あなたは変愚蛮怒(勝手版)の*真の勝利者*となった！");
+		do_cmd_write_nikki(NIKKI_BUNSHOU, 0, "あなたは幻想蛮怒の*真の勝利者*となった！");
 
 		play_music(TERM_XTRA_MUSIC_BASIC, MUSIC_BASIC_FINAL_QUEST_CLEAR);//v1.1.58
 
@@ -3636,7 +3649,7 @@ msg_print("勝利！チャンピオンへの道を進んでいる。");
 
 	/* Winner? */
 	///sys サーペント倒したときのメッセージとフラグ処理　オベロンや紫に変更しよう
-	if ((m_ptr->r_idx == MON_OBERON) && !cloned)
+	if ((m_ptr->r_idx == MON_TAISAI) && !cloned)
 	{
 		/* Total winner */
 		p_ptr->total_winner = TRUE;
@@ -3644,7 +3657,7 @@ msg_print("勝利！チャンピオンへの道を進んでいる。");
 		/* Redraw the "title" */
 		p_ptr->redraw |= (PR_TITLE);
 
-		do_cmd_write_nikki(NIKKI_BUNSHOU, 0, "見事に変愚蛮怒(勝手版)の勝利者となった！");
+		do_cmd_write_nikki(NIKKI_BUNSHOU, 0, "見事に幻想蛮怒の勝利者となった！");
 
 		if(p_ptr->pclass == CLASS_REIMU) gain_osaisen(2000000L);
 		if (p_ptr->pclass == CLASS_MAID)
@@ -3663,7 +3676,8 @@ msg_print("勝利！チャンピオンへの道を進んでいる。");
 		msg_print("Qコマンドでゲームを終了してスコアを残すことができます。");
 
 		//v1.1.25 フラグ処理
-		flag_dungeon_complete[DUNGEON_ANGBAND] = 1;
+		//v2.0 ラスボス「太歳星君」を倒してもダンジョン制覇にはならない
+		//flag_dungeon_complete[DUNGEON_ANGBAND] = 1;
 
 
 	}
@@ -4198,7 +4212,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		//特定モンスターを打倒したときスクリーンショット獲得。保存しておいてスコア送信のときに一緒に送る。
 		//v1.1.25 スコア送信復活。場所を少し移動し、オベロンと紫のときも撮ることにした。後のボスを倒したりゲームオーバーになればその都度上書きされるはず
 #ifdef WORLD_SCORE
-			if (m_ptr->r_idx == MON_SERPENT || m_ptr->r_idx == MON_OBERON || m_ptr->r_idx == MON_YUKARI && difficulty != DIFFICULTY_EXTRA)
+			if (m_ptr->r_idx == MON_SERPENT || m_ptr->r_idx == MON_TAISAI || m_ptr->r_idx == MON_YUKARI && difficulty != DIFFICULTY_EXTRA)
 			{
 				/* Make screen dump */
 				screen_dump = make_screen_dump();
@@ -4212,7 +4226,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		///sys mon アンバーの血の呪い オベロンは100%にしようか
 		///mod150502 諏訪子特殊処理 「赤口（ミシャグチ）さま」発動中はworld_monster=-1になって敵の呪いなどを受けない
 		///mod150711 妹紅パゼストバイフェニックスのときも血の呪いを受けない
-		if ((m_ptr->r_idx == MON_OBERON || (r_ptr->flags3 & RF3_ANG_AMBER) && one_in_(2)) && !world_monster && !flag_mokou_possess && !(m_ptr->mflag & MFLAG_EPHEMERA))
+		if ((r_ptr->flags3 & RF3_ANG_AMBER) && one_in_(2) && !world_monster && !flag_mokou_possess && !(m_ptr->mflag & MFLAG_EPHEMERA))
 		{
 			int curses = 1 + randint1(3);
 			bool stop_ty = FALSE;
