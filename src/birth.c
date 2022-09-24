@@ -450,6 +450,8 @@ static cptr seikaku_special_jouhou[MAX_SEIKAKU_SPECIAL] =
 	"あなたは異変調査のためにしばし素性を隠して活動することにしました。通常と違い頭に「頭襟」を装備する必要がありません。探索能力がやや上昇しますが肉弾戦関係の能力が少し低下します。",
 	//女苑「石油王」
 	"あなたと姉はひょんなことから石油を掘り当て石油王になりました。普段のように金を奪ったり散財したりする代わりに、石油を撒き散らしたり撒いた石油を燃やしたり姉を盾にしたりしながら戦います。いかにも富豪らしい雰囲気を醸し出すあなたは、街の店でいくらでもツケ払いで買い物をすることができます。しかし幻想郷に石油を換金する手段はなく、いずれ店主達はあなたからツケを取り立てることでしょう。",
+	//魔理沙「闇市場調査員」
+	"あなたはアビリティカードの闇市場の調査を始めました。この性格では通常の特技の代わりに職業「カード売人」と同じ特技を使用できます。スカートの隠しポケットにはいつもの自作の魔法の代わりにアビリティカードを8種類まで格納できます。魔法書を使った通常の魔法はこれまで通りに習得できます。",
 
 };
 
@@ -479,6 +481,7 @@ static int get_special_seikaku_index(int class_idx)
 	if (class_idx == CLASS_ORIN)		return SEIKAKU_SPECIAL_ORIN;
 	if (class_idx == CLASS_AYA)			return SEIKAKU_SPECIAL_AYA;
 	if (class_idx == CLASS_JYOON)		return SEIKAKU_SPECIAL_JYOON;
+	if (class_idx == CLASS_MARISA)		return SEIKAKU_SPECIAL_MARISA;
 
 
 	return SEIKAKU_SPECIAL_NONE;
@@ -2788,6 +2791,12 @@ outfit_type birth_outfit_class[] = {
 	{CLASS_MARISA,2,0,TV_HEAD,SV_HEAD_WITCH,1},
 	{CLASS_MARISA,2,0,TV_POTION,SV_POTION_SPEED,3},
 
+	//魔理沙アビリティカード　専用性格以外ではキャンセルされる
+	{ CLASS_MARISA,2,0,TV_ABILITY_CARD,SV_ABILITY_CARD,1 },
+	{ CLASS_MARISA,2,0,TV_ABILITY_CARD,SV_ABILITY_CARD,1 },
+	{ CLASS_MARISA,2,0,TV_ABILITY_CARD,SV_ABILITY_CARD,1 },
+
+
 	{CLASS_WAKASAGI,2,0,TV_CLOTHES,SV_CLOTH_EASTERN,1},
 	{CLASS_WAKASAGI,2,0,TV_MATERIAL,SV_MATERIAL_AQUAMARINE,1},
 
@@ -3261,6 +3270,13 @@ void player_outfit(void)
 		//職業と性別が合わない行はパス
 		if(birth_outfit_class[i].type != p_ptr->pclass) continue;
 		if(birth_outfit_class[i].psex == SEX_MALE && p_ptr->psex == SEX_FEMALE || birth_outfit_class[i].psex == SEX_FEMALE && p_ptr->psex == SEX_MALE) continue;
+
+
+		//v2.0.1 魔理沙は専用性格以外ではアビリティカードを持たない
+		if (p_ptr->pclass == CLASS_MARISA && !is_special_seikaku(SEIKAKU_SPECIAL_MARISA))
+		{
+			if (birth_outfit_class[i].tval == TV_ABILITY_CARD) continue;
+		}
 
 		//アーティファクトを持って開始するクラスの処理 大部分はcreate_named_art()からコピー
 		if(birth_outfit_class[i].artifact_idx)

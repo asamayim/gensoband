@@ -194,6 +194,10 @@ void reset_tim_flags(void)
 	//hack - ルーミア闇生成中は盲目保持
 	if(p_ptr->pclass == CLASS_RUMIA && p_ptr->tim_general[0]) p_ptr->blind = 1;
 
+	rokuro_head_search_item(0, TRUE);
+
+	p_ptr->tim_hirari_nuno = 0;
+
 	p_ptr->paralyzed = 0;       /* Timed -- Paralysis */
 	p_ptr->confused = 0;        /* Timed -- Confusion */
 	p_ptr->afraid = 0;          /* Timed -- Fear */
@@ -429,6 +433,15 @@ void dispel_player(void)
 		p_ptr->special_defense &= ~(SD_GLASS_SHIELD);
 
 	}
+
+	//v2.0.1 生命爆発の薬
+	if (p_ptr->special_defense & SD_LIFE_EXPLODE)
+	{
+		msg_print("生命爆発の効果が消えた。");
+		p_ptr->special_defense &= ~(SD_LIFE_EXPLODE);
+
+	}
+
 
 	//うどんげ「イビルアンジュレーション」消去
 	if (p_ptr->special_defense & EVIL_UNDULATION_MASK)
@@ -1820,7 +1833,8 @@ bool set_tim_superstealth(int v, bool do_dec, int stealth_type)
 	{
 		//超隠密のタイプをsuperstealth_typeに記録する前のフラグ
 		//v1.1.88 superstealth_typeに置き換えたが、アップデートのときに光学迷彩中のプレイヤーがいるかもしれんのでしばらくフラグを落とす処理を残しとく
-		p_ptr->special_defense &= ~(SD_OPTICAL_STEALTH);
+		//v2.0.1 もう消していいだろう
+		//p_ptr->special_defense &= ~(SD_OPTICAL_STEALTH);
 
 
 		if (p_ptr->tim_superstealth)
@@ -6694,6 +6708,24 @@ int take_hit(int damage_type, int damage, cptr hit_from, int monspell)
 			else
 				return 0;
 		}
+		//v2.0.1 生命爆発の薬
+		else if (p_ptr->special_defense & SD_LIFE_EXPLODE)
+		{
+			if (damage_type == DAMAGE_FORCE)
+			{
+				msg_print("生命力の壁を貫通された！");
+			}
+			else
+			{
+				//攻撃を受けたあと爆発を起こすフラグ　ここで実行するとバグの原因になりそうなのでprocess_world()で行う
+				flag_life_explode = TRUE;
+
+				msg_print("生命の力が攻撃を無効化した！");
+				p_ptr->special_defense &= ~(SD_LIFE_EXPLODE);
+				p_ptr->redraw |= PR_STATUS;
+				return 0;
+			}
+		}
 
 		/*:::切腹は無敵に優先？　無敵貫通処理*/
 		if (IS_INVULN() && (damage < 9000))
@@ -9445,6 +9477,10 @@ bool immune_insanity(void)
 //「エイボンの霧の車輪」の効果が切れる
 void break_eibon_wheel(void)
 {
+
+	//v2.0.1 ひらり布のカードを使っている場合同じ条件で解除する
+	if (p_ptr->tim_hirari_nuno) set_hirarinuno_card(0, TRUE);
+
 	if(!(p_ptr->special_defense & (SD_EIBON_WHEEL))) return;
 
 	//v1.1.33 あうんの石像化もこのルーチンに統合する
@@ -9645,3 +9681,64 @@ void	check_suiken(void)
 
 }
 
+
+
+
+
+
+//v2.0.1 アビリティカードのひらり布(正邪特技のひらり布ではない)
+//カウントダウンのほかエイボンの霧の車輪(break_eibon_wheel())のように移動や攻撃などで解除される
+//ダメージでは解除されない
+bool set_hirarinuno_card(int v, bool do_dec)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	if (p_ptr->is_dead) return FALSE;
+
+	/* Open */
+	if (v)
+	{
+		if (p_ptr->tim_hirari_nuno && !do_dec)
+		{
+			if (p_ptr->tim_hirari_nuno > v) return FALSE;
+		}
+		else
+		{
+			msg_print("あなたは布をかぶって姿を隠した。");
+
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->tim_hirari_nuno)
+		{
+			msg_print("あなたは布から出て姿を現した。");
+
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->tim_hirari_nuno = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}

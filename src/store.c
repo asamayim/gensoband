@@ -2902,6 +2902,8 @@ static void store_create(void)
 				level = MIN(127,tmp); //ƒ_ƒ“ƒWƒ‡ƒ““àBM 
 			}
 
+
+
 			//v1.1.86 ¤”„ãŽè‚Èµ‚«”L
 			level += lev_bonus;
 			if (level > 127) level = 127;

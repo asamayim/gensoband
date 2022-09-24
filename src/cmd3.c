@@ -3962,4 +3962,3 @@ bool wield_check( int slot, int item_new)
 
 	return (TRUE);
 }
-

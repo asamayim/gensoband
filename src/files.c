@@ -404,6 +404,7 @@ static named_num gf_desc[] =
 	{ "GF_MAKE_POISON_PUDDLE",			GF_MAKE_POISON_PUDDLE },
 	{ "GF_MAKE_ACID_PUDDLE",			GF_MAKE_ACID_PUDDLE },
 	{ "GF_MAKE_STORM",			GF_MAKE_STORM },
+	{ "GF_KANAMEISHI",			GF_KANAMEISHI },
 
 
 
@@ -8602,6 +8603,9 @@ static void dump_aux_inventory2(FILE *fff)
 	case CLASS_SANNYO:
 	case CLASS_MIKE:
 		fprintf(fff, "  [カードケースの中]\n\n"); break;
+	case CLASS_MARISA:
+		fprintf(fff, "  [隠しポケットの中]\n\n"); break;
+
 	default:
 		fprintf(fff, "  [追加インベントリ]\n\n");break;
 	}
@@ -10176,6 +10180,8 @@ prt("ゲームをセーブしています...", 0, 0);
 	/* Forbid suspend */
 	/*:::何もしてない？*/
 	signals_ignore_tstp();
+
+	if(p_ptr->wizard) msg_format("playing:%d is_dead:%d",p_ptr->playing,p_ptr->is_dead);
 
 	/* Save the player */
 	if (save_player())

@@ -6734,7 +6734,7 @@ byte calc_ex_dun_bldg_prob(int ex_bldg_idx)
 		else return 3;
 
 	case BLDG_EX_ABANDONED:
-		if(p_ptr->pclass == CLASS_MARISA) return 100;
+		if(p_ptr->pclass == CLASS_MARISA && !is_special_seikaku(SEIKAKU_SPECIAL_MARISA)) return 100;
 		else return 10;
 	case BLDG_EX_SUKIMA:
 		return 30;
@@ -7240,7 +7240,7 @@ void	init_extra_dungeon_buildings(void)
 			building[i].letters[0] = 'a';
 			building[i].actions[0] = BACT_EX_SEARCH_AROUND;
 
-			if(building_ex_idx[i] == BLDG_EX_ABANDONED && p_ptr->pclass == CLASS_MARISA)
+			if(building_ex_idx[i] == BLDG_EX_ABANDONED && p_ptr->pclass == CLASS_MARISA && !is_special_seikaku(SEIKAKU_SPECIAL_MARISA))
 			{
 				sprintf(building[i].act_names[1],"魔法を実験する");
 				building[i].letters[1] = 'b';
@@ -7700,6 +7700,8 @@ bool generate_rooms(void)
 		}
 		else
 		{
+			int jyoon_card_num = count_ability_card(ABL_CARD_JYOON);
+
 			///mod160221 ExtraモードではPITやNESTがあまり出ない 地下街出やすい
 			if(EXTRA_MODE)
 			{
@@ -7710,9 +7712,25 @@ bool generate_rooms(void)
 				else 
 					prob_list[i] = room_info_ptr[i].prob[level_index];
 			}
-			else 
+			else
+			{
 				prob_list[i] = room_info_ptr[i].prob[level_index];
+			}
+
+			//v2.0.1 アビリティカード「抗いがたきジュリ扇」によるvault,pit出現率アップ
+			if (jyoon_card_num)
+			{
+				int mult = calc_ability_card_mod_param(ABL_CARD_JYOON, jyoon_card_num);
+
+				if (i == ROOM_T_NEST || i == ROOM_T_PIT || i == ROOM_T_LESSER_VAULT || i == ROOM_T_GREATER_VAULT || i == ROOM_T_RANDOM_VAULT 
+					|| i == ROOM_T_TRAP_PIT || i == ROOM_T_TRAP || i == ROOM_T_GLASS || i == ROOM_T_ARCADE )
+					prob_list[i] = prob_list[i] * mult / 100;
+			}
+
 		}
+
+
+		//if (cheat_room) msg_format("type%d prob:%d", i, prob_list[i]);
 	}
 
 	/*

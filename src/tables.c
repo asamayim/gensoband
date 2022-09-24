@@ -13755,6 +13755,16 @@ const player_seikaku seikaku_info_special[MAX_SEIKAKU_SPECIAL] =
 		, FALSE
 	},
 
+	//v2.0.1 魔理沙専用
+	{
+		"闇市場調査員　",
+		"闇市場調査員　",
+		"Bulletphillia",
+		{ 0,  0,  0,  0,  0,  0 },
+		0,  5, 0, 0, 0,  0,  -5,  -5,
+		0, 0
+		,FALSE
+	},
 
 };
 
@@ -13799,6 +13809,8 @@ const nightmare_spellname_type	nightmare_spellname_table[] =
 	{ MON_CIRNO,CLASS_CIRNO,NULL,"パーフェクト",NULL,16 },
 	{ MON_CIRNO,CLASS_CIRNO,NULL,"冷凍法",NULL,0 },
 	{ MON_CIRNO,CLASS_CIRNO,NULL,"フェアリー",NULL,12 },
+	{ MON_CIRNO,CLASS_CIRNO,NULL,"フリィィィズ！",NULL,0 },
+
 
 	{ MON_MEIRIN,CLASS_MEIRIN,NULL,"セラギネラ",NULL,16 },
 	{ MON_MEIRIN,CLASS_MEIRIN,NULL,"９",NULL,0 },
@@ -13964,6 +13976,8 @@ const nightmare_spellname_type	nightmare_spellname_table[] =
 	{ MON_MINORIKO,CLASS_MINORIKO,NULL,"スイートポテト",NULL,8 },
 	{ MON_MINORIKO,CLASS_MINORIKO,NULL,"秋の空","と",0 },
 	{ MON_MINORIKO,CLASS_MINORIKO,"と","乙女の心",NULL,0 },
+	{ MON_MINORIKO,CLASS_MINORIKO,NULL,"五穀豊穣",NULL,18 },
+
 
 	{ MON_HINA,CLASS_MINORIKO,NULL,"厄神様","の",12 },
 	{ MON_HINA,CLASS_MINORIKO,NULL,"バッド",NULL,10 },
@@ -14143,6 +14157,9 @@ const nightmare_spellname_type	nightmare_spellname_table[] =
 	{ MON_SEKIBANKI,CLASS_BANKI,NULL,"ロクロ",NULL,13 },
 	{ MON_SEKIBANKI,CLASS_BANKI,NULL,"マルチプリケイティブ",NULL,16 },
 	{ MON_SEKIBANKI,CLASS_BANKI,NULL,"ヘッド",NULL,5 },
+	{ MON_SEKIBANKI,CLASS_BANKI,NULL,"生首",NULL,10 },
+	{ MON_SEKIBANKI,CLASS_BANKI,NULL,"身軽","な",20 },
+
 
 	{ MON_KAGEROU,CLASS_KAGEROU,NULL,"血に餓えた",NULL,18 },
 	{ MON_KAGEROU,CLASS_KAGEROU,NULL,"ウルフ",NULL,8 },
@@ -14304,6 +14321,7 @@ const nightmare_spellname_type	nightmare_spellname_table[] =
 	{ MON_NEMUNO,CLASS_NEMUNO,NULL,"マウンテン",NULL,13 },
 	{ MON_NEMUNO,CLASS_NEMUNO,NULL,"マーダー",NULL,3 },
 
+
 	{ MON_AUNN,CLASS_AUNN,NULL,"コマ犬",NULL,13 },
 	{ MON_AUNN,CLASS_AUNN,NULL,"大回転",NULL,2 },
 	{ MON_AUNN,CLASS_AUNN,NULL,"阿吽","の",16 },
@@ -14313,6 +14331,8 @@ const nightmare_spellname_type	nightmare_spellname_table[] =
 	{ MON_NARUMI,CLASS_NARUMI,NULL,"ストンプ",NULL,1 },
 	{ MON_NARUMI,CLASS_NARUMI,NULL,"即席",NULL,15 },
 	{ MON_NARUMI,CLASS_NARUMI,NULL,"慈愛の",NULL,18 },
+	{ MON_NARUMI,CLASS_NARUMI,NULL,"５６億７千万年","の",25 },
+
 
 	{ MON_MAI,CLASS_MAI,NULL,"バンブー",NULL,14 },
 	{ MON_MAI,CLASS_MAI,NULL,"タナバタ",NULL,18 },
@@ -14356,6 +14376,8 @@ const nightmare_spellname_type	nightmare_spellname_table[] =
 	{ MON_EIKA,CLASS_EIKA,NULL,"チルドレン","ズ",16 },
 	{ MON_EIKA,CLASS_EIKA,NULL,"リンボ",NULL,5 },
 	{ MON_EIKA,CLASS_EIKA,NULL,"ウッズ",NULL,5 },
+	{ MON_EIKA,CLASS_EIKA,NULL,"積石",NULL,10 },
+
 
 	{ MON_URUMI,CLASS_URUMI,NULL,"ヘビー",NULL,18 },
 	{ MON_URUMI,CLASS_URUMI,NULL,"デーモン",NULL,12 },
@@ -14389,12 +14411,15 @@ const nightmare_spellname_type	nightmare_spellname_table[] =
 	{ MON_SAKI,CLASS_SAKI,NULL,"ビースト",NULL,12 },
 	{ MON_SAKI,CLASS_SAKI,NULL,"マッスル",NULL,16 },
 	{ MON_SAKI,CLASS_SAKI,NULL,"エクスプロージョン",NULL,5 },
+	{ MON_SAKI,CLASS_SAKI,"は","筋力だ！",NULL,0 },
 
 
 	{ MON_MIKE,CLASS_MIKE,NULL,"弾幕",NULL,25 },
 	{ MON_MIKE,CLASS_MIKE,NULL,"万来",NULL,5 },
 	{ MON_MIKE,CLASS_MIKE,NULL,"弾災",NULL,25 },
 	{ MON_MIKE,CLASS_MIKE,NULL,"招福",NULL,5 },
+	{ MON_MIKE,CLASS_MIKE,"に","小判",NULL,3 },
+
 
 	{ MON_TAKANE,CLASS_TAKANE,"の","技術",NULL,3 },
 	{ MON_TAKANE,CLASS_TAKANE,NULL,"グリーン",NULL,20 },
@@ -14422,11 +14447,14 @@ const nightmare_spellname_type	nightmare_spellname_table[] =
 	{ MON_TSUKASA,CLASS_TSUKASA,NULL,"フォックス",NULL,15 },
 	{ MON_TSUKASA,CLASS_TSUKASA,NULL,"フォックス",NULL,5 },
 	{ MON_TSUKASA,CLASS_TSUKASA,NULL,"シリンダー",NULL,12 },
+	{ MON_TSUKASA,CLASS_TSUKASA,NULL,"管の中","の",25 },
 
 	{ MON_SANNYO,CLASS_SANNYO,NULL,"星火燎原","の",20 },
 	{ MON_SANNYO,CLASS_SANNYO,NULL,"光彩陸離","の",20 },
 	{ MON_SANNYO,CLASS_SANNYO,NULL,"天馬行空","の",20 },
+	{ MON_SANNYO,CLASS_SANNYO,NULL,"天真爛漫","の",20 },
 	{ MON_MEGUMU,CLASS_MEGUMU,"の","舞",NULL,1 },
+	{ MON_MEGUMU,CLASS_MEGUMU,"の","風",NULL,7 },
 
 	{ MON_CHIMATA,CLASS_CHIMATA,NULL,"密度の高い",NULL,30 },
 	{ MON_CHIMATA,CLASS_CHIMATA,NULL,"バレット",NULL,20 },
@@ -14434,6 +14462,7 @@ const nightmare_spellname_type	nightmare_spellname_table[] =
 	{ MON_CHIMATA,CLASS_CHIMATA,NULL,"ドミニオン",NULL,7 },
 	{ MON_CHIMATA,CLASS_CHIMATA,"の","アジール",NULL,5 },
 	{ MON_SANNYO,CLASS_SANNYO,NULL,"暴虐","の",20 },
+	{ MON_CHIMATA,CLASS_CHIMATA,"の","ミシガンロール",NULL,5 },
 
 	{ MON_MOMOYO,CLASS_MOMOYO,NULL,"カニバリスティック",NULL,15 },
 	{ MON_MOMOYO,CLASS_MOMOYO,NULL,"インセクト",NULL,5 },
@@ -14464,6 +14493,7 @@ const nightmare_spellname_type	nightmare_spellname_table[] =
 	{ MON_REIMU,CLASS_REIMU,NULL,"無慈悲","な",23 },
 	{ MON_REIMU,CLASS_REIMU,"は","撮影禁止です",NULL,0 },
 	{ MON_REIMU,CLASS_REIMU,NULL,"盗撮者調伏",NULL,30 },
+	{ MON_REIMU,CLASS_REIMU,NULL,"大入り",NULL,15 },
 
 	{ MON_MARISA,CLASS_MARISA,NULL,"マスター",NULL,12 },
 	{ MON_MARISA,CLASS_MARISA,NULL,"スパーク",NULL,6 },
@@ -14766,7 +14796,7 @@ pattern_attack_type pattern_attack_table[PATTERN_ATTACK_TYPE_MAX + 1] =
 
 //アビリティカード情報テーブル
 //アビリティカードのo_ptr->pvalにこのテーブルのインデックスを記録する
-//{"card_name",rarity_rank,trade_value,activate,difficulty,charge_turn}
+//{"card_name",rarity_rank,trade_value,activate,difficulty,charge_turn,mon_r_idx}
 //charge_turnは300を超えないこと
 ability_card_type ability_card_list[ABILITY_CARD_LIST_LEN] =
 {
@@ -14825,6 +14855,43 @@ ability_card_type ability_card_list[ABILITY_CARD_LIST_LEN] =
 	{ "霊力の標本瓶"		,3,60,TRUE,60,50 ,MON_TSUKASA},
 	{ "大天狗の麦飯"		,3,77,TRUE,70,100 ,MON_MEGUMU},
 	//空色の勾玉は出さない
+	//↓v2.0.1追加
+	{ "資本主義のジレンマ "		,2,30,FALSE,0,0,MON_NITORI }, 
+	{ "魔法使いの基礎勉強 "		,2,47,FALSE,0,0,MON_PATCHOULI },
+	{ "破壊の美学 "				,3,80,TRUE,75,50,MON_FLAN },
+	{ "龍の通り道 "				,3,88,FALSE,0,0,MON_FUTO },
+	{ "けしかける狛犬 "			,2,33,TRUE,65,15,MON_AUNN },
+	{ "生命爆発の薬 "			,4,118,TRUE,95,100,MON_EIRIN },
+	{ "生命の豊穣 "				,3,65,FALSE,0,0,MON_MINORIKO },
+	{ "不屈の脳筋 "				,3,63,FALSE,0,0,MON_SAKI },
+	{ "半霊のスペア "			,2,26,FALSE,0,0,0 },
+	{ "静かなる輝き"			,1,17,TRUE,50,15,MON_3FAIRIES },
+	{ "狂おしい静寂 "			,1,17,TRUE,50,15,MON_3FAIRIES },
+	{ "賑やかな無力"			,1,17,TRUE,50,15,MON_3FAIRIES },
+	{ "刺激的な鱗粉"			,1,19,TRUE,40,30,MON_LARVA },
+	{ "山姥の包丁"				,3,62,TRUE,55,20,MON_NEMUNO },
+	{ "舞い降りた兎"			,3,73,FALSE,0,0,MON_SEIRAN },
+	{ "攻撃的な宝塔"			,3,90,TRUE,75,60,MON_SHOU },
+	{ "自由気ままな生首"		,3,68,TRUE,75,100,MON_SEKIBANKI },
+	{ "気ままな無脊椎動物"		,2,31,FALSE,0,0,MON_EIKA },
+	{ "濡れた大蛇"				,2,38,TRUE,60,40,MON_URUMI },
+	{ "クリエイターなら容易な事",3,65,TRUE,80,100,MON_KEIKI },
+	{ "詐欺うさぎの足"			,2,30,TRUE,70,45,MON_TEWI },
+	{ "酔狂の伊吹瓢"			,3,74,TRUE,60,100,MON_SUIKA },
+	{ "命を焚く松明"			,4,128,TRUE,60,20,MON_CLOWNPIECE },
+	{ "要石ミサイル"			,4,112,TRUE,80,60,MON_TENSHI },
+	{ "わかさぎの鱗"			,2,33,TRUE,65,50,MON_WAKASAGI },
+	{ "正直すぎる道しるべ"		,2,48,TRUE,50,50,MON_KUTAKA },
+	{ "急がば三途の回り道"		,2,49,TRUE,50,25,MON_KOMACHI },
+	{ "ひらり布"				,2,29,TRUE,50,30,MON_SEIJA },
+	{ "抗いがたきジュリ扇"		,3,83,FALSE,0,0,0 },
+	{ "煤けた団扇"				,3,84,FALSE,0,0,0 },
+	{ "数えたくなる羊"			,3,77,TRUE,80,100,MON_DOREMY },
+	{ "純粋な自己肯定感"		,4,123,TRUE,70,50,MON_JUNKO },
+	{ "ゆのみ霊夢"				,4,143,TRUE,80,50,0 },//買い取りで入手できない
+	{ "ゆのみ魔理沙"			,4,147,TRUE,80,50,0 },//買い取りで入手できない
+	{ "百回目のブラックマーケット "	,4,160,FALSE,0,0,0 },
+
 
 };
 

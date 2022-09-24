@@ -6947,6 +6947,15 @@ bool check_quest_unique_text(void)
 				strcpy(quest_text[line++], "手遅れになる前に埋め直さないといけない。");
 			}
 		}
+		else if (pc == CLASS_MEIRIN)
+		{
+			if (accept)
+			{
+				strcpy(quest_text[line++], "幻想郷が太歳星君の脅威に晒されている！");
+				strcpy(quest_text[line++], "あのときの夢はやはりこの予兆だった！");
+				strcpy(quest_text[line++], "この私こそが最前線で戦わなければ！");
+			}
+		}
 
 		break;
 
@@ -11769,6 +11778,16 @@ void buy_ability_card(bool examine)
 			{
 				color = TERM_WHITE;
 				price = calc_ability_card_price(o_ptr->pval);
+
+				//「資本主義のジレンマ」のカードによる価格乱高下
+				//p_ptr->magic_num2[10-19)が50を元値として1ごとに2%上下する
+				if (p_ptr->magic_num2[10 + i + ABLCARD_MAGICNUM_SHIFT])
+				{
+					int old_price = price;
+					price += price * (p_ptr->magic_num2[10 + i + ABLCARD_MAGICNUM_SHIFT] - 50) * 2 / 100;
+					if (cheat_peek) msg_format("price:%d -> %d", old_price, price);
+				}
+
 				object_desc(o_name, o_ptr, 0);
 				desc = format("%c) %-50s  $%d", 'a' + i, o_name, price);
 
@@ -11790,7 +11809,8 @@ void buy_ability_card(bool examine)
 		{
 	
 			int price;
-			o_ptr = &barter_list[c - 'a'];
+			int pos = c - 'a';
+			o_ptr = &barter_list[pos];
 
 			if (!o_ptr->pval)
 			{
@@ -11809,6 +11829,15 @@ void buy_ability_card(bool examine)
 			else //購入
 			{
 				price = calc_ability_card_price(o_ptr->pval);
+
+				//「資本主義のジレンマ」のカードによる価格乱高下
+				//p_ptr->magic_num2[10-19)が50を元値として1離れるごとに2%上下する
+				if (p_ptr->magic_num2[10 + pos + ABLCARD_MAGICNUM_SHIFT])
+				{
+					price += price * (p_ptr->magic_num2[10 + pos + ABLCARD_MAGICNUM_SHIFT] - 50) * 2 / 100;
+				}
+
+
 				if (price > p_ptr->au)
 				{
 					msg_print("お金が足りない。");
@@ -13578,6 +13607,13 @@ static void marisa_read_memo(void)
 		msg_print("ERROR:魔理沙以外でmarisa_read_memo()が呼ばれた");
 		return;
 	}
+
+	if (is_special_seikaku(SEIKAKU_SPECIAL_MARISA))
+	{
+		msg_print("今は闇市場の調査中だ。アビリティカードを探しに行こう。");
+		return;
+	}
+
 	display_rumor_new(22);
 }
 

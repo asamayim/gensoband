@@ -4139,7 +4139,7 @@ bool mutation_power_aux(u32b power)
 			break;
 */
 		case MUT1_MIDAS_TCH:
-			if (!alchemy()) return FALSE;
+			if (!alchemy(0)) return FALSE;
 			break;
 
 		/* Summon pet molds around the player */

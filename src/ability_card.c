@@ -65,6 +65,13 @@ int apply_magic_abilitycard(object_type *o_ptr, int card_idx, int card_rank_min,
 			//EXTRAモードでは帰還用カードが出ない
 			if (EXTRA_MODE && i == ABL_CARD_SANAE1) continue;
 
+			//現実変容カードも出ない
+			if (EXTRA_MODE && i == ABL_CARD_DOREMY) continue;
+
+			//市場破壊カードも出ない
+			if (EXTRA_MODE && i == ABL_CARD_NITORI) continue;
+
+
 			candi_num++;
 			if (!one_in_(candi_num)) continue;
 			new_idx = i;
@@ -141,9 +148,8 @@ int	count_ability_card(int card_idx)
 
 }
 
-//カードによるHP,SP上昇の計算式
-//use_ability_card_axu()による説明文生成のほかに実際にHP/MPを増やすときにも同じ式を使うのでまとめることにした
-int calc_ability_card_add_hp_sp(int card_idx, int card_num)
+//カードによるHP,SP上昇などのパラメータ計算
+int calc_ability_card_mod_param(int card_idx, int card_num)
 {
 	int bonus = 0;
 	int plev = p_ptr->lev;
@@ -167,6 +173,25 @@ int calc_ability_card_add_hp_sp(int card_idx, int card_num)
 
 		}
 		break;
+		case ABL_CARD_FUTO:
+		{
+			bonus = plev;
+
+			if (card_num > 1) bonus += plev * (card_num - 1) / 10;
+			if (card_num == 9) bonus = plev * 2;
+
+		}
+		break;
+		case ABL_CARD_FEAST:
+		{
+			bonus = plev * 2;
+
+			if (card_num > 1) bonus += plev * (card_num - 1) / 5;
+			if (card_num == 9) bonus = plev * 4;
+
+		}
+		break;
+
 		case ABL_CARD_PHOENIX:
 		{
 
@@ -176,9 +201,20 @@ int calc_ability_card_add_hp_sp(int card_idx, int card_num)
 				bonus = plev * 3 + (card_num - 1) * plev/2;
 		}
 		break;
+
+		//vault出現率(%)と強敵出現率(get_mon_num())へのブースト
+		case ABL_CARD_JYOON:
+		case ABL_CARD_SHION:
+		{
+			bonus = 200;
+
+			if (card_num > 1) bonus += (card_num - 1) * 30;
+			if (card_num >= 9) bonus = 500;
+		}
+		break;
 		
 		default:
-			msg_format("ERROR:calc_ability_card_add_hp_sp()に想定外のカード(idx:%d)が渡された",card_idx);
+			msg_format("ERROR:calc_ability_card_mod_param()に想定外のカード(idx:%d)が渡された",card_idx);
 
 	}
 
@@ -189,6 +225,7 @@ int calc_ability_card_add_hp_sp(int card_idx, int card_num)
 
 //背中の扉などカードに関する計算値を返す
 //当初防御確率だけだったが別に他のパラメータに使わん理由もない
+//probとmod_paramに分けたんだからこの関数には確率値の計算だけを入れるべきだったがそうなっていないのは反省
 int calc_ability_card_prob(int card_idx, int card_num)
 {
 	int result_param = 0;
@@ -272,6 +309,29 @@ int calc_ability_card_prob(int card_idx, int card_num)
 		if (card_num >= 9) result_param = 50;
 		break;
 
+	case ABL_CARD_PATHE_STUDY:
+		result_param = 4 + card_num;
+		if (card_num >= 9) result_param = 15;
+		break;
+
+	case ABL_CARD_SEIRAN:
+		result_param = 20;
+		if (card_num > 1) result_param += (card_num - 1) * 5;
+		if (card_num >= 9) result_param = 75;
+
+		break;
+
+	case ABL_CARD_JELLYFISH:
+		result_param = 30;
+		if (card_num > 1) result_param += (card_num - 1) * 5;
+		if (card_num >= 9) result_param = 80;
+		break;
+
+	case ABL_CARD_100TH_MARKET:
+		result_param = 40;
+		if (card_num > 1) result_param += (card_num - 1) * 5;
+		if (card_num >= 9) result_param = 90;
+		break;
 
 
 	default:
@@ -280,9 +340,8 @@ int calc_ability_card_prob(int card_idx, int card_num)
 	}
 
 
-
-
-	if (p_ptr->wizard && result_param < 100) result_param = 100;
+	//↓テスト用に100%にする機能をつけていたが、場合によってはフリーズするので無くした。必要に応じて戻す
+	//if (p_ptr->wizard && result_param < 100) result_param = 100;
 
 	return result_param;
 
@@ -340,30 +399,32 @@ cptr use_ability_card_aux(object_type *o_ptr, bool only_info)
 	break;
 
 	case ABL_CARD_LIFE:
+	case ABL_CARD_FEAST:
 	case ABL_CARD_PHOENIX:
 	{
 		int add_hp;
 
-		add_hp = calc_ability_card_add_hp_sp(card_idx, card_num);
+		add_hp = calc_ability_card_mod_param(card_idx, card_num);
 
 		if (only_info) return format(" このカードを所持していると最大HPが%d増加する。同じ効果のカードを複数種類所持している場合一つだけが有効。", add_hp);
 
 	}
 	break;
 	case ABL_CARD_SPELL:
+	case ABL_CARD_FUTO:
 	{
 		int add_sp;
 
-		add_sp = calc_ability_card_add_hp_sp(card_idx, card_num);
+		add_sp = calc_ability_card_mod_param(card_idx, card_num);
 
-		if (only_info) return format(" このカードを所持していると最大MPが%d増加する。MPの非常に低い一部の職には無効。", add_sp);
+		if (only_info) return format(" このカードを所持していると最大MPが%d増加する。MPの非常に低い一部の職には無効。同じ効果のカードを複数種類所持している場合一つだけが有効。", add_sp);
 
 	}
 	break;
 	case ABL_CARD_NAZ:
 	{
 
-		if (only_info) return format(" このカードには何の使い道もない。");
+		if (only_info) return format(" このカードには何の使い道もないが交換価値が高い。");
 
 	}
 	break;
@@ -527,6 +588,8 @@ cptr use_ability_card_aux(object_type *o_ptr, bool only_info)
 	}
 	break;
 
+
+
 	case ABL_CARD_TANUKI:
 	{
 		int power = plev + p_ptr->stat_ind[A_CHR]+3;
@@ -547,16 +610,16 @@ cptr use_ability_card_aux(object_type *o_ptr, bool only_info)
 
 
 	case ABL_CARD_QUARTER_GHOST:
+	case ABL_CARD_SPARE_GHOST:
 	{
 		int dice = card_num+1;
 		int sides = 9;
 		if (card_num >= 9) sides=10;
 
 		if (only_info) return format(" このカードを所持していると敵の隣接攻撃に対して地獄属性で%dd%dダメージの反撃を行う。", dice,sides);
-
-
 	}
 	break;
+
 
 	case ABL_CARD_BACKDOOR:
 	{
@@ -801,6 +864,17 @@ cptr use_ability_card_aux(object_type *o_ptr, bool only_info)
 	}
 	break;
 
+	case ABL_CARD_SAKI_2:
+	{
+		int border_lis[10] = { 50,55,58,61,64,64,67,70,73,75 };
+		int add_lis[10] = { 1,1,1,1,1,2,2,2,2,3 };
+
+		if (only_info) return format("このカードを所持していると、HPが最大値の%d%%未満のときに限り隣接攻撃回数が%d増える。", border_lis[card_num], add_lis[card_num]);
+
+
+	}
+	break;
+
 	case ABL_CARD_SUKIMA:
 	{
 
@@ -816,9 +890,19 @@ cptr use_ability_card_aux(object_type *o_ptr, bool only_info)
 
 		if (only_info) return format("このカードを発動するとアイテムをひとつ選択して1/3の価値の＄に変えることができる。");
 
-		alchemy();
+		alchemy(0);
 	}
 	break;
+
+	case ABL_CARD_KEIKI:
+	{
+
+		if (only_info) return format("このカードを発動すると鉱石・宝石系アイテムをひとつ選択して3倍の価値の＄に変えることができる。");
+
+		alchemy(1);
+	}
+	break;
+
 
 	case ABL_CARD_KANAMEISHI:
 	{
@@ -1013,6 +1097,424 @@ cptr use_ability_card_aux(object_type *o_ptr, bool only_info)
 
 	}
 	break;
+
+	case ABL_CARD_PATHE_STUDY:
+	{
+
+		int prob = calc_ability_card_prob(card_idx, card_num);
+
+		if (only_info)
+			return format("このカードを所持していると魔法の失敗率を%d%%低下させる。最低失敗率があるときはそれを%d%%低下させる。", prob, prob / 3);
+
+	}
+	break;
+
+	case ABL_CARD_SUNNY:
+	case ABL_CARD_LUNAR:
+	case ABL_CARD_STAR:
+	{
+		int dam = 40 + plev * 2 + chr_adj * 2;
+		int typ;
+		int tx, ty;
+
+		if (only_info)
+		{
+			if(card_idx == ABL_CARD_SUNNY)
+				return format(" このカードを発動すると%dダメージの閃光属性のビームを放つ。ただし斜め方向にしか撃てない。", dam);
+			else if (card_idx == ABL_CARD_LUNAR)
+				return format(" このカードを発動すると%dダメージの暗黒属性のビームを放つ。ただし上下方向にしか撃てない。", dam);
+			else
+				return format(" このカードを発動すると%dダメージの隕石属性のビームを放つ。ただし左右方向にしか撃てない。", dam);
+		}
+
+		if (!get_rep_dir2(&dir)) return NULL;
+		if (dir == 5) return NULL;
+
+
+		if (card_idx == ABL_CARD_SUNNY)
+		{
+			typ = GF_LITE;
+			if (dir != 1 && dir != 3 && dir != 7 && dir != 9)
+			{
+				msg_print("その方向には撃てない。");
+				return NULL;
+			}
+		}
+		else if (card_idx == ABL_CARD_LUNAR)
+		{
+			typ = GF_DARK;
+			if (dir != 2 && dir != 8)
+			{
+				msg_print("その方向には撃てない。");
+				return NULL;
+			}
+		}
+		else
+		{
+			typ = GF_METEOR;
+			if (dir != 4 && dir != 6)
+			{
+				msg_print("その方向には撃てない。");
+				return NULL;
+			}
+		}
+
+		tx = px + 99 * ddx[dir];
+		ty = py + 99 * ddy[dir];
+
+		msg_print("ビームを放った！");
+		project(0, 0, ty, tx, dam, typ, (PROJECT_BEAM | PROJECT_KILL | PROJECT_GRID | PROJECT_ITEM), -1);
+
+	}
+	break;
+	case ABL_CARD_AUNN:
+	{
+
+		//明鏡止水と同じ
+		int gain_mana = 3 + plev / 20;
+
+		if (only_info) return format("このカードを発動するとMPを僅かに回復する。");
+
+		msg_print("あなたは呼吸を整えた...");
+
+		if(player_gain_mana(gain_mana))
+			msg_print("少し頭がハッキリした。");
+
+	}
+	break;
+
+	case ABL_CARD_FLAN:
+	{
+		int base = 12, sides = 4;
+
+		if (only_info) return format("このカードを発動すると周辺%d+1d%dグリッドを*破壊*する。",base,sides);
+
+		destroy_area(py, px, base + randint1(sides), FALSE, FALSE, FALSE);
+
+	}
+	break;
+	case ABL_CARD_LARVA:
+	{
+		int dam = 50 + plev + chr_adj * 2;
+
+		if (only_info) return format(" このカードを発動すると周囲のモンスターを最大効力%dで混乱・攻撃力低下させる。", dam);
+
+		msg_print("鱗粉を振りまいた！");
+		project(0, 6, py, px, dam * 2, GF_OLD_CONF, PROJECT_GRID | PROJECT_JUMP | PROJECT_KILL, -1);
+		project(0, 6, py, px, dam * 2, GF_DEC_ATK, PROJECT_HIDE | PROJECT_GRID | PROJECT_JUMP | PROJECT_KILL, -1);
+	}
+	break;
+
+	case ABL_CARD_URUMI:
+	{
+		int dam = plev / 2 + 5;
+
+		if (only_info) return format(" このカードを発動すると周囲のモンスターの移動を短時間妨害する。", dam);
+
+		msg_print("濡れた蛇のようなものが辺りに絡みついた...");
+		project(0, 4, py, px, dam * 2, GF_NO_MOVE, PROJECT_GRID | PROJECT_JUMP | PROJECT_KILL, -1);
+	}
+	break;
+
+	case ABL_CARD_JYOON:
+	{
+		int bonus = calc_ability_card_mod_param(card_idx, card_num);
+
+		if (only_info) return format(" このカードを所持しているとvaultなどの特殊地形が%d.%02d倍出やすくなる。", bonus/100,bonus%100);
+	}
+	break;
+
+	case ABL_CARD_SHION:
+	{
+		int bonus = calc_ability_card_mod_param(card_idx, card_num);
+
+		if (only_info) return format(" このカードを所持しているとフロアより高いレベルのモンスターが%d.%02d倍出にくくなる。", bonus / 100, bonus % 100);
+	}
+	break;
+
+	case ABL_CARD_DOREMY:
+	{
+		if (only_info) return format(" このカードを発動するとフロアを一瞬で再構成する。地上やクエストダンジョンでは効果がない。");
+		if (p_ptr->inside_arena)
+		{
+			msg_print("ここでは使えない。");
+			return NULL;
+		}
+		//1ターン後時現実変容
+		msg_print("現実の感覚が曖昧になっていく...");
+		p_ptr->alter_reality = 1;
+		p_ptr->redraw |= (PR_STATUS);
+
+	}
+	break;
+
+	case ABL_CARD_LIFE_EXPLODE:
+	{
+		if (only_info) return format(" このカードを発動すると敵からの攻撃を一度だけ無効化するようになる。そのときHP/2の威力の気属性の大爆発を起こし周囲の敵にダメージを与える。");
+
+		msg_print("体から生命力が迸る気がする！");
+		p_ptr->special_defense |= SD_LIFE_EXPLODE;
+		p_ptr->redraw |= (PR_STATUS);
+
+	}
+	break;
+
+	case ABL_CARD_JUNKO:
+	{
+		int power = plev * 8;
+		if (only_info) return format(" このカードを発動すると広範囲の敵に対しパワー%dのフロア追放を試みる。",power);
+
+		msg_print("あなたは圧倒的な威圧感を醸し出した！");
+		mass_genocide_2(power, 40, 2);
+	}
+	break;
+
+	case ABL_CARD_LUNATIC_TORCH:
+	{
+		if (only_info) return format(" このカードを発動すると連続で魔法を詠唱することができる。ただし使用後にHPを100消費する。");
+
+		if (!cp_ptr->realm_aptitude[0])
+		{
+			msg_print("あなたは呪文を使えない。");
+			return NULL;
+		}
+
+		if (!can_do_cmd_cast()) return NULL;
+		do_cmd_cast();
+		handle_stuff();
+		if (can_do_cmd_cast()) do_cmd_cast();
+
+		msg_print("連続詠唱の反動が体を襲った！");
+		if(!p_ptr->is_dead) take_hit(DAMAGE_USELIFE, 100, "命を焚く松明", -1);
+
+	}
+	break;
+
+	case ABL_CARD_SEIRAN:
+	{
+
+		int prob = calc_ability_card_prob(card_idx, card_num);
+		int dam = plev*2;
+
+		if (only_info) return format(" このカードを所持していると、戦闘中にターゲットにしたモンスターに対し%d%%の確率でロケットによる%dダメージの追撃が行われる。", prob,dam);
+	}
+	break;
+
+
+	case ABL_CARD_TEWI2:
+	{
+		int x, y;
+		if (only_info) return format(" このカードを発動するとターゲットの足元にあるトラップを発動させる。トラップがなければランダムなトラップを生成して発動を試みる。プレイヤーもトラップの影響を受ける。");
+
+		if (!get_aim_dir(&dir)) return NULL;
+
+		x = target_col;
+		y = target_row;
+
+		if (!projectable(y, x, py, px))
+		{
+			msg_print("視界内の一点を指定しないといけない。");
+			return NULL;
+		}
+
+		//罠がなければ作る
+		if (!is_trap(cave[y][x].feat))
+		{
+				place_trap(y, x);
+		}
+
+		project(0, 0, y, x, 0, GF_ACTIV_TRAP, (PROJECT_GRID | PROJECT_JUMP | PROJECT_HIDE), -1);
+
+	}
+	break;
+
+
+
+	case ABL_CARD_KOMACHI:
+	{
+		int x, y;
+		int dist = 2 + plev / 24;
+
+		if (only_info) return format(" このカードを発動すると距離%dグリッド以内の床に一瞬で移動できる。ドアを経由すると少し距離が狭くなる。地形が不明な場所には行けず、壁をすり抜けることはできない。",dist);
+
+		if (!teleport_walk(dist)) return NULL;
+
+	}
+	break;
+
+	case ABL_CARD_WAKASAGI:
+	{
+		int base = 5;
+
+		if (only_info) return format(" このカードを発動すると%d+1d%dターンの間モンスターを起こしにくくなる。", base,base);
+
+		set_tim_stealth(randint1(base) + base, FALSE);
+
+
+	}
+	break;
+
+	case ABL_CARD_NEMUNO:
+	{
+		int base = 100 + plev * 4;
+		int sides = chr_adj * 4;
+
+		if (only_info) return format(" このカードを発動すると%d+1d%dダメージの射撃属性のボルトを放つ。このボルトは反射されない。", base,sides);
+
+		if (!get_aim_dir(&dir)) return NULL;
+		msg_print("包丁をぶん投げた！");
+		fire_bolt(GF_ARROW, dir, base+randint1(sides));
+
+	}
+	break;
+
+	case ABL_CARD_SUIKA:
+	{
+		int base = 20;
+		int v;
+		int percen;
+		if (only_info) return format(" このカードを発動すると泥酔状態になり、さらに%d+1d%dターン腕力と耐久力が5ポイント上昇する。この上昇は通常の限界を超える。", base, base);
+
+		if (p_ptr->pclass == CLASS_BYAKUREN)
+		{
+			msg_print("あなたは戒律により酒を飲めない。");
+			return NULL;
+		}
+		msg_print("あなたは鬼の酒を一息に呷った！");
+		percen = p_ptr->chp * 100 / p_ptr->mhp;
+		v = base + randint1(base);
+		if(p_ptr->alcohol < DRANK_3-1) set_alcohol(DRANK_3-1);
+
+		set_tim_addstat(A_STR, 105, v, FALSE);
+		set_tim_addstat(A_CON, 105, v, FALSE);
+		p_ptr->chp = p_ptr->mhp * percen / 100;
+		p_ptr->redraw |= PR_HP;
+		redraw_stuff();
+
+	}
+	break;
+
+	case ABL_CARD_HOUTOU:
+	{
+		int dam = plev * 6 + chr_adj * 6;
+
+		if (only_info) return format(" このカードを発動すると%dダメージの無属性の強力なレーザーを放つ。このレーザーは岩地形を宝石に変える。", dam);
+
+		if (!get_aim_dir(&dir)) return NULL;
+		msg_print("宝塔が輝いた！");
+		fire_spark(GF_HOUTOU, dir, dam, 2);
+
+	}
+	break;
+
+	case ABL_CARD_KANAME_MISSILE:
+	{
+
+		int dam = plev * 7 + chr_adj * 5;
+
+		if (only_info) return format(" このカードを発動すると%dダメージの隕石属性のロケットを放つ。モンスターに命中しなかった場合は着弾地点を岩地形にする。", dam);
+
+		if (!get_aim_dir(&dir)) return NULL;
+		msg_print("要石が飛んでいった！");
+		fire_rocket(GF_KANAMEISHI, dir, dam, 1);
+
+	}
+	break;
+
+	case ABL_CARD_ROKURO_HEAD:
+	{
+
+		int wait = 30;
+
+		if (only_info) return format(" このカードを発動すると%dターン後にフロアのアイテムをひとつ足元に持ってくる。遠くのアイテムや特殊な地形に置かれたアイテムは持ってこれない。", wait);
+
+		rokuro_head_search_item(wait, FALSE);
+
+	}
+	break;
+
+
+	case ABL_CARD_KUTAKA:
+	{
+		int tx, ty;
+
+		if (only_info)
+				return format(" このカードを発動すると非常に長距離のトンネル生成ビームを放つ。ただし8方向一直線にしか撃てない。");
+
+		if (!get_rep_dir2(&dir)) return NULL;
+		if (dir == 5) return NULL;
+
+
+		tx = px + 99 * ddx[dir];
+		ty = py + 99 * ddy[dir];
+
+		msg_print("あなたは前方に道を拓いた！");
+		project(0, 0, ty, tx, 0, GF_KILL_WALL, (PROJECT_BEAM | PROJECT_THRU | PROJECT_GRID | PROJECT_DISI | PROJECT_LONG_RANGE), -1);
+
+	}
+	break;
+
+	case ABL_CARD_JELLYFISH:
+	{
+		int prob = calc_ability_card_prob(card_idx, card_num);
+
+		if (only_info) return format(" このカードを所持していると敵のボルト攻撃を%d%%の確率で無効化する。",prob);
+	}
+	break;
+
+
+	case ABL_CARD_YUNOMI_REIMU:
+	{
+		int power = 100 + plev * 3 + chr_adj * 5;
+
+		if (only_info) return format(" このカードを発動するとパワー%dの全能力低下属性のボールを放つ。", power);
+
+		if (!get_aim_dir(&dir)) return NULL;
+		msg_print("巨大な座布団をぶん投げた！");
+		fire_ball(GF_DEC_ALL, dir, power, 1);
+	}
+	break;
+
+	case ABL_CARD_YUNOMI_MARISA:
+	{
+		int power = 100 + plev * 3 + chr_adj * 5;
+
+		if (only_info) return format(" このカードを発動するとパワー%dの減速属性のボールを放つ。", power);
+
+		if (!get_aim_dir(&dir)) return NULL;
+		msg_print("巨大な星型ぬいぐるみを押し付けた！");
+		fire_ball(GF_OLD_SLOW, dir, power, 1);
+	}
+	break;
+
+
+
+	case ABL_CARD_100TH_MARKET:
+	{
+
+		if (only_info) return format(" このカードを6:00もしくは18:00に所持しているとカード取引所で未所持のカードが出やすくなる。またこのカードは交換価値が非常に高い。");
+
+	}
+	break;
+
+	case ABL_CARD_HIRARI:
+	{
+		int base = 10;
+
+		if (only_info) return format(" このカードを発動すると%dターン身を隠して敵の攻撃のターゲットから外れる。他を狙った攻撃に巻き込まれることはある。またその場に留まる、休憩、飲食、装備変更以外の行動をすると効果が切れる。", base);
+
+		set_hirarinuno_card(base, FALSE);
+		break_eibon_flag = FALSE;
+	}
+	break;
+
+	case ABL_CARD_NITORI:
+	{
+
+		if (only_info) return format(" このカードを6:00もしくは18:00に所持しているとカード取引所に売られているカードの価格が乱高下する。");
+
+
+	}
 
 
 	default:
@@ -1219,26 +1721,100 @@ void make_ability_card_store_list(void)
 	object_type *o_ptr = &forge;
 	int i;
 
+	bool owned_card_list[ABILITY_CARD_LIST_LEN];
+	int bm100th_card_num;
+
+
 	//カード売人系のクラスのみ
 	if (!CHECK_ABLCARD_DEALER_CLASS) return;
+
+	for (i = 0; i < ABILITY_CARD_LIST_LEN; i++) owned_card_list[i] = FALSE;
+
+	bm100th_card_num = count_ability_card(ABL_CARD_100TH_MARKET);
+
+	//「100回目のブラックマーケット」のカードがあるとき所持しているカードのフラグを立てる。
+	//インベントリ、追加インベントリ、自宅、床上が対象。
+	if (bm100th_card_num)
+	{
+		store_type  *st_ptr;
+
+		//ザック
+		for (i = 0; i < INVEN_PACK; i++)
+		{
+			if (inventory[i].tval == TV_ABILITY_CARD) owned_card_list[inventory[i].pval] = TRUE;
+		}
+		//追加インベントリ
+		for (i = 0; i < INVEN_ADD_MAX; i++)
+		{
+			if (inven_add[i].tval == TV_ABILITY_CARD) owned_card_list[inven_add[i].pval] = TRUE;
+		}
+		//自宅
+		st_ptr = &town[1].store[STORE_HOME];
+		/* Dump all available items */
+		for (i = 0; i < st_ptr->stock_num; i++)
+		{
+			if(st_ptr->stock[i].tval == TV_ABILITY_CARD)owned_card_list[st_ptr->stock[i].pval] = TRUE;
+		}
+		//床上
+		//わざと敵対的な妖精とかを召喚してそいつにカードを拾わせたら所持に含まれなくなるが、理屈でいえばそうなるほうが正しい気がする
+		for (i = 1; i < o_max; i++)
+		{
+			object_type *o_ptr = &o_list[i];
+
+			/* Skip dead objects */
+			if (!o_ptr->k_idx) continue;
+
+			/* Skip held objects */
+			if (o_ptr->held_m_idx) continue;
+
+			if (o_ptr->tval == TV_ABILITY_CARD) owned_card_list[o_ptr->pval] = TRUE;
+		}
+
+		/* フラグテスト */
+		if (cheat_peek)
+		{
+			for (i = 0; i < ABILITY_CARD_LIST_LEN; i++)
+			{
+				//if (ability_card_list[i].rarity_rank < 4) owned_card_list[i] = TRUE;
+				if (owned_card_list[i])	msg_format("idx%d:TRUE", i);
+			}
+		}
+	}
+
 
 	for (i = 0; i < 10; i++)
 	{
 		int tmp;
 
-		//ダミーカード生成 ＠のレベルが高いほど高ランクのものが出やすい
-		object_prep(o_ptr, lookup_kind(TV_ABILITY_CARD, SV_ABILITY_CARD));
-		tmp = randint1(p_ptr->lev);
-		if(tmp >= 45 )
-			apply_magic_abilitycard(o_ptr, -1,4, 0);
-		else if(tmp >= 30)
-			apply_magic_abilitycard(o_ptr, -1, 3, 0);
-		else if (tmp >= 15)
-			apply_magic_abilitycard(o_ptr, -1, 2, 0);
-		else
-			apply_magic_abilitycard(o_ptr, -1, 0, 0);
+		while (1)
+		{
 
+			//ダミーカード生成 ＠のレベルが高いほど高ランクのものが出やすい
+			object_prep(o_ptr, lookup_kind(TV_ABILITY_CARD, SV_ABILITY_CARD));
+			tmp = randint1(p_ptr->lev);
+			if (tmp >= 45)
+				apply_magic_abilitycard(o_ptr, -1, 4, 0);
+			else if (tmp >= 30)
+				apply_magic_abilitycard(o_ptr, -1, 3, 0);
+			else if (tmp >= 15)
+				apply_magic_abilitycard(o_ptr, -1, 2, 0);
+			else
+				apply_magic_abilitycard(o_ptr, -1, 0, 0);
 
+			//「100回目のブラックマーケット」のカードを持っているとき、所有済みのカードが生成されようとしたら確率でやり直し
+			if (bm100th_card_num)
+			{
+				int prob = calc_ability_card_prob(ABL_CARD_100TH_MARKET, bm100th_card_num);
+
+				if (owned_card_list[o_ptr->pval] && randint0(100) < prob)
+				{
+					if(cheat_peek) msg_print("continue");
+					continue;
+				}
+			}
+
+			break;
+		}
 		//カードの種別(pval値)を記録
 		p_ptr->magic_num2[i+ ABLCARD_MAGICNUM_SHIFT] = o_ptr->pval;
 
@@ -1329,6 +1905,9 @@ bool	buy_abilitycard_from_mon(void)
 
 		//EXTRAモードでは帰還用カードが出ない
 		if (EXTRA_MODE && i == ABL_CARD_SANAE1) continue;
+		//現実変容カードも出ない
+		if (EXTRA_MODE && i == ABL_CARD_DOREMY) continue;
+
 
 		//売却済みフラグが立っているカードはもう出ない。符号付き変数を無理やりビットフラグに使うのはなんか不安なので下位16bitだけフラグに使う。
 		if ((p_ptr->magic_num1[(i / 16)+ ABLCARD_MAGICNUM_SHIFT] >> (i % 16)) & 1L) continue;
@@ -1386,4 +1965,57 @@ bool	buy_abilitycard_from_mon(void)
 
 	return TRUE;
 }
+
+
+//アビリティカード「資本主義のジレンマ」の効果
+//カード販売所の在庫10種それぞれに対し、価格を乱高下させる係数を計算する
+//6:00と18:00にprocess_world()から呼ばれる
+void break_market()
+{
+	int card_num;
+	int i;
+
+	//カード売人のみ
+	if (!(CHECK_ABLCARD_DEALER_CLASS)) return;
+
+	//カード乱高下度はmagic_num2[10-19]に記録される
+	//0は影響なし、1～250のランダムで50を基準値として1増減するごとに価格が2%上下する
+
+	//まずカード有無に関わらず効果リセット
+	for (i = 0; i < 10; i++)
+	{
+		p_ptr->magic_num2[10 + i + ABLCARD_MAGICNUM_SHIFT]=0;
+	}
+
+	//カードを所持していないなら効果リセットしたまま終了
+	card_num = count_ability_card(ABL_CARD_NITORI);
+	if (!card_num) return;
+
+	for (i = 0; i < 10; i++)
+	{
+		int tmp;
+
+		//価格が下がる
+		if (weird_luck())
+		{
+			tmp = 50 - randint1(5)*card_num - randint1(10);
+			if (tmp < 1) tmp = 1;
+		}
+		//価格が上がる
+		else
+		{
+			tmp = 50 + randint1(20)*card_num + randint1(40);
+			if (tmp > 250) tmp = 250;
+
+		}
+
+		if (cheat_peek) msg_format("mult%d:%d", i, tmp);
+
+		p_ptr->magic_num2[10 + i + ABLCARD_MAGICNUM_SHIFT] = (byte)tmp;
+
+	}
+
+
+}
+
 
