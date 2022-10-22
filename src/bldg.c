@@ -11701,6 +11701,13 @@ void buy_ability_card(bool examine)
 
 	object_type barter_list[10];
 
+	if (p_ptr->pclass == CLASS_TSUKASA)
+	{
+		msg_print("主はカードで十分に稼いだ。もうここに用はない。");
+		return;
+	}
+
+
 	if (p_ptr->pclass == CLASS_MIKE)
 	{
 		msg_print("カード販売所には招き猫たちが群れていて近寄りたくない。");

@@ -3089,6 +3089,7 @@ outfit_type birth_outfit_class[] = {
 
 	{ CLASS_SANNYO,2,0,TV_CLOTHES,SV_CLOTH_EASTERN,1 },
 
+	{ CLASS_TSUKASA,2,0,TV_CLOTHES,SV_CLOTHES,1 },
 
 	{-1,0,0,0,0,0} //終端dummy
 };
@@ -5991,8 +5992,8 @@ static unique_player_type unique_player_table[UNIQUE_PLAYER_NUM] =
 		"あなたは妖怪の山で賭場を開帳する「山女郎」という妖怪です。特別なタバコを吸うことで周囲のモンスターに朦朧や混乱などの効果を与える能力を持っています。一度タバコを吸い始めるとその効果は毎ターン継続的に発動し、そのたびにMPを少し消費します。また賭場の主なので腕っ節には多少の覚えがあります。扇を使った戦闘術もお手の物です。あなたは「アビリティカード」を使った賭けで一儲けするためにカードを仕入れようとしています。しかし競争相手が次第に増え始めており、カードの価格は高騰を始めています。急いでお金を稼いでカードを買いあさりましょう。" },
 	{ FALSE,"玉造　魅須丸",CLASS_MISUMARU,RACE_DEITY,ENTRY_KOURYUU,SEX_FEMALE,
 		"(未実装)" },
-	{ FALSE,"菅牧　典",CLASS_TSUKASA,RACE_YOUKO,ENTRY_KOURYUU,SEX_FEMALE,
-		"(未実装)" },
+	{ TRUE,"菅牧　典",CLASS_TSUKASA,RACE_YOUKO,ENTRY_KOURYUU,SEX_FEMALE,
+		"あなたは大天狗に仕える管狐です。人に囁きかけて唆し破滅と混乱をもたらすことをこよなく好みます。あなたは配下モンスターの背後に隠れて操る「寄生」という特殊な騎乗状態になることができます。通常騎乗可能なモンスター以外にも寄生ができ、他のモンスターからの攻撃は高確率で配下モンスターが受け、また配下モンスターが戦うことで得た経験値やアイテムは全てあなたが横取りします。あなたの肉弾戦能力は全く話になりませんが代わりに魔法を一領域習得することができます。配下モンスターを盾にしつつ後ろから魔法や特技で攻撃するのが基本的な戦い方になります。あなたは服が汚れるのが嫌いで、劣化や汚染の攻撃で通常より多くのダメージを受けてしまいます。" },
 	{ FALSE,"飯綱丸　龍",CLASS_MEGUMU,RACE_KARASU_TENGU,ENTRY_KOURYUU,SEX_FEMALE,
 		"(未実装)" },
 	{ FALSE,"天弓　千亦",CLASS_CHIMATA,RACE_DEITY,ENTRY_KOURYUU,SEX_FEMALE,

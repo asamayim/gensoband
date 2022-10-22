@@ -2897,7 +2897,11 @@ msg_format("%sから振り落とされそうになって、壁にぶつかった。",m_name);
 	//v1.1.41 バックダンスの落馬(モンスター死亡時など)は落馬ダメージなし
 	if (CLASS_RIDING_BACKDANCE)
 	{
-		msg_format("踊りを止めた。");
+
+		if(p_ptr->pclass == CLASS_TSUKASA)
+			msg_format("あなたは寄生先から逃れた。");
+		else
+			msg_format("踊りを止めた。");
 	}
 
 	else if (p_ptr->levitation && !force)
@@ -3114,7 +3118,11 @@ bool do_riding(bool force)
 		if (CLASS_RIDING_BACKDANCE)
 		{
 			monster_desc(m_name, m_ptr, 0);
-			msg_format("あなたは%sの背後で踊り始めた...", m_name);
+
+			if(p_ptr->pclass == CLASS_TSUKASA)
+				msg_format("あなたは%sにすり寄って背後から囁き始めた...", m_name);
+			else
+				msg_format("あなたは%sの背後で踊り始めた...", m_name);
 
 			if (p_ptr->pclass == CLASS_SATONO)
 				make_magic_list_satono();
@@ -3440,7 +3448,9 @@ void do_cmd_pet(void)
 	if (p_ptr->riding)
 	{
 #ifdef JP
-		if (CLASS_RIDING_BACKDANCE)
+		if (CLASS_RIDING_BACKDANCE && p_ptr->pclass == CLASS_TSUKASA)
+			power_desc[num] = "寄生を中断する";
+		else if (CLASS_RIDING_BACKDANCE)
 			power_desc[num] = "踊りを止める";
 		else
 			power_desc[num] = "配下から降りる";
@@ -3451,7 +3461,9 @@ void do_cmd_pet(void)
 	else
 	{
 #ifdef JP
-		if(CLASS_RIDING_BACKDANCE)
+		if (CLASS_RIDING_BACKDANCE && p_ptr->pclass == CLASS_TSUKASA)
+			power_desc[num] = "配下に寄生する";
+		else if (CLASS_RIDING_BACKDANCE)
 			power_desc[num] = "配下の背後で踊る";
 		else
 			power_desc[num] = "配下に乗る";

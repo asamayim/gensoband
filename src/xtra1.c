@@ -1972,22 +1972,25 @@ static void prt_speed(void)
 	//v1.1.41 舞と里乃の特殊騎乗はモンスターの速度に影響されない
 	if (CLASS_RIDING_BACKDANCE && p_ptr->riding)
 	{
+
+		cptr rdesc = p_ptr->pclass == CLASS_TSUKASA ? "寄生":"ダンス";
+
 		if (i > 110)
 		{
 			if (p_ptr->slow && !is_fast) attr = TERM_VIOLET;
 			else if ((is_fast && !p_ptr->slow) || p_ptr->lightspeed) attr = TERM_YELLOW;
 			else attr = TERM_L_GREEN;
-			sprintf(buf, "ダンス(+%d)", (i - 110));
+			sprintf(buf, "%s(+%d)",rdesc, (i - 110));
 		}
 		else if (i < 110)
 		{
 			if (is_fast && !p_ptr->slow) attr = TERM_YELLOW;
 			else if (p_ptr->slow && !is_fast) attr = TERM_VIOLET;
 			else attr = TERM_L_UMBER;
-			sprintf(buf, "ダンス(-%d)", (110 - i));
+			sprintf(buf, "%s(-%d)", rdesc,(110 - i));
 		}
 		else
-			strcpy(buf, "ダンス");
+			sprintf(buf, "%s", rdesc);
 
 	}
 	/* Fast */
@@ -6057,6 +6060,13 @@ void calc_bonuses(void)
 
 		if (p_ptr->tim_general[0]) p_ptr->kill_wall = TRUE;
 
+
+		break;
+
+	case CLASS_TSUKASA:
+
+		if (plev > 19) p_ptr->free_act = TRUE;
+		if (plev > 39) p_ptr->resist_fear = TRUE;
 
 		break;
 
@@ -11250,7 +11260,9 @@ void calc_bonuses(void)
 #ifdef JP
 				if (CLASS_RIDING_BACKDANCE)
 				{
-					if(p_ptr->do_martialarts)
+					if(p_ptr->pclass == CLASS_TSUKASA)
+						msg_print("寄生中は隣接攻撃をしにくい。");
+					else if(p_ptr->do_martialarts)
 						msg_print("背後で踊っているので格闘攻撃が届きにくい。");
 					else
 						msg_print("この武器はダンス中に使うにはむかないようだ。");
@@ -11278,7 +11290,9 @@ void calc_bonuses(void)
 			else if (buki_motteruka(INVEN_RARM+i))
 			{
 #ifdef JP
-				if (CLASS_RIDING_BACKDANCE)
+				if (CLASS_RIDING_BACKDANCE && p_ptr->pclass == CLASS_TSUKASA)
+					msg_print("この武器は少しは使いやすい。");
+				else if (CLASS_RIDING_BACKDANCE)
 					msg_print("この武器はダンス中にも少しは使いやすい。");
 				else
 					msg_print("これなら乗馬中にぴったりだ。");
@@ -11439,6 +11453,7 @@ void calc_bonuses(void)
 
 
 	//テスト
+	/*
 	if (cheat_xtra)
 	{
 		msg_format("show1: (%d,%d)", p_ptr->dis_to_h[0], p_ptr->dis_to_d[0]);
@@ -11446,10 +11461,8 @@ void calc_bonuses(void)
 		msg_format("show2: (%d,%d)", p_ptr->dis_to_h[1], p_ptr->dis_to_d[1]);
 		msg_format("real2: (%d,%d)", p_ptr->to_h[1], p_ptr->to_d[1]);
 
-
-
 	}
-
+	*/
 
 
 }
