@@ -452,6 +452,8 @@ static cptr seikaku_special_jouhou[MAX_SEIKAKU_SPECIAL] =
 	"あなたと姉はひょんなことから石油を掘り当て石油王になりました。普段のように金を奪ったり散財したりする代わりに、石油を撒き散らしたり撒いた石油を燃やしたり姉を盾にしたりしながら戦います。いかにも富豪らしい雰囲気を醸し出すあなたは、街の店でいくらでもツケ払いで買い物をすることができます。しかし幻想郷に石油を換金する手段はなく、いずれ店主達はあなたからツケを取り立てることでしょう。",
 	//魔理沙「闇市場調査員」
 	"あなたはアビリティカードの闇市場の調査を始めました。この性格では通常の特技の代わりに職業「カード売人」と同じ特技を使用できます。スカートの隠しポケットにはいつもの自作の魔法の代わりにアビリティカードを8種類まで格納できます。魔法書を使った通常の魔法はこれまで通りに習得できます。",
+	//龍「通貨発行者」
+	"あなたはアビリティカードブームの仕掛け人で、カード交換用の通貨を発行して巨万の富を手にしました。このセーブデータで過去のプレイヤーがカード販売所に支払った総額の1/4を持ってゲームがスタートします。ただしこの資金は天狗社会の維持発展のために使われなければなりません。そのため街で一部の施設が使用不可能になります。ゲームのスコアも通常の1/4になります。",
 
 };
 
@@ -482,6 +484,7 @@ static int get_special_seikaku_index(int class_idx)
 	if (class_idx == CLASS_AYA)			return SEIKAKU_SPECIAL_AYA;
 	if (class_idx == CLASS_JYOON)		return SEIKAKU_SPECIAL_JYOON;
 	if (class_idx == CLASS_MARISA)		return SEIKAKU_SPECIAL_MARISA;
+	if (class_idx == CLASS_MEGUMU)		return SEIKAKU_SPECIAL_MEGUMU;
 
 
 	return SEIKAKU_SPECIAL_NONE;
@@ -1724,6 +1727,7 @@ static void get_money(void)
 
 	if(p_ptr->pclass == CLASS_TEWI) gold = 1000000;
 	else if (p_ptr->pclass == CLASS_SHION) gold = -99999999;
+	else if (is_special_seikaku(SEIKAKU_SPECIAL_MEGUMU)) gold = MAX(gold,(int)(total_pay_cardshop / 4));
 
 
 	/* Save the gold */
@@ -3090,6 +3094,9 @@ outfit_type birth_outfit_class[] = {
 	{ CLASS_SANNYO,2,0,TV_CLOTHES,SV_CLOTH_EASTERN,1 },
 
 	{ CLASS_TSUKASA,2,0,TV_CLOTHES,SV_CLOTHES,1 },
+
+	{ CLASS_MEGUMU,2,0,TV_CLOTHES, SV_CLOTH_SYUGEN,1 },
+	{ CLASS_MEGUMU,2,ART_MEGUMU,0,0,1 },
 
 	{-1,0,0,0,0,0} //終端dummy
 };
@@ -5994,8 +6001,8 @@ static unique_player_type unique_player_table[UNIQUE_PLAYER_NUM] =
 		"(未実装)" },
 	{ TRUE,"菅牧　典",CLASS_TSUKASA,RACE_YOUKO,ENTRY_KOURYUU,SEX_FEMALE,
 		"あなたは大天狗に仕える管狐です。人に囁きかけて唆し破滅と混乱をもたらすことをこよなく好みます。あなたは配下モンスターの背後に隠れて操る「寄生」という特殊な騎乗状態になることができます。通常騎乗可能なモンスター以外にも寄生ができ、他のモンスターからの攻撃は高確率で配下モンスターが受け、また配下モンスターが戦うことで得た経験値やアイテムは全てあなたが横取りします。あなたの肉弾戦能力は全く話になりませんが代わりに魔法を一領域習得することができます。配下モンスターを盾にしつつ後ろから魔法や特技で攻撃するのが基本的な戦い方になります。あなたは服が汚れるのが嫌いで、劣化や汚染の攻撃で通常より多くのダメージを受けてしまいます。" },
-	{ FALSE,"飯綱丸　龍",CLASS_MEGUMU,RACE_KARASU_TENGU,ENTRY_KOURYUU,SEX_FEMALE,
-		"(未実装)" },
+	{ TRUE,"飯綱丸　龍",CLASS_MEGUMU,RACE_KARASU_TENGU,ENTRY_KOURYUU,SEX_FEMALE,
+		"あなたは妖怪の山で鴉天狗たちを束ねる大天狗です。非常に動きが素早く機知に富み文武両道の強さです。さらに視界内すべてを攻撃する強力な特技を複数習得します。ただし長く生きてきたためレベルアップに必要な経験値は多くなります。また頭には頭襟しか装備できません。" },
 	{ FALSE,"天弓　千亦",CLASS_CHIMATA,RACE_DEITY,ENTRY_KOURYUU,SEX_FEMALE,
 		"(未実装)" },
 	{ TRUE,"姫虫　百々世",CLASS_MOMOYO,RACE_DAIYOUKAI,ENTRY_KOURYUU,SEX_FEMALE,

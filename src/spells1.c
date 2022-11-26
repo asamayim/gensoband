@@ -3479,10 +3479,10 @@ note = "には耐性がある。";
 #else
 				note = " resists.";
 #endif
-
 			}
 			//10行動の間ダメージを与える
 			m_ptr->timed_shard_count = 10;
+			get_angry = TRUE;
 
 			dam = 0;
 

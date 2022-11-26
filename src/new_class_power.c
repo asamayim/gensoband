@@ -13,8 +13,143 @@ static bool use_itemcard = FALSE;
 	tips
 */
 
-//v2.0.2 典
 
+
+
+/*v2.0.3 飯綱丸龍専用技*/
+class_power_type class_power_megumu[] =
+{
+	{ 15,45,35,FALSE,TRUE,A_CHR,0,0,"星火燎原の舞",
+	"視界内の全てに対して火炎属性の攻撃を行い、周辺を明るくする。" },
+
+	{ 20,30,40,FALSE,FALSE,A_CHR,0,0,"配下召喚",
+	"配下の天狗を数体呼び出す。" },//大天狗は出さないようにする
+
+	{ 25,80,60,FALSE,TRUE,A_CHR,0,0,"光彩陸離の舞",
+	"視界内の全てに対して閃光属性の攻撃を行い、さらにモンスターを混乱させようと試みる。" },
+
+	{ 30,0,80,FALSE,FALSE,A_WIS,0,0,"光風霽月",
+	"HPとMPをわずかに回復させる。またバッドステータスからの回復を早める。" },
+
+	{ 35,120,70,FALSE,TRUE,A_DEX,0,0,"天馬行空の舞",
+	"視界内の全ての敵対的なモンスターに対して通常攻撃を行う。この攻撃はオーラによる反撃を受けないが攻撃回数が半分になる。" },
+
+	{ 40,200,75,FALSE,TRUE,A_WIS,0,0,"天真爛漫の星",
+	"フロア全てのモンスターを金縛りにしようと試みる。ユニークモンスター・力強いモンスター・神格には効果が薄い。" },
+
+	{ 45,160,85,FALSE,TRUE,A_CHR,0,0,"空々寂々の風",
+	"視界内の全てに対して無属性の攻撃を行う。" },
+
+	{ 99,0,0,FALSE,FALSE,0,0,0,"dummy","" },
+
+};
+
+cptr do_cmd_class_power_aux_megumu(int num, bool only_info)
+{
+	int dir, dice, sides, base, damage, i;
+	int plev = p_ptr->lev;
+	int chr_adj = adj_general[p_ptr->stat_ind[A_CHR]];
+
+	switch (num)
+	{
+
+	case 0:
+	{
+		base = plev + chr_adj * 5;
+		if (only_info) return format("損傷:%d", base);
+		msg_print("辺り一面が燃え上がった！");
+		project_hack2(GF_FIRE, 0, 0, base);
+		(void)lite_room(py, px);
+		break;
+	}
+
+	case 1:
+	{
+		int level;
+		int num = 1 + plev / 10;
+		level = plev + chr_adj;
+		bool flag = FALSE;
+		if (only_info) return format("召喚レベル:%d", level);
+		for (; num>0; num--)
+		{
+			if (summon_specific(-1, py, px, level, SUMMON_TENGU_MINION, (PM_FORCE_PET | PM_ALLOW_GROUP))) flag = TRUE;
+		}
+		if (flag) msg_format("天狗達を呼び出した！");
+		else msg_format("何も現れなかった...");
+
+	}
+	break;
+
+
+	case 2:
+	{
+		base = plev * 2 + chr_adj * 5;
+		if (only_info) return format("損傷:%d", base);
+		msg_print("眩い光がダンジョンを彩った！");
+		project_hack2(GF_LITE, 0, 0, base);
+		confuse_monsters(base);
+		break;
+	}
+
+
+	case 3:
+	{
+		if (only_info) return format("");
+
+		msg_print("あなたは瞑想を始めた...");
+
+		hp_player(randint1(10 + p_ptr->lev / 5));
+		player_gain_mana(randint1(5 + p_ptr->lev / 10));
+		set_poisoned(p_ptr->poisoned - 10);
+		set_stun(p_ptr->stun - 10);
+		set_cut(p_ptr->cut - 10);
+		set_image(p_ptr->image - 10);
+
+	}
+	break;
+
+	case 4:
+	{
+		if (only_info) return format("");
+		msg_format("あなたは風のように駆け巡った！");
+		project_hack2(GF_SOULSCULPTURE, 0, 0, 100);
+	}
+	break;
+
+	case 5:
+	{
+		int base = plev * 7;
+		if (only_info) return format("効力:%d", base);
+
+		msg_print("ダンジョンが星の光で満たされる...");
+		floor_attack(GF_STASIS, 0,0, base, 0);
+	}
+	break;
+
+
+	case 6:
+	{
+		int dam = plev * 7 + chr_adj * 10;
+		if (only_info) return format("損傷:%d", dam);
+		stop_raiko_music();
+		msg_print("澄み渡った風がダンジョンを吹き抜けた！");
+		project_hack2(GF_DISP_ALL, 0, 0, dam);
+		break;
+	}
+
+
+	default:
+		if (only_info) return format("未実装");
+		msg_format("ERROR:実装していない特技が呼ばれた num:%d", num);
+		return NULL;
+
+
+	}
+	return "";
+}
+
+
+//v2.0.2 典
 class_power_type class_power_tsukasa[] =
 {
 
@@ -34180,6 +34315,11 @@ void do_cmd_new_class_power(bool only_browse)
 		power_desc = "特技";
 		break;
 
+	case CLASS_MEGUMU:
+		class_power_table = class_power_megumu;
+		class_power_aux = do_cmd_class_power_aux_megumu;
+		power_desc = "特技";
+		break;
 
 
 	default:
@@ -35486,6 +35626,11 @@ const support_item_type support_item_list[] =
 	//v2.0.2 典　遅効性の管狐弾
 		{ 80,40, 80,5,6,	MON_TSUKASA,class_power_tsukasa,do_cmd_class_power_aux_tsukasa,2,
 		"ガラスの管","それを使うと破片属性のロケットで攻撃する。攻撃を受けたモンスターは行動するたびにダメージを受ける。" },
+
+	//v2.0.3 龍　天真爛漫の星
+		{ 120,40, 120,1,30,	MON_MEGUMU,class_power_megumu,do_cmd_class_power_aux_megumu,4,
+		"渾天儀","それを使うとフロア全体のモンスターを金縛り状態にしようと試みる。ユニークモンスター、力強いモンスター、神格には効果が薄い。" },
+
 
 	{0,0,0,0,0,0,NULL,NULL,0,"終端ダミー",""},
 };

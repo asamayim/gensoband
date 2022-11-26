@@ -1383,6 +1383,13 @@ void battle_mon_gambling(void)
 
 	byte mode = randint1(3);
 	if(mode==3) mode++;//2‘Î2‚Í‚¿‚å‚Á‚Æ‰Ò‚¬‚â‚·‚¢‚µ•\Ž¦‚à–Ê“|‚È‚Ì‚Å‚â‚ß‚½
+
+
+	if (is_special_seikaku(SEIKAKU_SPECIAL_MEGUMU))
+	{
+		msg_print("‚±‚ÌŽ‘‹à‚ðƒMƒƒƒ“ƒuƒ‹‚ÉŽg‚¤‚í‚¯‚É‚Í‚¢‚©‚È‚¢B");
+		return;
+	}
 /*
 	if(!p_ptr->wizard)
 	{

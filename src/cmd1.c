@@ -3468,10 +3468,22 @@ cptr msg_py_atk(object_type *o_ptr,int mode)
 	}
 	if(tv == TV_STICK)
 	{
-		if(one_in_(4)) return "を殴った。";
-		if(one_in_(3)) return "を打ち据えた。";
-		if(one_in_(2)) return "を突いた。";
-		return "を薙ぎ払った。";
+		if (o_ptr->name1 == ART_MEGUMU)
+		{
+
+			if (one_in_(3)) return "を三脚でぶん殴った！";
+			if (one_in_(2)) return "を三脚でぶっ叩いた！";
+			return "に三脚を突き刺した！";
+
+		}
+		else
+		{
+			if (one_in_(4)) return "を殴った。";
+			if (one_in_(3)) return "を打ち据えた。";
+			if (one_in_(2)) return "を突いた。";
+			return "を薙ぎ払った。";
+		}
+
 	}
 
 	if(tv == TV_AXE)
@@ -4327,10 +4339,15 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 			else
 				num_blow = p_ptr->num_blow[hand] * 3 / (m_ptr->cdis + 1);
 		}
-		else if (p_ptr->pclass == CLASS_KEIKI)
+		else if (p_ptr->pclass == CLASS_KEIKI )
 		{
 			num_blow = p_ptr->num_blow[hand];
 		}
+		else if (p_ptr->pclass == CLASS_MEGUMU)
+		{
+			num_blow = (p_ptr->num_blow[hand]+1)/2;
+		}
+
 		else
 		{
 			msg_print("ERROR:予期しないクラスでGF_SOULSCULPTUREが使われた");
@@ -9609,6 +9626,9 @@ void run_step(int dir)
 	/* Take time */
 	energy_use = 100;
 
+	//v3.0.2 走るコマンドのenergy_use値に高速移動などを適用する
+	walk_energy_modify();
+
 	/* Move the player, using the "pickup" flag */
 #ifdef ALLOW_EASY_DISARM /* TNB */
 
@@ -9759,6 +9779,9 @@ void travel_step(void)
 	}
 
 	energy_use = 100;
+
+	//v2.0.3 トラベルコマンドのenergy_use値に高速移動などを適用する
+	walk_energy_modify();
 
 	move_player(travel.dir, always_pickup, FALSE,FALSE);
 

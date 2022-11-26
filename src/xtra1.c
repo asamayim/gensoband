@@ -6067,8 +6067,17 @@ void calc_bonuses(void)
 
 		if (plev > 19) p_ptr->free_act = TRUE;
 		if (plev > 39) p_ptr->resist_fear = TRUE;
-
 		break;
+
+	case CLASS_MEGUMU:
+		new_speed += p_ptr->lev / 5;
+		p_ptr->resist_fire = TRUE;
+		p_ptr->free_act = TRUE;
+		if (p_ptr->lev > 9) p_ptr->see_inv = TRUE;
+		if (p_ptr->lev > 19) p_ptr->resist_conf = TRUE;
+		if (p_ptr->lev > 29) p_ptr->resist_lite = TRUE;
+		break;
+
 
 
 	default:
@@ -6476,7 +6485,7 @@ void calc_bonuses(void)
 		case RACE_KARASU_TENGU:
 			p_ptr->levitation = TRUE;
 			if (p_ptr->lev > 24) p_ptr->speedster = TRUE;
-			if(p_ptr->pclass != CLASS_AYA) new_speed += (p_ptr->lev) / 7;
+			if(p_ptr->pclass != CLASS_AYA && p_ptr->pclass != CLASS_MEGUMU) new_speed += (p_ptr->lev) / 7;
 			break;
 		case RACE_HAKUROU_TENGU:
 			p_ptr->see_inv = TRUE;

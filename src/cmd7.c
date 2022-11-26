@@ -6285,6 +6285,13 @@ void throw_osaisen(void)
 		msg_print("–³s‘ ‚Ì‹à‚ð“Š‚¶‚æ‚¤‚Æ‚µ‚½‚ªA‚È‚º‚©æÎ‘K” ‚ª‚Ç‚±‚É‚àŒ©“–‚½‚ç‚È‚¢B");
 		return ;
 	}
+	//v2.0.3 —´ê—p«Ši
+	if (is_special_seikaku(SEIKAKU_SPECIAL_MEGUMU))
+	{
+		msg_print("‚±‚ÌŽ‘‹à‚Í“V‹çŽÐ‰ï‚Ì‚½‚ß‚ÉŽg‚í‚ê‚È‚¯‚ê‚Î‚È‚ç‚È‚¢B");
+		return;
+	}
+
 	if(quest[QUEST_CHAOS_WYRM].status != QUEST_STATUS_FINISHED && !EXTRA_MODE && 
 		!(p_ptr->pclass == CLASS_3_FAIRIES || p_ptr->pclass == CLASS_SUNNY || p_ptr->pclass == CLASS_LUNAR || p_ptr->pclass == CLASS_STAR))
 	{
