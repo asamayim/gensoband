@@ -651,7 +651,7 @@ static struct {
 	{ TERM_YELLOW, "富", "散財" },
 	{ TERM_RED, "禍", "財禍" },
 	{ TERM_YELLOW, "扉", "後戸の力" },
-	{ TERM_YELLOW, "符", "スペルカード" },
+	{ TERM_YELLOW, "特", "特殊一時効果" },
 
 	{ TERM_YELLOW, "芸", "無縁の芸能者" },
 	{ TERM_L_DARK, "重", "加重" },

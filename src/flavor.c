@@ -1452,6 +1452,9 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
 	bool            show_weapon = FALSE;
 	bool            show_armour = FALSE;
 
+	//装備品ではないがACやto_hなどにパラメータが設定されている特殊なアイテム
+	bool			flag_not_equipment = FALSE;
+
 	cptr            s, s0;
 	char            *t;
 
@@ -2255,6 +2258,14 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
 
 	}
 
+	//勾玉には素材名を付加
+	//o_ptr->xtra6に素材k_idxが記録されている
+	if (o_ptr->tval == TV_SPELLCARD && o_ptr->sval == SV_SPELLCARD_MAGATAMA)
+	{
+		t = object_desc_str(t, format("%sの",k_name+k_info[o_ptr->xtra6].name));
+
+	}
+
 	/* 伝説のアイテム、名のあるアイテムの名前を付加する */
 	if (known)
 	{
@@ -2389,7 +2400,7 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
 			{
 				//t = object_desc_str(t, temp);
 			}
-			else if (o_ptr->tval == TV_SPELLCARD)
+			else if (o_ptr->tval == TV_SPELLCARD && o_ptr->sval == SV_SPELLCARD_CARD)
 			{
 				t = object_desc_str(t, "【");
 				t = object_desc_str(t, temp);
@@ -2526,8 +2537,9 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
 
 	/* No more details wanted */
 	if (mode & OD_NAME_ONLY) goto object_desc_done;
+
 	//スペカのpvalとか殺戮修正は表示しない
-	if(o_ptr->tval == TV_SPELLCARD) 
+	if(o_ptr->tval == TV_SPELLCARD && o_ptr->sval == SV_SPELLCARD_CARD) 
 		goto object_desc_done;
 
 	//特殊収集アイテムのpvalとか殺戮修正は表示しない.最後に価格だけ表示する
@@ -2845,6 +2857,16 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
 			t = object_desc_str(t, tmp_buf);
 		}
 	}
+	//勾玉に「その他の特殊な情報を表示する」オプションを付けているとき
+	else if (o_ptr->tval == TV_SPELLCARD && o_ptr->sval == SV_SPELLCARD_MAGATAMA && show_special_info)
+	{
+		char tmp_buf[128];
+
+		magatama_effect_desc(tmp_buf, o_ptr);
+
+		t = object_desc_str(t, tmp_buf);
+
+	}
 
 
 	/* Display the item like a weapon */
@@ -2859,6 +2881,12 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
 
 	/* Display the item like armour */
 	if (o_ptr->ac) show_armour = TRUE;
+
+	//勾玉に殺戮修正やACを表示させない
+	if (o_ptr->tval == TV_SPELLCARD)
+	{
+		flag_not_equipment = TRUE;
+	}
 
 
 	/* Dump base weapon info */
@@ -2935,7 +2963,7 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
 
 
 	/* Add the weapon bonuses */
-	if (known)
+	if (known && !flag_not_equipment)
 	{
 		/* Show the tohit/todam on request */
 		if (show_weapon)
@@ -3049,7 +3077,7 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
 	}
 #endif
 	/* Add the armor bonuses */
-	if (known)
+	if (known && !flag_not_equipment)
 	{
 		/* Show the armor class info */
 		if (show_armour)
@@ -3073,7 +3101,7 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
 	}
 
 	/* Hack -- always show base armor */
-	else if (show_armour)
+	else if (show_armour && !flag_not_equipment)
 	{
 		t = object_desc_chr(t, ' ');
 		t = object_desc_chr(t, b1);

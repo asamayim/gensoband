@@ -3098,6 +3098,12 @@ outfit_type birth_outfit_class[] = {
 	{ CLASS_MEGUMU,2,0,TV_CLOTHES, SV_CLOTH_SYUGEN,1 },
 	{ CLASS_MEGUMU,2,ART_MEGUMU,0,0,1 },
 
+	{ CLASS_MISUMARU,2,0,TV_CLOTHES,SV_CLOTHES,1 },
+	{ CLASS_MISUMARU,2,0,TV_MATERIAL,SV_MATERIAL_HEMATITE,1 },
+	{ CLASS_MISUMARU,2,0,TV_MATERIAL,SV_MATERIAL_MAGNETITE,1 },
+	{ CLASS_MISUMARU,2,0,TV_MATERIAL,SV_MATERIAL_OPAL,1 },
+
+
 	{-1,0,0,0,0,0} //終端dummy
 };
 
@@ -5997,8 +6003,8 @@ static unique_player_type unique_player_table[UNIQUE_PLAYER_NUM] =
 		"あなたは交渉事が大得意な山童です。最近出回り始めた「アビリティカード」に目をつけカード売人として一旗揚げることにしました。しかし他の妖怪たちも先を争ってアビリティカードを買い集め始めており高騰は必至です。一刻も早くお金を貯めてカードを買い漁りましょう。あなたは背中に大型のカードケースを背負っており、この中にカードを16種類まで収納することができます。さらに森の気を操る能力をもち、森に関係する幾つかの特技を習得します。しかし魔法を学習することはできず身体能力もあまり高くありません。" },
 	{ TRUE,"駒草　山如",CLASS_SANNYO,RACE_YOUKAI,ENTRY_KOURYUU,SEX_FEMALE,
 		"あなたは妖怪の山で賭場を開帳する「山女郎」という妖怪です。特別なタバコを吸うことで周囲のモンスターに朦朧や混乱などの効果を与える能力を持っています。一度タバコを吸い始めるとその効果は毎ターン継続的に発動し、そのたびにMPを少し消費します。また賭場の主なので腕っ節には多少の覚えがあります。扇を使った戦闘術もお手の物です。あなたは「アビリティカード」を使った賭けで一儲けするためにカードを仕入れようとしています。しかし競争相手が次第に増え始めており、カードの価格は高騰を始めています。急いでお金を稼いでカードを買いあさりましょう。" },
-	{ FALSE,"玉造　魅須丸",CLASS_MISUMARU,RACE_DEITY,ENTRY_KOURYUU,SEX_FEMALE,
-		"(未実装)" },
+	{ TRUE,"玉造　魅須丸",CLASS_MISUMARU,RACE_DEITY,ENTRY_KOURYUU,SEX_FEMALE,
+		"あなたは勾玉制作職人です。鉱物などの素材から勾玉を制作し、これを専用スロットに装備して発動することで様々な能力を発揮することができます。使用する素材によって勾玉に発現する能力の種類や強さが変化します。またあなたは街の鍛冶宝飾ギルドで宝石や装飾品からエッセンスを抽出しそれを別の装飾品に付与することができます。さらに魔法を一領域習得することができますが、肉弾戦は全くの不得手です。" },
 	{ TRUE,"菅牧　典",CLASS_TSUKASA,RACE_YOUKO,ENTRY_KOURYUU,SEX_FEMALE,
 		"あなたは大天狗に仕える管狐です。人に囁きかけて唆し破滅と混乱をもたらすことをこよなく好みます。あなたは配下モンスターの背後に隠れて操る「寄生」という特殊な騎乗状態になることができます。通常騎乗可能なモンスター以外にも寄生ができ、他のモンスターからの攻撃は高確率で配下モンスターが受け、また配下モンスターが戦うことで得た経験値やアイテムは全てあなたが横取りします。あなたの肉弾戦能力は全く話になりませんが代わりに魔法を一領域習得することができます。配下モンスターを盾にしつつ後ろから魔法や特技で攻撃するのが基本的な戦い方になります。あなたは服が汚れるのが嫌いで、劣化や汚染の攻撃で通常より多くのダメージを受けてしまいます。" },
 	{ TRUE,"飯綱丸　龍",CLASS_MEGUMU,RACE_KARASU_TENGU,ENTRY_KOURYUU,SEX_FEMALE,
@@ -6103,6 +6109,7 @@ void extra_mode_score_mult(int *mult, int class_idx)
 		mod=125;
 		break;
 	case CLASS_JEWELER:
+	case CLASS_MISUMARU:
 		mod=150;
 		break;
 	case CLASS_NINJA:

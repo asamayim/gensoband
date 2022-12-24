@@ -14,6 +14,145 @@ static bool use_itemcard = FALSE;
 */
 
 
+//v2.0.4 魅須丸特技
+class_power_type class_power_misumaru[] =
+{
+
+	{ 1,25,30,FALSE,TRUE,A_DEX,0,0,"勾玉制作",
+	"「勾玉」を制作する。制作した勾玉は装備して発動することができる。発動するときの効果は素材によってある程度変化する。" },
+	{ 1,0,0,FALSE,FALSE,A_DEX,0,0,"勾玉装備",
+	"制作した勾玉を専用スロットに装備する。レベルが上がると装備可能スロット数が増える。" },
+	{ 1,0,0,FALSE,FALSE,A_DEX,0,0,"勾玉確認",
+	"装備した勾玉の発動時の効果を確認する。" },
+	{ 1,0,0,FALSE,FALSE,A_INT,0,0,"勾玉発動",
+	"装備した勾玉を発動する。発動のたびに特技ごとに設定された追加のMPを消費する。" },
+	{ 1,0,0,FALSE,FALSE,A_DEX,0,0,"勾玉取り外し",
+	"専用スロットに装備した勾玉を解除する。" },
+
+	{ 20,20,30,FALSE,TRUE,A_INT,0,0,"モンスター調査",
+	"周囲のモンスターの能力や耐性などを知る。" },
+
+	{ 25,32,50,FALSE,TRUE,A_CHR,0,0,"虹龍陰陽玉",
+	"虹属性のボールを放つ。" },
+
+	{ 30,1,60,FALSE,TRUE,A_INT,0,0,"魔力食い(宝石)",
+	"宝石から魔力を吸い取りMPを回復する。吸い取れる魔力の量は宝石の種類で変わる。" },
+
+	{ 40,96,85,FALSE,TRUE,A_CHR,0,0,"陰陽サフォケイション",
+	"視界内の全てに対して無属性の攻撃を行う。" },
+
+
+	{ 99,0,0,FALSE,FALSE,0,0,0,"dummy",	"" },
+};
+cptr do_cmd_class_power_aux_misumaru(int num, bool only_info)
+{
+	int dir, dice, sides, base, damage, i;
+	int plev = p_ptr->lev;
+	int chr_adj = adj_general[p_ptr->stat_ind[A_CHR]];
+
+	switch (num)
+	{
+
+	case 0:
+	{
+
+		if (only_info) return format("");
+
+		if (!make_magatama()) return NULL;
+	}
+	break;
+
+
+	//勾玉装備 inven2使用
+	case 1:
+	{
+		if (only_info) return format("");
+		if (!put_item_into_inven2()) return NULL;
+		break;
+	}
+
+	//勾玉確認 inven2に入った勾玉から特技リストを生成し、選択された技のパラメータを表示する
+	case 2:
+	{
+		if (only_info) return format("");
+
+		activate_magatama(TRUE);
+		return NULL; //見るだけなので行動順消費なし 純狐と菫子も同じにする
+	}
+	break;
+	//勾玉発動
+	case 3:
+	{
+		if (only_info) return format("");
+
+		activate_magatama(FALSE);
+
+	}
+	break;
+
+	//勾玉取り外し
+	case 4:
+	{
+		if (only_info) return format("");
+		if (!takeout_inven2()) return NULL;
+		break;
+	}
+
+	//調査
+	case 5:
+	{
+		if (only_info) return format("");
+		msg_print("勾玉を使って周囲のモンスターの情報を集めた...");
+		probing();
+		break;
+	}
+
+
+
+	case 6:
+	{
+		int rad = 2 + plev / 40;
+		int dice = 7;
+		int sides = plev / 2;
+		int base = plev + chr_adj * 2;
+
+		if (only_info) return format("半径:%d 損傷:%d+%dd%d", rad, base, dice, sides);
+
+		if (!get_aim_dir(&dir)) return NULL;
+		msg_format("七色に輝く陰陽玉を放った！");
+		fire_ball(GF_RAINBOW, dir, base + damroll(dice, sides), rad);
+		break;
+	}
+
+
+	case 7:
+	{
+
+		if (only_info) return format("");
+
+		if (!eat_jewel()) return NULL;
+	}
+	break;
+
+	case 8:
+	{
+		int dam = plev * 4 + chr_adj * 6;
+		if (only_info) return format("損傷:%d", dam);
+		stop_raiko_music();
+		msg_print("大量の陰陽玉が部屋を埋め尽くした！");
+		project_hack2(GF_DISP_ALL, 0, 0, dam);
+		break;
+	}
+
+
+	default:
+		if (only_info) return format("未実装");
+		msg_format("ERROR:実装していない特技が呼ばれた num:%d", num);
+		return NULL;
+	}
+	return "";
+}
+
 
 
 /*v2.0.3 飯綱丸龍専用技*/
@@ -4705,7 +4844,8 @@ cptr do_cmd_class_power_aux_sumireko_d(int num, bool only_info)
 	case 1:
 	{
 		if (only_info) return format("");
-		if (!activate_nameless_art(TRUE)) return NULL;
+		activate_nameless_art(TRUE);
+		return NULL;//確認のみなので行動順消費しない
 	}
 	break;
 
@@ -8230,7 +8370,8 @@ cptr do_cmd_class_power_aux_junko(int num, bool only_info)
 	case 2:
 		{
 			if (only_info) return format("");
-			if (!activate_nameless_art(TRUE)) return NULL;
+			activate_nameless_art(TRUE);
+			return NULL;//確認のみなので行動順消費しない
 		}
 		break;
 
@@ -24686,21 +24827,6 @@ cptr do_cmd_class_power_aux_satori(int num, bool only_info)
 
 
 
-/*:::宝石(珍品は含まない)*/
-bool item_tester_hook_jewel(object_type *o_ptr)
-{
-	int sv = o_ptr->sval;
-	if(o_ptr->tval != TV_MATERIAL) return FALSE;
-
-	if(sv == SV_MATERIAL_GARNET || sv == SV_MATERIAL_AMETHYST || sv == SV_MATERIAL_AQUAMARINE ||
-	   sv == SV_MATERIAL_DIAMOND || sv == SV_MATERIAL_EMERALD || sv == SV_MATERIAL_MOONSTONE ||
-	   sv == SV_MATERIAL_RUBY  || sv == SV_MATERIAL_PERIDOT || sv == SV_MATERIAL_SAPPHIRE ||
-	   sv == SV_MATERIAL_OPAL  || sv == SV_MATERIAL_TOPAZ || sv == SV_MATERIAL_LAPISLAZULI) return TRUE;
-
-	return FALSE;
-}
-
-
 /*:::宝飾師の魔力食い*/
 class_power_type class_power_jeweler[] =
 {
@@ -24718,76 +24844,10 @@ cptr do_cmd_class_power_aux_jeweler(int num, bool only_info)
 
 	case 0:
 		{
-			cptr q,s;
-			int item;
-			object_type *o_ptr;		
-			int mag;
 
 			if(only_info) return format("");
-			item_tester_hook = item_tester_hook_jewel;
 
-			q = "どの宝石から魔力を吸収しますか? ";
-			s = "あなたは魔力を吸収する宝石を持っていない。";
-			if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return NULL;
-
-			if (item >= 0) o_ptr = &inventory[item];
-			else o_ptr = &o_list[0 - item];
-
-			if(o_ptr->tval != TV_MATERIAL)
-			{
-				msg_print("ERROR:魔力食いで素材以外が選択された");
-				return NULL;
-			}
-			switch(o_ptr->sval)
-			{
-				case SV_MATERIAL_GARNET:
-				case SV_MATERIAL_AMETHYST:
-				case SV_MATERIAL_AQUAMARINE:
-				case SV_MATERIAL_MOONSTONE:
-				case SV_MATERIAL_PERIDOT:
-				case SV_MATERIAL_OPAL:
-				case SV_MATERIAL_TOPAZ:
-				case SV_MATERIAL_LAPISLAZULI:
-					mag = 100 + randint1(100);
-					break;
-				case SV_MATERIAL_SAPPHIRE:
-				case SV_MATERIAL_EMERALD:
-					mag = 300 + randint1(300);
-					break;
-				case SV_MATERIAL_RUBY:
-				case SV_MATERIAL_DIAMOND:
-					mag = 1000;
-					break;
-				default:
-				msg_print("ERROR:魔力食いで登録されていないアイテムが選択された");
-				return NULL;
-			}
-	
-			msg_print("あなたは宝石を手に取り、魔力を吸収した。");
-			p_ptr->csp += mag;
-
-			if(p_ptr->csp >= p_ptr->msp)
-			{
-				p_ptr->csp = p_ptr->msp;
-				p_ptr->csp_frac = 0;
-			}
-			p_ptr->redraw |= (PR_MANA);
-			p_ptr->window |= (PW_PLAYER);
-			p_ptr->window |= (PW_SPELL);
-
-			if (item >= 0)
-			{
-				inven_item_increase(item, -1);
-				inven_item_describe(item);
-				inven_item_optimize(item);
-			}
-			else
-			{
-				floor_item_increase(0 - item, -1);
-				floor_item_describe(0 - item);
-				floor_item_optimize(0 - item);	
-			}
-
+			if (!eat_jewel()) return NULL;
 		}
 		break;
 
@@ -34318,6 +34378,12 @@ void do_cmd_new_class_power(bool only_browse)
 	case CLASS_MEGUMU:
 		class_power_table = class_power_megumu;
 		class_power_aux = do_cmd_class_power_aux_megumu;
+		power_desc = "特技";
+		break;
+
+	case CLASS_MISUMARU:
+		class_power_table = class_power_misumaru;
+		class_power_aux = do_cmd_class_power_aux_misumaru;
 		power_desc = "特技";
 		break;
 

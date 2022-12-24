@@ -43,6 +43,14 @@ int calc_inven2_num(void)
 	else if (pc == CLASS_MIKE) num = 8;
 	//魔理沙専用性格　闇市場調査員 常に8
 	else if (is_special_seikaku(SEIKAKU_SPECIAL_MARISA)) num = 8;
+	//魅須丸 2-7
+	else if (pc == CLASS_MISUMARU)
+	{
+		num = 1 + p_ptr->lev / 8;
+
+		if (num > INVEN2_MAGATAMA_NUM_MAX) num = INVEN2_MAGATAMA_NUM_MAX;//上限7 ここを変えるとき勾玉発動ルーチンに影響がある
+
+	}
 
 
 	if(num > INVEN_ADD_MAX) num = INVEN_ADD_MAX;
@@ -322,6 +330,14 @@ static bool item_tester_inven2_card_dealer(object_type *o_ptr)
 	return (FALSE);
 }
 
+//v2.0.4 魅須丸の勾玉選定tester
+static bool item_tester_inven2_misumaru(object_type *o_ptr)
+{
+	if (o_ptr->tval == TV_SPELLCARD && o_ptr->sval == SV_SPELLCARD_MAGATAMA) return (TRUE);
+
+	return (FALSE);
+}
+
 /*:::アリスが人形に持たせるもの　武器と盾 反魔法不可*/
 static bool item_tester_inven2_alice(object_type *o_ptr)
 {
@@ -463,6 +479,11 @@ bool put_item_into_inven2(void)
 		s = "アビリティカードを持っていない。";
 		break;
 
+	case CLASS_MISUMARU:
+		item_tester_hook = item_tester_inven2_misumaru;
+		q = "どの勾玉を身につけますか？ ";
+		s = "勾玉を持っていない。";
+		break;
 
 	default:
 		msg_print("ERROR:この職業の追加インベントリ対象アイテムが定義されていない");
@@ -531,7 +552,7 @@ bool put_item_into_inven2(void)
 
 	/*:::自動的にまとめられるか判定しつつアイテムを自動的に空いてる追加インベントリに入れる職業（薬師、お燐）*/
 	/*:::エンジニアは1スロット1つしか入れないがどうせ機械はまとまらないのでこのルーチンのままで問題ないはず*/
-	if( pc == CLASS_CHEMIST || pc == CLASS_ORIN || pc == CLASS_ENGINEER || pc == CLASS_NITORI || pc == CLASS_SH_DEALER || pc == CLASS_UDONGE || (CHECK_ABLCARD_DEALER_CLASS))
+	if( pc == CLASS_CHEMIST || pc == CLASS_ORIN || pc == CLASS_ENGINEER || pc == CLASS_NITORI || pc == CLASS_SH_DEALER || pc == CLASS_UDONGE || (CHECK_ABLCARD_DEALER_CLASS) || pc == CLASS_MISUMARU)
 	{
 		int freespace = 99;
 		/*:::まとめられるか判定*/
@@ -797,6 +818,7 @@ bool put_item_into_inven2(void)
 		else if (pc == CLASS_SANNYO) msg_format("%sをケースに収納した。", o_name);
 		else if (pc == CLASS_CARD_DEALER) msg_format("%sをケースに収納した。", o_name);
 		else if (pc == CLASS_MARISA) msg_format("%sをスカートの隠しポケットに入れた。", o_name);
+		else if (pc == CLASS_MISUMARU) msg_format("%sで身を飾った。", o_name);
 
 		else msg_format("ERROR:追加インベントリにアイテム入れたときのメッセージがない");
 
@@ -847,6 +869,7 @@ bool put_item_into_inven2(void)
 		else if (pc == CLASS_SANNYO) msg_format("ケースには%sを入れる隙間がない。", o_name);
 		else if (pc == CLASS_CARD_DEALER) msg_format("ケースには%sを入れる隙間がない。", o_name);
 		else if (pc == CLASS_MARISA) msg_format("もうスカートの隠しポケットは一杯だ。");
+		else if (pc == CLASS_MISUMARU) msg_format("%sをつける場所がない。", o_name);
 
 		else msg_format("ERROR:追加インベントリにアイテム入れる場所がないときのメッセージがない");
 
@@ -884,6 +907,7 @@ bool takeout_inven2(void)
 	if( pc == CLASS_ENGINEER || pc == CLASS_NITORI) prt("どの機械を外しますか？", 0, 0);
 	else if( pc == CLASS_ALICE ) prt("どの装備を外しますか？", 0, 0);
 	else if( pc == CLASS_SAKUYA ) prt("どの武器を取りますか？", 0, 0);
+	else if (pc == CLASS_MISUMARU) prt("どの勾玉を取りますか？", 0, 0);
 	else if (pc == CLASS_JYOON) prt("どの指輪を外しますか？", 0, 0);
 	else  prt("どのアイテムを取り出しますか？", 0, 0);
 
@@ -973,6 +997,7 @@ bool takeout_inven2(void)
 	else if (pc == CLASS_SANNYO) msg_format("%sをケースから出した。", o_name);
 	else if (pc == CLASS_CARD_DEALER) msg_format("%sをケースから出した。", o_name);
 	else if (pc == CLASS_MARISA) msg_format("スカートの隠しポケットから%sを出した。", o_name);
+	else if (pc == CLASS_MISUMARU) msg_format("%sを取り外した。", o_name);
 	else msg_format("ERROR:追加インベントリからアイテム出したときのメッセージがない");
 	
 	(void)inven_carry(q_ptr);

@@ -8153,3 +8153,91 @@ bool rokuro_head_search_item(int v, bool flag_stop)
 
 
 
+
+/*:::•óÎ(’¿•i‚ÍŠÜ‚Ü‚È‚¢)*/
+bool item_tester_hook_jewel(object_type *o_ptr)
+{
+	int sv = o_ptr->sval;
+	if (o_ptr->tval != TV_MATERIAL) return FALSE;
+
+	if (sv == SV_MATERIAL_GARNET || sv == SV_MATERIAL_AMETHYST || sv == SV_MATERIAL_AQUAMARINE ||
+		sv == SV_MATERIAL_DIAMOND || sv == SV_MATERIAL_EMERALD || sv == SV_MATERIAL_MOONSTONE ||
+		sv == SV_MATERIAL_RUBY || sv == SV_MATERIAL_PERIDOT || sv == SV_MATERIAL_SAPPHIRE ||
+		sv == SV_MATERIAL_OPAL || sv == SV_MATERIAL_TOPAZ || sv == SV_MATERIAL_LAPISLAZULI) return TRUE;
+
+	return FALSE;
+}
+
+
+//v2.0.4 •óüŽt‚Ì–‚—ÍH‚¢
+//–£{ŠÛ‚Å‚àŽg‚¦‚é‚æ‚¤‚É•ÊŠÖ”‚É‚µ‚½
+//ƒLƒƒƒ“ƒZƒ‹‚µ‚Äs“®‡Á”ï‚µ‚È‚¢‚Æ‚«FALSE
+bool eat_jewel(void)
+{
+	cptr q, s;
+	int item;
+	object_type *o_ptr;
+	int mag;
+
+	item_tester_hook = item_tester_hook_jewel;
+
+	q = "‚Ç‚Ì•óÎ‚©‚ç–‚—Í‚ð‹zŽû‚µ‚Ü‚·‚©? ";
+	s = "‚ ‚È‚½‚Í–‚—Í‚ð‹zŽû‚·‚é•óÎ‚ðŽ‚Á‚Ä‚¢‚È‚¢B";
+	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return FALSE;
+
+	if (item >= 0) o_ptr = &inventory[item];
+	else o_ptr = &o_list[0 - item];
+
+	if (o_ptr->tval != TV_MATERIAL)
+	{
+		msg_print("ERROR:–‚—ÍH‚¢‚Å‘fÞˆÈŠO‚ª‘I‘ð‚³‚ê‚½");
+		return FALSE;
+	}
+	switch (o_ptr->sval)
+	{
+	case SV_MATERIAL_GARNET:
+	case SV_MATERIAL_AMETHYST:
+	case SV_MATERIAL_AQUAMARINE:
+	case SV_MATERIAL_MOONSTONE:
+	case SV_MATERIAL_PERIDOT:
+	case SV_MATERIAL_OPAL:
+	case SV_MATERIAL_TOPAZ:
+	case SV_MATERIAL_LAPISLAZULI:
+		mag = 100 + randint1(100);
+		break;
+	case SV_MATERIAL_SAPPHIRE:
+	case SV_MATERIAL_EMERALD:
+	case SV_MATERIAL_RUBY:
+	case SV_MATERIAL_RYUUZYU:
+		mag = 300 + randint1(300);
+		break;
+	case SV_MATERIAL_DIAMOND:
+		mag = 1000;
+		break;
+
+		break;
+	default:
+		msg_print("ERROR:–‚—ÍH‚¢‚Å“o˜^‚³‚ê‚Ä‚¢‚È‚¢ƒAƒCƒeƒ€‚ª‘I‘ð‚³‚ê‚½");
+		return FALSE;
+	}
+
+	msg_print("‚ ‚È‚½‚Í•óÎ‚ðŽè‚ÉŽæ‚èA–‚—Í‚ð‹zŽû‚µ‚½B");
+
+	player_gain_mana(mag);
+
+	if (item >= 0)
+	{
+		inven_item_increase(item, -1);
+		inven_item_describe(item);
+		inven_item_optimize(item);
+	}
+	else
+	{
+		floor_item_increase(0 - item, -1);
+		floor_item_describe(0 - item);
+		floor_item_optimize(0 - item);
+	}
+
+	return TRUE;
+
+}
