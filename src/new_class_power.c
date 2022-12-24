@@ -35697,6 +35697,9 @@ const support_item_type support_item_list[] =
 		{ 120,40, 120,1,30,	MON_MEGUMU,class_power_megumu,do_cmd_class_power_aux_megumu,4,
 		"渾天儀","それを使うとフロア全体のモンスターを金縛り状態にしようと試みる。ユニークモンスター、力強いモンスター、神格には効果が薄い。" },
 
+	//v2.0.4 虹龍陰陽玉
+		{ 40,30, 80,7,5,MON_MISUMARU,class_power_misumaru,do_cmd_class_power_aux_misumaru,6,
+		"七色の陰陽玉","それは虹属性のボール攻撃を放つ。" },
 
 	{0,0,0,0,0,0,NULL,NULL,0,"終端ダミー",""},
 };

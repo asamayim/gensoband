@@ -3759,6 +3759,13 @@ static void player_flags(u32b flgs[TR_FLAG_SIZE])
 
 		break;
 
+	case CLASS_MISUMARU:
+		if (plev > 9) add_flag(flgs, TR_ESP_HUMAN);
+		if (plev >19) add_flag(flgs, TR_ESP_ANIMAL);
+		if (plev >24) add_flag(flgs, TR_RES_HOLY);
+		if (plev >29) add_flag(flgs, TR_ESP_KWAI);
+		if (plev >39) add_flag(flgs, TR_ESP_EVIL);
+		break;
 
 
 	default:

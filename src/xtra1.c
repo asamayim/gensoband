@@ -6078,6 +6078,14 @@ void calc_bonuses(void)
 		if (p_ptr->lev > 29) p_ptr->resist_lite = TRUE;
 		break;
 
+	case CLASS_MISUMARU:
+		if (plev > 9) p_ptr->esp_human = TRUE;
+		if (plev > 19) p_ptr->esp_animal = TRUE;
+		if (plev > 24) p_ptr->resist_holy = TRUE;
+		if (plev > 29) p_ptr->esp_kwai = TRUE;
+		if (plev > 39) p_ptr->esp_evil = TRUE;
+		break;
+
 
 
 	default:
