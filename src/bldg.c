@@ -3622,7 +3622,11 @@ static bool inn_comm(int cmd)
 				return FALSE;
 			}
 
-			msg_print("店主は料理と飲み物を振舞ってくれた。");
+			if(EXTRA_MODE)
+				msg_print("あなたは手早く食事を済ませた。");
+			else
+				msg_print("店主は料理と飲み物を振舞ってくれた。");
+
 			(void)set_food(PY_FOOD_MAX - 1);
 			break;
 
@@ -3670,8 +3674,23 @@ static bool inn_comm(int cmd)
 
 				prevent_turn_overflow();
 
-				if ((prev_hour >= 18) && (prev_hour <= 23)) do_cmd_write_nikki(NIKKI_HIGAWARI, 0, NULL);
-				if ((prev_hour >= 18) && (prev_hour <= 23)) p_ptr->today_mon = 0; //霊夢の占いリセット
+				//宿に泊まって日付が変わるとき
+				if ((prev_hour >= 18) && (prev_hour <= 23))
+				{
+					do_cmd_write_nikki(NIKKI_HIGAWARI, 0, NULL);
+
+					p_ptr->today_mon = 0; //霊夢の占いリセット
+
+					//v2.05 はたての人探しリセット EXTRAでは日数経過でなくフロア通過でリセットされるのでここでは何もしない
+					if (!EXTRA_MODE)
+					{
+						p_ptr->hatate_mon_search_ridx = 0;
+						p_ptr->hatate_mon_search_dungeon = 0;
+
+					}
+
+				}
+
 				p_ptr->chp = p_ptr->mhp;
 
 				engineer_malfunction(0, 5000); //エンジニアの不調の機械が回復する
@@ -5227,22 +5246,48 @@ bool check_quest_unique_text(void)
 
 		else if(p_ptr->prace == RACE_KARASU_TENGU || p_ptr->prace == RACE_HAKUROU_TENGU)
 		{
-			if(comp)
+			//v2.0.5 建物「はたての家」を追加したのではたてのときセリフを変えておく
+			if (p_ptr->pclass == CLASS_HATATE)
 			{
-				strcpy(quest_text[line++], "首尾良く侵入者を片付け、我が家を取り戻した。");
-				strcpy(quest_text[line++], "危うくゴシップのネタになるところだったが、とりあえず面子は保ったようだ。");
+				if (comp)
+				{
+					strcpy(quest_text[line++], "侵入者に突撃取材を敢行し、文の家を取り戻した。");
+					strcpy(quest_text[line++], "文の悔しがる顔が目に浮かぶようだ。");
+				}
+				else if (fail)
+				{
+					msg_print("ERROR:ここには来ないはず");
+				}
+				else
+				{
+					strcpy(quest_text[line++], "しばらく留守にしている文の家に余所者が住み着いていた。");
+					strcpy(quest_text[line++], "余所者は夜な夜な怪しい儀式を繰り返し、近所に被害が出ているようだ。");
+					strcpy(quest_text[line++], "これは面白くなってきた。");
+				}
 
-			}
-			else if(fail)
-			{
-				msg_print("ERROR:ここには来ないはず");
 			}
 			else
 			{
-				strcpy(quest_text[line++], "しばらく留守にしているうちに家に余所者が住み着いていた。");
-				strcpy(quest_text[line++], "余所者は夜な夜な怪しい儀式を繰り返し、近所に被害が出ているようだ。");
-				strcpy(quest_text[line++], "速やかに一人で始末をつけないと天狗の誇りに関わる。");
+				if (comp)
+				{
+					strcpy(quest_text[line++], "首尾良く侵入者を片付け、我が家を取り戻した。");
+					strcpy(quest_text[line++], "危うくゴシップのネタになるところだったが、とりあえず面子は保ったようだ。");
+
+				}
+				else if (fail)
+				{
+					msg_print("ERROR:ここには来ないはず");
+				}
+				else
+				{
+					strcpy(quest_text[line++], "しばらく留守にしているうちに家に余所者が住み着いていた。");
+					strcpy(quest_text[line++], "余所者は夜な夜な怪しい儀式を繰り返し、近所に被害が出ているようだ。");
+					strcpy(quest_text[line++], "速やかに一人で始末をつけないと天狗の誇りに関わる。");
+				}
+
+
 			}
+
 
 
 		}
@@ -5914,7 +5959,7 @@ bool check_quest_unique_text(void)
 			else
 			{
 				strcpy(quest_text[line++], "南東の古い城塞にモンスターたちが巣食っているという情報を得た。");
-				strcpy(quest_text[line++], "以前自分の家に侵入した余所者と違い、今回の余所者はかなり凶悪らしい。");
+				strcpy(quest_text[line++], "以前の侵入事件と違い、今回の余所者はかなり凶悪らしい。");
 				strcpy(quest_text[line++], "皆に先んじてこれを解決し、汚名返上とスクープ獲得の一挙両得を狙うのも悪くない。");
 			}
 		}
@@ -13678,10 +13723,16 @@ static void bldg_process_command(building_type *bldg, int i)
 	msg_flag = FALSE;
 	msg_print(NULL);
 
+	/*
 	if (is_owner(bldg))
 		bcost = bldg->member_costs[i];
 	else
+
 		bcost = bldg->other_costs[i];
+	*/
+
+	bcost = bldg->other_costs[i];
+
 
 	/* action restrictions */
 	///building ここ変更しないといけない
@@ -14247,6 +14298,10 @@ msg_print("お金が足りません！");
 
 	case BACT_MAKE_SPELLCARD:
 		bact_marisa_make_spellcard();
+		break;
+
+	case BACT_HATATE_SEARCH_MON:
+		paid = hatate_search_unique_monster();
 		break;
 
 	default:

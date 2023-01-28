@@ -4638,3 +4638,409 @@ void	bact_buy_strange_object(void)
 	//town[TOWN_KOURIN].store[STORE_HOME].last_visit = turn;
 }
 
+
+
+
+//v2.0.5
+//はたての家で念写を使って人探しをしてもらう
+//内部的には指定された文字列でユニークモンスターを検索し、その居場所としてランダムなダンジョンとフロアを設定し、
+//＠がそこに行ったときそのモンスターを生成する。
+//p_ptr->hatate_mon_search_ridx:対象ユニークモンスターのr_idx値
+//p_ptr->hatate_mon_search_dungeon: (ダンジョンidx*1000) + (ダンジョン階層)
+//日付が変わったらこの値はリセットされる。生成しただけではリセットされない
+//成功(費用発生)のときTRUEを返す
+#define HATATE_SEARCH_MON_LIST_MAX 10 //候補リスト最大長
+bool hatate_search_unique_monster(void)
+{
+
+	bool hatate = (p_ptr->pclass == CLASS_HATATE);
+
+	//すでに実行済みのとき翌日まで利用不可　
+	//＠がはたてのときは何度でもできるようにする
+	if (p_ptr->hatate_mon_search_ridx)
+	{
+		if (hatate)
+		{
+			prt("すでに追跡中の相手がいるが...", 7, 20);
+			prt("　やめて他の人を探そうか？", 8, 20);
+			if (!get_check_strict("変更しますか？ ", CHECK_DEFAULT_Y)) return FALSE;
+		}
+		else
+		{
+			if(EXTRA_MODE)
+				prt("「もう疲れちゃった。また今度ね。」", 7, 20);
+			else
+				prt("「今日はもう疲れちゃった。また明日ね。」", 7, 20);
+
+			return FALSE;
+		}
+	}
+
+	clear_bldg(4, 18);
+
+	if (hatate)
+		prt("誰を探そう？", 7, 20);
+	else if(one_in_(4))
+		prt("「おや冒険者さん。ようこそ我がアジトへ」", 7, 20);
+	else
+		prt("「私に誰かを探してほしいのね？」", 7, 20);
+
+	//完了かキャンセルまで繰り返す
+	while (TRUE)
+	{
+		int i, xx;
+		char temp[120] = "";//検索キーワード
+		char m_name[120];//モンスター名称候補
+		char m_ename[120];//モンスター名称候補(英字)
+
+		monster_race *r_ptr;
+		int r_idx_list[HATATE_SEARCH_MON_LIST_MAX];
+		int r_idx_list_len = 0;
+		int search_r_idx = 0;
+		int search_dungeon = 0;
+		int search_floor = 0;
+
+		bool flag_too_much = FALSE;
+
+		//検索キーワード入力
+		if (!get_string("ユニーク・モンスターの名前(部分一致):", temp, 100))
+		{
+			clear_bldg(4, 18);
+			return FALSE;
+		}
+		//キーワードの大文字を小文字にしている
+		for (xx = 0; temp[xx] && xx < 120; xx++)
+		{
+			if (iskanji(temp[xx]))
+			{
+				xx++;
+				continue;
+			}
+			if (isupper(temp[xx])) temp[xx] = tolower(temp[xx]);
+		}
+
+		//全モンスター名称をサーチしてキーワードに部分一致するものを最大10件リストに登録
+		for (i = 1; i<max_r_idx; i++)
+		{
+
+			r_ptr = &r_info[i];
+
+			//非ユニークは除外(レイマリ除く)
+			if (!(r_ptr->flags1 & RF1_UNIQUE) && i != MON_REIMU && i != MON_MARISA) continue;
+
+			//菫子闘技場専用ダミーを除外
+			if (i == MON_SUMIREKO_2) continue;
+
+			//紫苑とモズグスは打倒状況により変身前後を排他除外
+			if (i == MON_SHION_2 && r_info[MON_SHION_1].r_akills == 0) continue;
+			if (i == MON_SHION_1 && r_info[MON_SHION_1].r_akills  > 0) continue;
+			if (i == MON_MOZGUS2 && r_info[MON_MOZGUS].r_akills == 0) continue;
+			if (i == MON_MOZGUS && r_info[MON_MOZGUS].r_akills  > 0) continue;
+
+			//日本語モンスター名
+			strcpy(m_name, r_name + r_ptr->name);
+
+			//英字モンスター名(大文字は小文字にする)
+			strcpy(m_ename, r_name + r_ptr->E_name);
+			for (xx = 0; m_ename[xx] && xx < 80; xx++) if (isupper(m_ename[xx])) m_ename[xx] = tolower(m_ename[xx]);
+
+			clear_bldg(4, 18);
+
+			//検索キーワードと一致したらr_idxを最大10リストに記録
+			if (my_strstr(m_name, temp) || my_strstr(m_ename, temp))
+			{
+				//リスト上限到達
+				if (r_idx_list_len == HATATE_SEARCH_MON_LIST_MAX)
+				{
+					flag_too_much = TRUE;
+					break;
+				}
+				r_idx_list[r_idx_list_len] = i;
+				r_idx_list_len++;
+
+			}
+
+		}
+		if (flag_too_much)
+		{
+			if (hatate)
+				prt(format("候補が多すぎるようだ。キーワードを変えてやり直そう。"), 7, 20);
+			else
+				prt(format("「候補が多すぎね。もう少し絞ってもらえる？」"), 7, 20);
+			continue;
+
+		}
+
+		if (!r_idx_list_len)
+		{
+			if (hatate)
+				prt(format("該当なしだ。キーワードを変えてやり直そう。"), 7, 20);
+			else
+				prt(format("「該当なしね。キーワードを変えてもらえる？」"), 7, 20);
+
+			continue;
+		}
+
+		clear_bldg(4, 18);
+
+		if (hatate)	prt(format("%d件該当した！", r_idx_list_len), 8, 20);
+		else		prt(format("「...%d件見つかったわ！」", r_idx_list_len), 8, 20);
+		//見つかったr_idxのリストの中から探す相手を選ぶ
+		//リスト表示するのが面倒なのでリスト先頭から一人ずつYes/Noで確認 たぶんリストにしても大して意味は無いだろう
+		for (i = 0; i<r_idx_list_len; i++)
+		{
+			r_ptr = &r_info[r_idx_list[i]];
+
+			clear_bldg(9, 18);
+
+			//日本語モンスター名を得る
+			strcpy(m_name, r_name + r_ptr->name);
+
+			if (hatate)
+				prt(format("【%s】を探そうか？", m_name), 9, 20);
+			else
+				prt(format("「【%s】でいいかしら？」", m_name), 9, 20);
+
+			if (!get_check_strict("探しますか？ ", CHECK_DEFAULT_Y)) continue;
+
+			search_r_idx = r_idx_list[i];
+			break;
+
+		}
+
+		clear_bldg(4, 18);
+		if (!search_r_idx) return FALSE;
+
+		if (hatate)
+			prt(format("%sの居場所は...", m_name), 8, 20);
+		else
+			prt(format("「%sの居場所はね...", m_name), 8, 20);
+
+		inkey();
+
+		//対象外特殊処理
+		//はたて
+		if (search_r_idx == MON_HATATE)
+		{
+			if (hatate)
+				prt("もちろんこの部屋が写っている。", 9, 20);
+			else
+				prt("　あなたの目の前よ？」", 9, 20);
+			inkey();
+			return FALSE;
+		}
+		//自分　＠がはたてのときは一つ前に行くはず
+		if (monster_is_you(search_r_idx))
+		{
+			prt("　見つけたわ！私の目の前ね！」", 9, 20);
+			inkey();
+			return FALSE;
+		}
+
+		//打倒済み
+		if (r_ptr->r_akills)
+		{
+			if (hatate)
+				prt("　自分が格好良く倒したシーンが写っていた。", 9, 20);
+			else
+				prt("　あなたにやられてるところが写ってるんだけど...」", 9, 20);
+			inkey();
+			return FALSE;
+		}
+
+		//通常出現しないレアリティ値 分裂後のバーノールルパート、没になった大ムカデが該当
+		if (r_ptr->rarity > 100)
+		{
+			if (hatate)
+				prt("画像がぐちゃぐちゃに乱れている。普通に出会える相手ではないようだ。", 9, 20);
+			else
+			{
+				prt("　うーん、わからないわ。", 9, 20);
+				prt("　なぜかちゃんと写らないの。」", 10, 20);
+			}
+
+			inkey();
+			return FALSE;
+		}
+
+		//ダンジョンボス
+		if (r_ptr->flags7 & RF7_GUARDIAN)
+		{
+			for (i = 1; i < DUNGEON_MAX; i++)
+			{
+				if (d_info[i].final_guardian == search_r_idx)
+				{
+					if (hatate)
+						c_put_str(TERM_WHITE, format("%sの最深層を守っているようだ。", (d_name + d_info[i].name)), 9, 20);
+					else
+					{
+						c_put_str(TERM_WHITE, format("そいつは%sの最深層で待ち構えているわ。", (d_name + d_info[i].name)), 9, 20);
+						prt("　今の情報は無料でいいよ。」", 10, 20);
+					}
+
+					inkey();
+					return FALSE;
+
+				}
+			}
+		}
+
+		//QUESTOR ランクエ対象、クエスト専用、シナリオボス、ゲートキーパーなど
+		if (r_ptr->flags1 & RF1_QUESTOR)
+		{
+
+			if (hatate)
+				prt("　不明だ。どこかを守っているようだ。", 9, 20);
+			else
+			{
+				prt("　よく分からないわ。", 9, 20);
+				prt("　じっと動かずにどこかを守っているみたい。」", 10, 20);
+			}
+			inkey();
+			return FALSE;
+
+		}
+		//お尋ね者　該当クエスト受領まで探せない
+		if (r_ptr->flags3 & RF3_WANTED)
+		{
+			int cnt;
+			bool flag_can_alloc = FALSE;
+			for (cnt = max_quests - 1; cnt > 0; cnt--)
+			{
+				if (quest[cnt].status != QUEST_STATUS_TAKEN || quest[cnt].type != QUEST_TYPE_BOUNTY_HUNT)continue;
+				if (quest[cnt].r_idx != search_r_idx) continue;
+
+				flag_can_alloc = TRUE;
+				break;
+			}
+
+			if (!flag_can_alloc)
+			{
+				if (hatate)
+					prt("　分からない。画面は真っ暗だ。", 9, 20);
+				else
+				{
+					prt("　よく分からないわ。", 9, 20);
+					prt("　どこか真っ暗なところに隠れているのかしら？」", 10, 20);
+				}
+				inkey();
+				return FALSE;
+			}
+		}
+
+		//出現ダンジョンを決定
+
+		if (EXTRA_MODE)
+		{
+			//EXTRAでは鉄獄と混沌の領域限定
+			search_dungeon = dungeon_type;
+
+			//特定ダンジョンにしか出ないモンスターは失敗
+			if ((r_ptr->flags8 & RF8_STAY_AT_HOME3) && r_ptr->extra != search_dungeon)
+			{
+				if (hatate)
+					prt("　このダンジョンにいないようだ。", 9, 20);
+				else
+				{
+					prt("　うーん、このダンジョンには居ないわね。」", 9, 20);
+				}
+				inkey();
+				return FALSE;
+			}
+
+		}
+		else
+		{
+			//特定ダンジョンにしか出ないならそこ
+			if (r_ptr->flags8 & RF8_STAY_AT_HOME3)
+				search_dungeon = r_ptr->extra;
+			//特定ダンジョンによく出るなら高確率でそこ AT_HOME1は無視
+			else if (r_ptr->flags8 & RF8_STAY_AT_HOME2 && !one_in_(8))
+				search_dungeon = r_ptr->extra;
+			//レイマリは鉄獄のみ(place_monster_one()でそう設定しているので)
+			else if(search_r_idx == MON_REIMU || search_r_idx == MON_MARISA)
+				search_dungeon = DUNGEON_ANGBAND;
+			//水棲なら玄武の沢
+			else if (r_ptr->flags7 & RF7_AQUATIC)
+				search_dungeon = DUNGEON_GENBU;
+			//動物系なら中確率で魔法の森
+			else if(r_ptr->flags3 & RF3_ANIMAL && one_in_(2))
+				search_dungeon = DUNGEON_FOREST;
+			//亜人系なら中確率で紅魔館
+			else if (r_ptr->flags3 & RF3_DEMIHUMAN && one_in_(2))
+				search_dungeon = DUNGEON_KOUMA;
+			//地獄関係者なら中確率で地獄か無縁塚
+			else if (r_ptr->flags7 & RF7_FROM_HELL && one_in_(2))
+			{
+				if(one_in_(2))
+					search_dungeon = DUNGEON_MUEN;
+				else
+					search_dungeon = DUNGEON_HELL;
+			}
+			//基本は鉄獄
+			else
+			{
+				search_dungeon = DUNGEON_ANGBAND;
+
+				//TODO:暇があればもう少し細かく分類したい
+			}
+		}
+
+		//出現フロアを決定
+
+		if (EXTRA_MODE)
+		{
+			//現在フロアより5～10深い場所
+			search_floor = dun_level + 4 + randint1(6);
+
+			//敵レベルより10レベル以上浅くはならない
+			if (r_ptr->level -10 > search_floor ) search_floor = r_ptr->level - 10;
+
+			//EXTRAクエストフロアには出ない
+			if ((search_floor != 100) && (search_floor % 10 == 0)) search_floor++;
+
+			//上限
+			if (search_floor > d_info[search_dungeon].maxdepth) search_floor = d_info[search_dungeon].maxdepth;
+
+		}
+		else
+		{
+			//モンスターレベル±5
+			//レイマリは鉄獄の最深到達階層付近
+			if (search_r_idx == MON_REIMU || search_r_idx == MON_MARISA)
+				search_floor = max_dlv[DUNGEON_ANGBAND] + randint1(11) - 6;
+			else
+				search_floor = r_ptr->level + randint1(11) - 6;
+
+			//上限
+			if (search_floor > d_info[search_dungeon].maxdepth) search_floor = d_info[search_dungeon].maxdepth;
+
+			//下限
+			if (search_floor < d_info[search_dungeon].mindepth) search_floor = d_info[search_dungeon].mindepth;
+
+		}
+
+		if (hatate)
+			c_put_str(TERM_WHITE, format("見つけた!%sの%d階にいる！", (d_name + d_info[search_dungeon].name), search_floor), 9, 20);
+		else
+			c_put_str(TERM_WHITE, format("見つけたわ!%sの%d階よ！」", (d_name + d_info[search_dungeon].name), search_floor), 9, 20);
+
+		inkey();
+
+		//ダンジョンとフロアを専用変数に記録
+		p_ptr->hatate_mon_search_ridx = search_r_idx;
+		p_ptr->hatate_mon_search_dungeon = search_dungeon*1000 + search_floor;
+
+		break;
+	}
+
+	clear_bldg(4, 18);
+
+	return TRUE;
+
+}
+
+#undef HATATE_SEARCH_MON_LIST_MAX
+
+
+
