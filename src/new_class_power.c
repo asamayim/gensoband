@@ -14,6 +14,246 @@ static bool use_itemcard = FALSE;
 */
 
 
+
+//v2.0.6 尤魔
+//p_ptr->magic_num1[0-130?]に青魔系フラグを、magic_num2[0-130?]に武器防具フラグを、magic_num2[200]に満腹度ストックを記録
+class_power_type class_power_yuma[] =
+{
+
+
+	{10,5,20,FALSE,FALSE,A_INT,0,0,"周辺調査",
+	"周囲のモンスターとトラップを感知する。さらにレベル20でアイテム、レベル30で地形を感知する。" },
+
+	{ 15,20,30,TRUE,FALSE,A_DEX,50,0,"詰め寄る",
+	"ターゲットに向かって一瞬で数グリッドを移動する。レベル30以降はターゲットに当たったときそのまま攻撃する。装備品が重いとき失敗しやすくなる。" },
+
+	{ 20,16,30,FALSE,TRUE,A_STR,0,0,"世界の在り方を変える黒い水",
+	"石油属性のビームを放ち、地形を石油に変えてモンスターを攻撃力低下状態にする。「★饕餮のスプーン」が必要。" },
+
+	{25,30,50,FALSE,TRUE,A_STR,0,0,"この世に存在してはならない暴食",
+	"周囲のアイテムと地形を食べて栄養にする。食べた武具の耐性や能力を半日の間獲得する。また周囲のモンスターを引き寄せて隣接したらダメージを与え栄養にする。レベル30以降はこの技で倒したモンスターの特技を半日間使用できる。" },
+
+	{30,0,0,FALSE,TRUE,A_INT,0,0,"呪われた血液の追憶",
+	"特技「この世に存在してはならない暴食」で倒したモンスターの特技を使う。特技ごとに追加のMPと成功判定が必要。" },
+
+	{35,45,65,FALSE,TRUE,A_STR,0,0,"強引で未熟な蒸留装置",
+	"自分の位置を中心に巨大なボールを複数回発生させる。ボールの属性は石油・蒸気・火炎・汚染からランダム。" },
+
+	{40,60,75,FALSE,TRUE,A_CON,0,0,"ガイアの血液",
+	"体力を全回復し、切り傷と能力低下を治癒し、さらに腕力器用耐久を短時間上昇させる。満腹度を大量に消費する。" },
+
+	{ 45,120,80,FALSE,TRUE,A_CHR,0,0,"剛欲な獣神トウテツの夕餉",
+	"視界内すべてを水属性と汚染属性で攻撃し、周囲を石油地形にする。" },
+
+	{ 99,0,0,FALSE,FALSE,0,0,0,"dummy","" },
+};
+
+
+cptr do_cmd_class_power_aux_yuma(int num, bool only_info)
+{
+	int dir, dice, sides, base, damage, i;
+	int plev = p_ptr->lev;
+	int chr_adj = adj_general[p_ptr->stat_ind[A_CHR]];
+	int digestion = 200 + plev * 6 + (3+num) * 200;
+
+	switch (num)
+	{
+	case 0://周辺調査
+	{
+		int rad = DETECT_RAD_DEFAULT;
+		if (only_info) return format("範囲:%d", rad);
+
+		msg_print("あなたは周囲の情報を咀嚼した。");
+
+		detect_monsters_normal(rad);
+		detect_monsters_invis(rad);
+			detect_traps(rad, TRUE);
+		if (plev > 19)
+		{
+			detect_objects_gold(rad);
+			detect_objects_normal(rad);
+		}
+		if (plev > 29)
+		{
+			map_area(rad);
+		}
+		set_food(p_ptr->food - digestion);
+
+
+		break;
+	}
+
+	case 1:
+	{
+		int len = 3 + plev / 8;
+		if (only_info) return format("射程:%d", len);
+
+		if (plev < 30)
+		{
+			if (rush_attack2(len, 0, 0, 0)) return NULL;
+		}
+		else
+		{
+			if (!rush_attack(NULL, len, 0)) return NULL;
+
+		}
+		//満腹度消費
+		set_food(p_ptr->food - digestion);
+
+	}
+	break;
+
+	case 2:
+	{
+		int base = 50 + plev * 3 + chr_adj * 2;
+
+		if (only_info) return format("効力:%d", base);
+
+		if (!check_equip_specific_fixed_art(ART_TOUTETSU, FALSE))
+		{
+			msg_print("地面を掘る道具がない。");
+			return NULL;
+		}
+
+		if (!get_aim_dir(&dir)) return NULL;
+		msg_format("スプーンを地面に突き立てた！");
+		fire_beam(GF_DIG_OIL, dir, base);
+		break;
+	}
+
+	case 3:
+	{
+		int rad = 3 + plev / 7;
+
+		if (only_info) return format("範囲:%d",rad);
+
+		//満腹度消費
+		set_food(p_ptr->food - digestion);
+		yuma_swallow(rad);
+
+	}
+	break;
+
+	case 4:
+	{
+		if (only_info) return "";
+
+		if (!cast_monspell_new()) return NULL;
+
+		//満腹度消費
+		set_food(p_ptr->food - digestion);
+
+	}
+	break;
+
+	case 5:
+	{
+		int rad = 3 + plev / 24;
+		damage = 200 + plev * 3 + chr_adj * 5;
+		int count = plev / 10 - 1;
+
+		if (only_info) return format("損傷:～%d * %d", damage / 2, count);
+
+		for (; count > 0; count--)
+		{
+			switch (randint1(4))
+			{
+			case 1:
+				msg_format("地面から石油が噴き出した！");
+				project(0, rad, py, px, damage, GF_DIG_OIL, (PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL), -1);
+				break;
+			case 2:
+				msg_format("地面から蒸気が噴き出した！");
+				project(0, rad, py, px, damage, GF_STEAM, (PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL), -1);
+				break;
+			case 3:
+				msg_format("地面から汚染物質が噴き出した！");
+				project(0, rad, py, px, damage, GF_POLLUTE, (PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL), -1);
+				break;
+			default:
+				msg_format("地面が火を噴いた！");
+				project(0, rad, py, px, damage*3/2, GF_FIRE, (PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL), -1);
+				break;
+			}
+		}
+		//満腹度消費
+		set_food(p_ptr->food - digestion);
+
+
+	}
+	break;
+
+	case 6:
+	{
+		base = 10;
+		if (only_info) return format("期間:%d",base);
+
+		digestion = 10000;
+
+		if(use_itemcard && (p_ptr->food + PY_FOOD_WEAK) < digestion || !use_itemcard && !CHECK_YUMA_FOOD_STOCK)
+		{
+			msg_print("栄養が足りない。");
+			return NULL;
+		}
+
+		msg_print("大地の力をその身に取り込んだ！");
+
+		set_stun(0);
+		set_cut(0);
+		do_res_stat(A_STR);
+		do_res_stat(A_INT);
+		do_res_stat(A_WIS);
+		do_res_stat(A_DEX);
+		do_res_stat(A_CON);
+		do_res_stat(A_CHR);
+		set_tim_addstat(A_STR, 105, base, FALSE);
+		set_tim_addstat(A_DEX, 105, base, FALSE);
+		set_tim_addstat(A_CON, 105, base, FALSE);
+		hp_player(5000);
+
+		set_food(p_ptr->food - digestion);
+
+
+	}
+	break;
+
+	case 7:
+	{
+		damage = 200 + plev * 3 + chr_adj * 5;
+
+		if (only_info) return format("損傷:%d * 2", damage);
+
+		msg_print("大地から太古の汚濁が溢れ出した...");
+
+		project_hack2(GF_WATER,0,0, damage);
+		project_hack2(GF_POLLUTE, 0,0,damage);
+		project_hack2(GF_DIG_OIL, 0,0,damage);
+
+		//満腹度消費
+		set_food(p_ptr->food - digestion);
+
+
+	}
+	break;
+
+
+
+	default:
+		if (only_info) return format("未実装");
+		msg_format("ERROR:実装していない特技が呼ばれた num:%d", num);
+		return NULL;
+	}
+	return "";
+}
+
+
+
+
+
+
+
+
+
 //v2.0.4 魅須丸特技
 class_power_type class_power_misumaru[] =
 {
@@ -44,6 +284,7 @@ class_power_type class_power_misumaru[] =
 
 	{ 99,0,0,FALSE,FALSE,0,0,0,"dummy",	"" },
 };
+
 cptr do_cmd_class_power_aux_misumaru(int num, bool only_info)
 {
 	int dir, dice, sides, base, damage, i;
@@ -6853,7 +7094,7 @@ cptr do_cmd_class_power_aux_kosuzu(int num, bool only_info)
 	case 1: //
 		{
 			if(only_info) return "";
-			if(p_ptr->food >= PY_FOOD_FULL)
+			if(p_ptr->food >= PY_FOOD_FULL && p_ptr->pclass != CLASS_YUMA)
 			{
 				msg_print("今は満腹だ。");
 				return NULL;
@@ -34387,6 +34628,12 @@ void do_cmd_new_class_power(bool only_browse)
 		power_desc = "特技";
 		break;
 
+	case CLASS_YUMA:
+		class_power_table = class_power_yuma;
+		class_power_aux = do_cmd_class_power_aux_yuma;
+		power_desc = "特技";
+		break;
+
 
 	default:
 		msg_print("あなたは職業による特技を持っていない。");
@@ -35694,12 +35941,16 @@ const support_item_type support_item_list[] =
 		"ガラスの管","それを使うと破片属性のロケットで攻撃する。攻撃を受けたモンスターは行動するたびにダメージを受ける。" },
 
 	//v2.0.3 龍　天真爛漫の星
-		{ 120,40, 120,1,30,	MON_MEGUMU,class_power_megumu,do_cmd_class_power_aux_megumu,4,
+		{ 120,40, 120,1,30,	MON_MEGUMU,class_power_megumu,do_cmd_class_power_aux_megumu,5,
 		"渾天儀","それを使うとフロア全体のモンスターを金縛り状態にしようと試みる。ユニークモンスター、力強いモンスター、神格には効果が薄い。" },
 
 	//v2.0.4 虹龍陰陽玉
 		{ 40,30, 80,7,5,MON_MISUMARU,class_power_misumaru,do_cmd_class_power_aux_misumaru,6,
 		"七色の陰陽玉","それは虹属性のボール攻撃を放つ。" },
+
+	//v2.0.4 尤魔　ガイアの血液
+		{ 100,50, 120,3,16,	MON_YUMA,class_power_yuma,do_cmd_class_power_aux_yuma,6,
+		"獣神のピアス","それを使うと体力を全回復し、切り傷と能力低下を治癒し、さらに腕力器用耐久を短時間上昇させる。ただし満腹度を大量に消費する。" },
 
 	{0,0,0,0,0,0,NULL,NULL,0,"終端ダミー",""},
 };

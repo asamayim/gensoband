@@ -3103,6 +3103,13 @@ outfit_type birth_outfit_class[] = {
 	{ CLASS_MISUMARU,2,0,TV_MATERIAL,SV_MATERIAL_MAGNETITE,1 },
 	{ CLASS_MISUMARU,2,0,TV_MATERIAL,SV_MATERIAL_OPAL,1 },
 
+	{ CLASS_YUMA,2,0,TV_CLOTHES, SV_CLOTHES,1 },
+	{ CLASS_YUMA,2,ART_TOUTETSU,0,0,1 },
+	{ CLASS_YUMA,2,0,TV_FLASK, SV_FLASK_OIL,20 },
+
+
+
+
 
 	{-1,0,0,0,0,0} //終端dummy
 };
@@ -6031,9 +6038,8 @@ static unique_player_type unique_player_table[UNIQUE_PLAYER_NUM] =
 		"あなたは疫病神です。アイテムや補助魔法など多くのものを持つ敵はあなたの餌食となることでしょう。成金趣味のあなたは両手の指に8個もの指輪を装備することができますが、指輪のパラメータは半減してしまいます。あなたは格闘攻撃をするときに他者から金を奪取することができ、また時には奪った財を派手に散財しながら戦うこともできます。" },
 	{ TRUE,"依神　紫苑",CLASS_SHION,RACE_DEITY,ENTRY_TASOGARE,SEX_FEMALE,
 		"あなたは誰からも嫌われる貧乏神です。大変な借金を抱えており、実質的に店や街の施設を利用することができません。さらに呪われていない装備品は即座に差し押さえられ半日ほどで没収されてしまいます。あなたがダンジョンで普通に戦うことは極めて困難で、「強制完全憑依」の特技を使ってモンスターの体を乗っ取って戦うことになります。あなたは周囲で起こった不幸を少しずつその身に蓄積していき、貯め込んだ不幸を開放してとてつもなく凶悪な「スーパー貧乏神」に変身することができます。" },
-	{ FALSE,"饕餮　尤魔",CLASS_YUMA,RACE_DEITY,ENTRY_TASOGARE,SEX_FEMALE,
-		"(未実装)" },
-
+	{ TRUE,"饕餮　尤魔",CLASS_YUMA,RACE_DEITY,ENTRY_TASOGARE,SEX_FEMALE,
+		"あなたは畜生界で剛欲同盟を率いる同盟長です。謀略と肉弾戦の両方に秀で、とくに耐久力に優れます。あらゆる物を食べることができ、食べたものによって栄養だけでなく耐性、能力、特技、経験値、MPなど様々なものを獲得します。あなたは通常の十倍の満腹度限界をもちますが腹が減る速度がそれ以上に早く、さらに隣接攻撃や特技の使用によっても満腹度を大幅に消費します。なるべく腹が減らない行動を心がけましょう。もし腹が減って倒れてしまうと操作不能になり周囲のあらゆるものを無差別に吸い込み始めます。何も吸い込むものがない場合ゲームオーバーになるまで止まりません。" },
 
 	{TRUE,"光の三妖精",CLASS_3_FAIRIES,RACE_FAIRY,ENTRY_OTHER,SEX_FEMALE,
 	"あなたたちは光の三妖精と呼ばれる三人組の妖精です。	『サニーミルク』は光を屈折させる能力を、『ルナチャイルド』は音を消す能力を、『スターサファイア』は周囲の生物を探る能力を持ちます。	三人一緒にダンジョンに挑み、三人合わせて武器を2つ、盾を1つ、光源を1つ、防具やアクセサリを8個まで装備可能です。ただし同部位の装備品は最大3つまでとなります。	二刀流や近接・射撃武器同時装備のペナルティは発生しません。"},
@@ -7769,6 +7775,12 @@ void gain_perma_mutation(void)
 	if (p_ptr->pclass == CLASS_YACHIE)	p_ptr->muta2_perma |= MUT2_BIGHORN | MUT2_BIGTAIL;
 
 	if (p_ptr->pclass == CLASS_MOMOYO) p_ptr->muta1_perma |= MUT1_EAT_ROCK;
+
+	if (p_ptr->pclass == CLASS_YUMA)
+	{
+		p_ptr->muta1_perma |= (MUT1_EAT_ROCK | MUT1_EAT_MAGIC);
+		p_ptr->muta2_perma |= MUT2_BIGHORN;
+	}
 
 
 	p_ptr->muta1 = p_ptr->muta1_perma;
