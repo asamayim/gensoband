@@ -1068,6 +1068,7 @@ static void chest_death(bool scatter, int y, int x, s16b o_idx)
 			else if (p_ptr->pclass == CLASS_MEGUMU) a_idx = ART_ODUNU;
 			else if (p_ptr->pclass == CLASS_MISUMARU) a_idx = ART_PALANTIR;
 			else if (p_ptr->pclass == CLASS_YUMA) a_idx = ART_CHIYOU;
+			else if (p_ptr->pclass == CLASS_CHIMATA) a_idx = ART_CADUCEUS;
 
 
 			else k_idx =  lookup_kind(TV_SCROLL, SV_SCROLL_ARTIFACT);//☆生成
@@ -1443,6 +1444,13 @@ static void chest_death(bool scatter, int y, int x, s16b o_idx)
 		{
 			int i;
 			q_ptr = &forge;
+
+			if (p_ptr->pclass == CLASS_CHIMATA)
+			{
+				msg_print("ERROR:千亦でアビリティカードの箱が開けられた");
+				return;
+			}
+
 			for (i = 0; i < 10; i++)
 			{
 				object_prep(q_ptr, lookup_kind(TV_ABILITY_CARD, SV_ABILITY_CARD));

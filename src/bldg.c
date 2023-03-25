@@ -1810,6 +1810,14 @@ static void buy_gacha_box()
 	object_type *o_ptr = &forge;
 	char o_name[MAX_NLEN];
 
+	if (p_ptr->pclass == CLASS_CHIMATA)
+	{
+		msg_print("「おい入るな。奥には何もないぞ。」");
+
+		return;
+	}
+
+
 	if (!CHECK_ABLCARD_DEALER_CLASS)
 	{
 		msg_print("「おっと、この奥はカードの売人専用だ。」");
@@ -4218,6 +4226,16 @@ put_str("今ここで受けられるクエストはないようだ。", 8, 0);
 		}
 		break;
 
+	case QUEST_REIMU_ATTACK:
+
+		//千亦はアビリティカードが報酬のクエストを受けられない。
+		//check_ignoring_quest()を使うとアジトが半壊してダークエルフクエが受けられなくなるのでここで処理
+		if (p_ptr->pclass == CLASS_CHIMATA)
+		{
+			put_str("今ここで受けられるクエストはないようだ。", 8, 0);
+			return;
+		}
+		break;
 
 
 
@@ -8205,8 +8223,14 @@ bool check_ignoring_quest(int questnum)
 		if (ironman_no_fixed_art) return TRUE;
 
 		break;
+
+	case QUEST_MORIYA_2:
+		if (pc == CLASS_CHIMATA) return TRUE;//千亦はアビリティカードが報酬のクエストを受けられない
+		break;
+
 	case QUEST_REIMU_ATTACK:
 		if (pc == CLASS_REIMU) return TRUE;
+
 		break;
 
 	case QUEST_YAKUZA_1:
@@ -11575,6 +11599,13 @@ void trading_ability_cards(void)
 	int trade_chance, trade_num; //選定される交換カード候補数,実際に選定されたカード数
 	object_type barter_list[10];
 
+	//v2.0.7 千亦プレイ時にはカードランクだけ表示する
+	if (p_ptr->pclass == CLASS_CHIMATA)
+	{
+		chimata_comment_card_rank();
+		return;
+	}
+
 	if (inventory[INVEN_PACK - 1].k_idx)
 	{
 		msg_print("今は荷物が一杯だ。");
@@ -11800,6 +11831,34 @@ void buy_ability_card(bool examine)
 	int i, j, k;
 
 	object_type barter_list[10];
+
+	if (p_ptr->pclass == CLASS_CHIMATA)
+	{
+		int card_rank = CHIMATA_CARD_RANK;
+
+		if (card_rank < 3)
+		{
+			c_put_str(TERM_WHITE, "「こちらはすでに準備万端ですよ。", 10, 20);
+			c_put_str(TERM_WHITE, "商品の確保は貴方に懸かっているんですから頑張ってくださいね？」", 11, 20);
+		}
+		else if (card_rank < 5)
+		{
+			c_put_str(TERM_WHITE, "「売れ始めましたよ！", 10, 20);
+			c_put_str(TERM_WHITE, "面白くなってきたわー！」", 11, 20);
+		}
+		else if (card_rank < 8)
+		{
+			c_put_str(TERM_WHITE, "「大繁盛ですよ！", 10, 20);
+			c_put_str(TERM_WHITE, "やはり飯綱丸様の目に狂いはありませんでしたね。」", 11, 20);
+		}
+		else
+		{
+			c_put_str(TERM_WHITE, "「い、忙しい...", 10, 20);
+			c_put_str(TERM_WHITE, "そろそろ利益確定して手仕舞いにしませんか...？」", 11, 20);
+		}
+
+		return;
+	}
 
 	if (p_ptr->pclass == CLASS_TSUKASA)
 	{

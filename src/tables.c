@@ -5899,28 +5899,28 @@ const player_class class_info[MAX_CLASS] =
 		,4
 		,MON_MEGUMU
 	},
+
 	{
 		"無主物の神",
 		"無主物の神",
 		"Chimata",
 
-		{ 0, 1, 2, 0, -1, -2 },
-		20, 24, 28, 2, 16, 20, 45, 30,
-		12, 10,  9, 0,  4,   5,  15, 15,
-		1, 20, 70
-
+		{ -2, 2, 2, 0, -2, 2 },//流通ランクによって全+4
+		40, 20, 18, 16, 16, 20, 40, 40,
+		24, 18, 15,  0,  8, 10, 12, 12,
+		0, 90, 70
 		//追加値暫定
-					,{ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 }
-					,A_INT
-					,3,2,90,
-					{ 2,1,1,2,2,0,0,0,0,0
-					,3,3,3,3,3,3,2,2,2,2
-					,1 }
-					,110,0,2,2,
-					FALSE,FALSE,TRUE
-					,TRUE
-					,3
-					,MON_PARSEE
+		,{ 1,4,3,4,3,4,3,3,3,3,3,3,4,0,0,3 }
+		,A_INT
+		,3,1,100,
+		{ 1,2,1,1,2,0,0,0,0,0
+		,2,2,2,2,2,2,2,2,2
+		,2 }
+		,20,1,5,5,
+		FALSE,FALSE,TRUE
+		,FALSE
+		,3
+		,MON_CHIMATA
 	},
 	{
 		"黒きドラゴンイーター",
@@ -14847,7 +14847,7 @@ pattern_attack_type pattern_attack_table[PATTERN_ATTACK_TYPE_MAX + 1] =
 ability_card_type ability_card_list[ABILITY_CARD_LIST_LEN] =
 {
 
-	{ "空白のカード"		,0,0,FALSE,0,0 ,0}, //通常生成されない。凡庸化するとこのカードになる。千亦プレイ時以外に使い道はない
+	{ "空白のカード"		,0,0,TRUE,10,10 ,0}, //通常生成されない。凡庸化するとこのカードになる。千亦プレイ時以外に使い道はない
 	{ "命のカード"			,1,11,FALSE,0,0,0 },
 	{ "スペルのカード"		,1,10,FALSE,0,0,0 },
 	{ "勝手に天下の回り物"	,1,22,FALSE,0,0,MON_NAZRIN },
@@ -14902,17 +14902,17 @@ ability_card_type ability_card_list[ABILITY_CARD_LIST_LEN] =
 	{ "大天狗の麦飯"		,3,77,TRUE,70,100 ,MON_MEGUMU},
 	//空色の勾玉は出さない
 	//↓v2.0.1追加
-	{ "資本主義のジレンマ "		,2,30,FALSE,0,0,MON_NITORI }, 
-	{ "魔法使いの基礎勉強 "		,2,47,FALSE,0,0,MON_PATCHOULI },
-	{ "破壊の美学 "				,3,80,TRUE,75,50,MON_FLAN },
-	{ "龍の通り道 "				,3,88,FALSE,0,0,MON_FUTO },
-	{ "けしかける狛犬 "			,2,33,TRUE,65,15,MON_AUNN },
-	{ "生命爆発の薬 "			,4,118,TRUE,95,100,MON_EIRIN },
-	{ "生命の豊穣 "				,3,65,FALSE,0,0,MON_MINORIKO },
-	{ "不屈の脳筋 "				,3,63,FALSE,0,0,MON_SAKI },
-	{ "半霊のスペア "			,2,26,FALSE,0,0,0 },
+	{ "資本主義のジレンマ"		,2,30,FALSE,0,0,MON_NITORI }, 
+	{ "魔法使いの基礎勉強"		,2,47,FALSE,0,0,MON_PATCHOULI },
+	{ "破壊の美学"				,3,80,TRUE,75,50,MON_FLAN },
+	{ "龍の通り道"				,3,88,FALSE,0,0,MON_FUTO },
+	{ "けしかける狛犬"			,2,33,TRUE,65,15,MON_AUNN },
+	{ "生命爆発の薬"			,4,118,TRUE,95,100,MON_EIRIN },
+	{ "生命の豊穣"				,3,65,FALSE,0,0,MON_MINORIKO },
+	{ "不屈の脳筋"				,3,63,FALSE,0,0,MON_SAKI },
+	{ "半霊のスペア"			,2,26,FALSE,0,0,MON_YOUMU },
 	{ "静かなる輝き"			,1,17,TRUE,50,15,MON_3FAIRIES },
-	{ "狂おしい静寂 "			,1,17,TRUE,50,15,MON_3FAIRIES },
+	{ "狂おしい静寂"			,1,17,TRUE,50,15,MON_3FAIRIES },
 	{ "賑やかな無力"			,1,17,TRUE,50,15,MON_3FAIRIES },
 	{ "刺激的な鱗粉"			,1,19,TRUE,40,30,MON_LARVA },
 	{ "山姥の包丁"				,3,62,TRUE,55,20,MON_NEMUNO },
@@ -14930,13 +14930,13 @@ ability_card_type ability_card_list[ABILITY_CARD_LIST_LEN] =
 	{ "正直すぎる道しるべ"		,2,48,TRUE,50,50,MON_KUTAKA },
 	{ "急がば三途の回り道"		,2,49,TRUE,50,25,MON_KOMACHI },
 	{ "ひらり布"				,2,29,TRUE,50,30,MON_SEIJA },
-	{ "抗いがたきジュリ扇"		,3,83,FALSE,0,0,0 },
-	{ "煤けた団扇"				,3,84,FALSE,0,0,0 },
+	{ "抗いがたきジュリ扇"		,3,83,FALSE,0,0,MON_JYOON },
+	{ "煤けた団扇"				,3,84,FALSE,0,0,MON_SHION_2 },
 	{ "数えたくなる羊"			,3,77,TRUE,80,100,MON_DOREMY },
 	{ "純粋な自己肯定感"		,4,123,TRUE,70,50,MON_JUNKO },
-	{ "ゆのみ霊夢"				,4,143,TRUE,80,50,0 },//買い取りで入手できない
-	{ "ゆのみ魔理沙"			,4,147,TRUE,80,50,0 },//買い取りで入手できない
-	{ "百回目のブラックマーケット "	,4,160,FALSE,0,0,0 },
+	{ "ゆのみ霊夢"				,4,143,TRUE,80,50,MON_REIMU },//レベル90以上限定
+	{ "ゆのみ魔理沙"			,4,147,TRUE,80,50,MON_MARISA },//レベル90以上限定
+	{ "百回目のブラックマーケット"	,4,160,FALSE,0,0,0 },
 
 
 };
