@@ -4665,7 +4665,7 @@ bool hatate_search_unique_monster(void)
 			prt("　やめて他の人を探そうか？", 8, 20);
 			if (!get_check_strict("変更しますか？ ", CHECK_DEFAULT_Y)) return FALSE;
 		}
-		else
+		else if(!p_ptr->wizard)
 		{
 			if(EXTRA_MODE)
 				prt("「もう疲れちゃった。また今度ね。」", 7, 20);
@@ -4936,7 +4936,9 @@ bool hatate_search_unique_monster(void)
 			search_dungeon = dungeon_type;
 
 			//特定ダンジョンにしか出ないモンスターは失敗
-			if ((r_ptr->flags8 & RF8_STAY_AT_HOME3) && r_ptr->extra != search_dungeon)
+			//v2.0.8 FORCE_DEPTH付きでレベル100を超えるモンスターを鉄獄で指定したときも同じく失敗
+			if ((search_dungeon == DUNGEON_ANGBAND && (r_ptr->flags1 & RF1_FORCE_DEPTH) && r_ptr->level > 100)
+				|| ((r_ptr->flags8 & RF8_STAY_AT_HOME3) && r_ptr->extra != search_dungeon))
 			{
 				if (hatate)
 					prt("　このダンジョンにいないようだ。", 9, 20);
@@ -4954,6 +4956,9 @@ bool hatate_search_unique_monster(void)
 			//特定ダンジョンにしか出ないならそこ
 			if (r_ptr->flags8 & RF8_STAY_AT_HOME3)
 				search_dungeon = r_ptr->extra;
+			//v2.0.8 レベル100以上のFORCE_DEPTHモンスターは混沌の領域
+			else if ((r_ptr->flags1 & RF1_FORCE_DEPTH) && r_ptr->level > 100)
+				search_dungeon = DUNGEON_CHAOS;
 			//特定ダンジョンによく出るなら高確率でそこ AT_HOME1は無視
 			else if (r_ptr->flags8 & RF8_STAY_AT_HOME2 && !one_in_(8))
 				search_dungeon = r_ptr->extra;
@@ -4977,12 +4982,45 @@ bool hatate_search_unique_monster(void)
 				else
 					search_dungeon = DUNGEON_HELL;
 			}
-			//基本は鉄獄
-			else
+			//幻想郷ユニークはフロアレベルが合うとき高確率で鉄獄になりそれ以外のとき各地のどこか
+			else if(is_gen_unique(search_r_idx))
+			{
+				int ang_dlv = max_dlv[DUNGEON_ANGBAND];
+
+				if ((ang_dlv < r_ptr->level + 20) && (ang_dlv > r_ptr->level - 10) && !one_in_(3))
+				{
+					search_dungeon = DUNGEON_ANGBAND;
+				}
+				else
+				{
+					switch (randint1(6))
+					{
+					case 1:
+						search_dungeon = DUNGEON_TAISHI;
+						break;
+					case 2:
+						search_dungeon = DUNGEON_GENBU;
+						break;
+					case 3:
+						search_dungeon = DUNGEON_KOUMA;
+						break;
+					case 4:
+						search_dungeon = DUNGEON_ZIGOKUDANI;
+						break;
+					case 5:
+						search_dungeon = DUNGEON_MUEN;
+						break;
+					default:
+						search_dungeon = DUNGEON_ANGBAND;
+						break;
+					}
+
+				}
+			}
+			//それ以外は鉄獄
+			else 
 			{
 				search_dungeon = DUNGEON_ANGBAND;
-
-				//TODO:暇があればもう少し細かく分類したい
 			}
 		}
 
@@ -5005,18 +5043,29 @@ bool hatate_search_unique_monster(void)
 		}
 		else
 		{
-			//モンスターレベル±5
-			//レイマリは鉄獄の最深到達階層付近
-			if (search_r_idx == MON_REIMU || search_r_idx == MON_MARISA)
-				search_floor = max_dlv[DUNGEON_ANGBAND] + randint1(11) - 6;
+
+			//v2.0.8　鉄獄が対象になったら出現フロアを＠の帰還フロア近くにすることにした
+			if (search_dungeon == DUNGEON_ANGBAND)
+			{
+					search_floor = max_dlv[DUNGEON_ANGBAND] + randint1(8) - 6;
+			}
+			//それ以外のダンジョンではモンスターレベル±5
 			else
+			{
 				search_floor = r_ptr->level + randint1(11) - 6;
+			}
 
 			//上限
-			if (search_floor > d_info[search_dungeon].maxdepth) search_floor = d_info[search_dungeon].maxdepth;
+			if (search_floor > d_info[search_dungeon].maxdepth)
+			{
+				search_floor = d_info[search_dungeon].maxdepth - randint0(3);
+			}
 
 			//下限
-			if (search_floor < d_info[search_dungeon].mindepth) search_floor = d_info[search_dungeon].mindepth;
+			if (search_floor < d_info[search_dungeon].mindepth)
+			{
+				search_floor = d_info[search_dungeon].mindepth + randint0(3);
+			}
 
 		}
 
@@ -5042,5 +5091,160 @@ bool hatate_search_unique_monster(void)
 
 #undef HATATE_SEARCH_MON_LIST_MAX
 
+//v2.0.8
+//倒した素材モンスターを鯢呑亭に持ち込んで料理してもらう
+//素材モンスターはRF8_FOODが設定されており、倒したときにp_ptr->cooking_material_flagに記録されている
+void geidontei_cooking()
+{
+
+	int material_list[16];
+	int material_num = 0;
+	int food_list_idx;
+	int i;
+
+	//まず素材を持っていて提供可能な料理をリストする
+	for (i = 0; monster_food_list[i].r_idx; i++)
+	{
+
+		if (material_num >= 16)
+		{
+			msg_print("ERROR:geidontei_cooking()で料理選択画面のページ送りが未実装");
+			return;
+		}
+
+		//該当の素材をもっているとき
+		if ((1L << i) & p_ptr->cooking_material_flag)
+		{
+			material_list[material_num] = i;
+			material_num++;
+		}
+	}
+
+
+	if (!material_num)
+	{
+		msg_print("持ち込む素材がない。");
+		return;
+	}
+
+	screen_save();
+	for (i = 3; i<22; i++) Term_erase(17, i, 255);
+
+
+	//一種類のみ作れるとき　y/nで確認
+	if (material_num == 1)
+	{
+
+		food_list_idx = material_list[0];
+
+		prt(format("「%s」を作ってくれるようだ。", monster_food_list[food_list_idx].desc), 8, 20);
+
+		if (!get_check_strict("注文しますか？", CHECK_DEFAULT_Y))
+		{
+			screen_load();
+			return;
+		}
+	}
+	//複数作れるときは料理をリストして選択
+	else
+	{
+		int choose;
+
+		prt("何を作ってもらいますか？(ESC:キャンセル)", 4, 20);
+		for (i = 0; i<material_num; i++)
+		{
+			prt(format("%c) %s", 'a' + i, monster_food_list[material_list[i]].desc), 5 + i, 20);
+		}
+
+		while (TRUE)
+		{
+			char c;
+
+			c = inkey();
+
+			if (c == ESCAPE)
+			{
+				screen_load();
+				return;
+			}
+
+			choose = c - 'a';
+
+			if (choose < 0 || choose >= material_num) continue;
+
+			break;
+		}
+
+		food_list_idx = material_list[choose];
+
+	}
+
+	if (one_in_(3))
+		msg_print("「これ美味しいよー」");
+	else if(one_in_(3))
+		msg_print("「料理のことならこの奥野田美宵にお任せあれ！」");
+	else
+		msg_print("「喜んでー！」");
+
+
+	for (i = 3; i<22; i++) Term_erase(17, i, 255);
+
+	switch (monster_food_list[food_list_idx].r_idx)
+	{
+
+	case MON_SUPPON:
+		prt("野趣味あふれる液体を一息に呷った！", 8, 20);
+		set_hero(5000, FALSE);
+		set_alcohol(p_ptr->alcohol + 2000);
+		break;
+
+	case MON_WILD_BOAR:
+		prt("驚くほど上品な味になったスープを堪能した。", 8, 20);
+		prt("体の動作が機敏になった気がする！", 9, 20);
+		set_tim_addstat(A_DEX, 2, 5000, FALSE);
+		break;
+
+	case MON_WILD_BOAR_2:
+		prt("巨大な肉塊を皆に振る舞って豪快に頬張った！", 8, 20);
+		prt("力があふれる気がする！", 9, 20);
+		set_tim_addstat(A_STR, 4, 5000, FALSE);
+
+		set_deity_bias(DBIAS_REPUTATION, 1);
+		set_deity_bias(DBIAS_WARLIKE, 1);
+		break;
+
+	case MON_BADGER:
+		prt("脂が乗っておいしい！活力が湧き出るようだ！", 8, 20);
+		set_tim_addstat(A_CON, 2, 5000, FALSE);
+		break;
+
+	case MON_RIVER_CRAB:
+		prt("香ばしくておいしい！", 8, 20);
+		prt("少し意識が飛んで柿の木の夢を見た気がする...", 9, 20);
+		set_tim_res_water(5000, FALSE);
+		break;
+
+
+		default:
+			msg_format("ERROR:この料理(idx:%d)を食べたときの処理が定義されていない", food_list_idx);
+			return;
+
+	}
+
+	inkey();
+
+	//満腹度処理
+	set_food(p_ptr->food + monster_food_list[food_list_idx].food_amount);
+
+	//素材記録リストから使った素材を削除する
+	p_ptr->cooking_material_flag &= ~((u32b)(1L << food_list_idx));
+
+	screen_load();
+
+	return;
+
+
+
+}
 
 
