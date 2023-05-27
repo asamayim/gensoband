@@ -505,6 +505,13 @@ bool zashiki_moving(void)
 		return FALSE;
 	}
 
+	if(p_ptr->pclass == CLASS_MIYOI)
+	{
+		msg_print("あなたは伊吹瓢から出るつもりはない。");
+		return FALSE;
+	}
+
+
 	q_ptr = &forge;
 	//フラグTR_HOUSEを持つアイテムを指定
 	item_tester_hook = item_tester_hook_moving;

@@ -8767,6 +8767,11 @@ bool set_tim_general(int v, bool do_dec, int ind, int num)
 				else if (ind == 2) msg_print("龍を食べたい気分だ！");
 				else msg_print("全てを食い尽くして力を得たい気分だ！");
 			}
+			else if (p_ptr->pclass == CLASS_MIYOI)
+			{
+				msg_format("あなたはそっとその場から去ろうと試みた...");
+
+			}
 			else
 			{
 				msg_format("ERROR:tim_general[%d]が定義されていない呼ばれ方をした、もしくはメッセージが未定義",ind);
@@ -8936,6 +8941,10 @@ bool set_tim_general(int v, bool do_dec, int ind, int num)
 				else if (ind == 2) msg_print("龍の気分ではなくなった。");
 				else msg_print("力への渇望が収まった。");
 
+			}
+			else if (p_ptr->pclass == CLASS_MIYOI)
+			{
+				msg_format("あなたは普段の動きに戻った。");
 			}
 			else
 			{

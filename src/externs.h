@@ -2765,4 +2765,7 @@ extern void	search_specific_monster(int mode);
 
 //v2.0.8
 extern monster_food_type monster_food_list[];
-extern void geidontei_cooking();
+extern bool geidontei_cooking(flag_self);
+
+//v2.0.9
+extern bool	miyoi_serve_alcohol(monster_type *m_ptr, int alcohol, int charm_power);

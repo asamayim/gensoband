@@ -5094,7 +5094,9 @@ bool hatate_search_unique_monster(void)
 //v2.0.8
 //倒した素材モンスターを鯢呑亭に持ち込んで料理してもらう
 //素材モンスターはRF8_FOODが設定されており、倒したときにp_ptr->cooking_material_flagに記録されている
-void geidontei_cooking()
+//flag_self:自分で料理するときTRUE メッセージのみ変化
+//行動順消費するときTRUE(美宵特技以外では関係ない)
+bool geidontei_cooking(bool flag_self )
 {
 
 	int material_list[16];
@@ -5109,7 +5111,7 @@ void geidontei_cooking()
 		if (material_num >= 16)
 		{
 			msg_print("ERROR:geidontei_cooking()で料理選択画面のページ送りが未実装");
-			return;
+			return FALSE;
 		}
 
 		//該当の素材をもっているとき
@@ -5123,8 +5125,13 @@ void geidontei_cooking()
 
 	if (!material_num)
 	{
-		msg_print("持ち込む素材がない。");
-		return;
+		if(!flag_self)
+			msg_print("持ち込む素材がない。");
+		else
+			msg_print("料理の材料がない。");
+
+
+		return FALSE;
 	}
 
 	screen_save();
@@ -5137,12 +5144,15 @@ void geidontei_cooking()
 
 		food_list_idx = material_list[0];
 
-		prt(format("「%s」を作ってくれるようだ。", monster_food_list[food_list_idx].desc), 8, 20);
+		if(!flag_self)
+			prt(format("「%s」を作ってくれるようだ。", monster_food_list[food_list_idx].desc), 8, 20);
+		else
+			prt(format("「%s」が作れそうだ。", monster_food_list[food_list_idx].desc), 8, 20);
 
-		if (!get_check_strict("注文しますか？", CHECK_DEFAULT_Y))
+		if (!get_check_strict(flag_self ? "作りますか？": "注文しますか？", CHECK_DEFAULT_Y))
 		{
 			screen_load();
-			return;
+			return FALSE;
 		}
 	}
 	//複数作れるときは料理をリストして選択
@@ -5150,7 +5160,11 @@ void geidontei_cooking()
 	{
 		int choose;
 
-		prt("何を作ってもらいますか？(ESC:キャンセル)", 4, 20);
+		if(!flag_self)
+			prt("何を作ってもらいますか？(ESC:キャンセル)", 4, 20);
+		else
+			prt("何を作りますか？(ESC:キャンセル)", 4, 20);
+
 		for (i = 0; i<material_num; i++)
 		{
 			prt(format("%c) %s", 'a' + i, monster_food_list[material_list[i]].desc), 5 + i, 20);
@@ -5165,7 +5179,7 @@ void geidontei_cooking()
 			if (c == ESCAPE)
 			{
 				screen_load();
-				return;
+				return FALSE;
 			}
 
 			choose = c - 'a';
@@ -5179,7 +5193,9 @@ void geidontei_cooking()
 
 	}
 
-	if (one_in_(3))
+	if(flag_self)
+		msg_print("あなたは鼻歌を歌いながら料理を始めた...");
+	else if (one_in_(3))
 		msg_print("「これ美味しいよー」");
 	else if(one_in_(3))
 		msg_print("「料理のことならこの奥野田美宵にお任せあれ！」");
@@ -5205,7 +5221,11 @@ void geidontei_cooking()
 		break;
 
 	case MON_WILD_BOAR_2:
-		prt("巨大な肉塊を皆に振る舞って豪快に頬張った！", 8, 20);
+		if(!dun_level) //店かダンジョン内かを区別するのにflag_selfだとまだ都合が悪いので適当に判定する
+			prt("巨大な肉塊を皆に振る舞って豪快に頬張った！", 8, 20);
+		else
+			prt("巨大な肉塊を豪快に焼き上げた！", 8, 20);
+
 		prt("力があふれる気がする！", 9, 20);
 		set_tim_addstat(A_STR, 4, 5000, FALSE);
 
@@ -5227,7 +5247,7 @@ void geidontei_cooking()
 
 		default:
 			msg_format("ERROR:この料理(idx:%d)を食べたときの処理が定義されていない", food_list_idx);
-			return;
+			return FALSE;
 
 	}
 
@@ -5241,7 +5261,7 @@ void geidontei_cooking()
 
 	screen_load();
 
-	return;
+	return TRUE;
 
 
 
