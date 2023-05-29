@@ -8888,16 +8888,16 @@ note = "には効果がなかった。";
 				break;
 			}
 
-			if (dam < 0)//一撃で倒す特殊処理
+			//アルコール耐性 
+			//無生物は酔わない
+			if (r_ptr->flags3 & RF3_NONLIVING)
+			{
+				dam = 0;
+			}
+			else if (dam < 0)//一撃で倒す特殊処理
 			{
 				dam = 30000;
 
-			}
-			//アルコール耐性 
-			//無生物は酔わない
-			else if (r_ptr->flags3 & RF3_NONLIVING)
-			{
-				dam = 0;
 			}
 			//鬼やウワバミは非常に酒に強い
 			else if (m_ptr->r_idx == MON_SUIKA || m_ptr->r_idx == MON_YUGI || m_ptr->r_idx == MON_KASEN || m_ptr->r_idx == MON_YUMA || m_ptr->r_idx == MON_UWABAMI)
@@ -8939,12 +8939,12 @@ note = "には効果がなかった。";
 				dam *= 2;
 			}
 
-
 			if (!dam)
 			{
 				note = "は全く酔う様子がない！";
 				break;
 			}
+
 
 			//泥酔度上昇
 			set_monster_timed_status_add(MTIMED2_DRUNK, c_ptr->m_idx, MON_DRUNK(m_ptr) + dam);
