@@ -5115,7 +5115,8 @@ cptr do_cmd_class_power_aux_eika(int num, bool only_info)
 		{
 			for (x = 1; x < cur_wid - 1; x++)
 			{
-				int tmp_idx_cnt, target_who_tmp;
+				int tmp_idx_cnt = 0;
+				int target_who_tmp=0;
 				c_ptr = &cave[y][x];
 				if (!(c_ptr->info & CAVE_OBJECT) || !have_flag(f_info[c_ptr->mimic].flags, FF_GLYPH))
 					continue;
@@ -7075,12 +7076,11 @@ cptr do_cmd_class_power_aux_mai(int num, bool only_info)
 //v1.1.39 ラルバ
 class_power_type class_power_larva[] =
 {
-
-	{ 6, 7,10,FALSE,FALSE,A_CON,0,3,"悪臭攻撃",
-	"自分を中心に毒属性のボールを発生させる。体力が半分以下になると威力が大幅に上がり、さらに周囲の敵を混乱・朦朧・恐怖させる。" },
-	{ 10,10,20,FALSE,FALSE,A_DEX,0,2,"纏わりつく鱗粉",
-	"自分を中心に遅鈍属性のボールを発生させる。" },
-	{ 15, 0,20,TRUE,FALSE,A_WIS,0,0,"再生",
+	{6,7,10,FALSE,FALSE,A_CON,0,3,"悪臭攻撃",
+	"自分を中心に毒属性のボールを発生させる。体力が半分以下になると威力が大幅に上がり、さらに周囲の敵を混乱・朦朧・恐怖させる。"},
+	{10,10,20,FALSE,FALSE,A_DEX,0,2,"纏わりつく鱗粉",
+	"自分を中心に遅鈍属性のボールを発生させる。"},
+	{15, 0,20,TRUE,FALSE,A_WIS,0,0,"再生",
 	"HPと状態異常をわずかに回復する。満腹度が少し減少する。" },
 	{ 24,24,30,TRUE,FALSE,A_DEX,0,10,"ミニットスケールス",
 	"自分を中心に混乱属性のボールを発生させる。" },
@@ -10489,8 +10489,8 @@ cptr do_cmd_class_power_aux_sagume(int num, bool only_info)
 
 	case 5:
 		{
-			int dam = plev * 16 + chr_adj * 16; 
-
+			int dam = plev * 16 + chr_adj * 16;
+			
 			if(only_info) return format("損傷:最大%d",dam/2);
 			msg_print("あなたは光の翼をはためかせて飛翔した！");
 			project(0,6,py,px,dam,GF_LITE,(PROJECT_KILL|PROJECT_JUMP),-1);
@@ -28674,7 +28674,7 @@ cptr do_cmd_class_power_aux_tsukumo_master(int num, bool only_info)
 			int         item;
 			object_type *o_ptr;
 			cptr        q, s;
-			int			r_idx;
+			int			r_idx=0;
 			int		new_o_idx;
 			int i;
 			int cnt=0,max;
@@ -34627,6 +34627,7 @@ void do_cmd_new_class_power(bool only_browse)
 		class_power_aux = do_cmd_class_power_aux_reimu;
 		power_desc = "術";
 		break;
+
 	case CLASS_KAGEROU:
 		class_power_table = class_power_kagerou;
 		class_power_aux = do_cmd_class_power_aux_kagerou;

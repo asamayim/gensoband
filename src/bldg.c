@@ -3616,6 +3616,9 @@ static bool inn_comm(int cmd)
 					msg_print("“Xå‚Í”ª–Ú‰V‚ÌŠ—Ä‚«‚ğU•‘‚Á‚Ä‚­‚ê‚½B");
 					(void)set_food(PY_FOOD_MAX - 1);
 					set_blind(0);
+					//v2.0.10’Ç‰Á
+					set_tim_invis(5000, FALSE);
+
 					break;
 				}
 				else

@@ -1012,7 +1012,7 @@ bool do_cmd_eat_food_aux(int item)
 					case 7:
 						msg_print("きな粉をまぶした団子だ。"); break;
 					case 8:
-						msg_print("鈴瑚屋の新作だ！"); break;
+						msg_print("夏季限定の冷やし団子だ。"); break;
 					default:
 						msg_print("餡の入った月見団子だ。");break;
 					}

@@ -4542,8 +4542,8 @@ void do_cmd_stay(bool pickup)
 	{
 		/* Set repeat count */
 		command_rep = command_arg - 1;
-
-		/* Redraw the state */
+		
+		/* Redraw the state*/
 		p_ptr->redraw |= (PR_STATE);
 
 		/* Cancel the arg */
