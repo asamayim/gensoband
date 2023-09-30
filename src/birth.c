@@ -3112,6 +3112,8 @@ outfit_type birth_outfit_class[] = {
 	{ CLASS_MIYOI,2,0,TV_CLOTHES, SV_CLOTHES,1 },
 	{ CLASS_MIYOI,2,ART_IBUKI,0,0,1 },
 
+	{ CLASS_BITEN,2,0,TV_CLOTHES, SV_CLOTHES,1 },
+	{ CLASS_BITEN,2,ART_BITEN,0,0,1 },
 
 
 	{-1,0,0,0,0,0} //終端dummy
@@ -5780,10 +5782,12 @@ static void edit_history(void)
 #define ENTRY_TENKUU	11
 #define ENTRY_KIKEI		12
 #define ENTRY_KOURYUU	13
-#define ENTRY_TASOGARE	14
-#define ENTRY_OTHER		15
+#define ENTRY_JUUOUEN	14
+#define ENTRY_TASOGARE	15
+#define ENTRY_OTHER		16
 
-#define ENTRY_MAX 16 //↑+1
+
+#define ENTRY_MAX 17 //↑+1
 
 
 const	cptr select_unique_entry[ENTRY_MAX] = {
@@ -5801,8 +5805,9 @@ const	cptr select_unique_entry[ENTRY_MAX] = {
 		"l)天空璋",
 		"m)鬼形獣",
 		"n)虹龍洞",
-		"o)黄昏弾幕アクション",
-		"p)その他の作品",
+		"o)獣王園",
+		"p)黄昏弾幕アクション",
+		"q)その他の作品",
 	};
 
 typedef struct unique_player_type unique_player_type;
@@ -5817,7 +5822,7 @@ struct unique_player_type
 	cptr info;	//キャラメイク時に表示される説明文
 };
 
-#define UNIQUE_PLAYER_NUM 121
+#define UNIQUE_PLAYER_NUM 127
 #define CLASS_DUMMY 255
 #define RACE_DUMMY 255
 static unique_player_type unique_player_table[UNIQUE_PLAYER_NUM] =
@@ -5997,7 +6002,7 @@ static unique_player_type unique_player_table[UNIQUE_PLAYER_NUM] =
 	{TRUE,"坂田　ネムノ",CLASS_NEMUNO,RACE_YOUKAI,ENTRY_TENKUU,SEX_FEMALE,
 		"あなたは妖怪の山で独自の生活を営む山姥です。自らの縄張りを荒らす者には容赦をしません。ダンジョンの中で誰もいない部屋を自分の縄張りにすることができ、そこで敵を迎え撃つときにこそあなたの力は最も発揮されます。縄張りから出ているときのあなたはそれほど強いわけではないので、敵地に攻め込まざるを得ない状況への対処は苦手です。"},
 	{TRUE,"高麗野 あうん",CLASS_AUNN,RACE_WARBEAST,ENTRY_TENKUU,SEX_FEMALE,
-		"あなたは狛犬です。神社やお寺に勝手に住み着いて陰ながら守護しています。狛犬なので他の獣人ほど素早くありませんが体が丈夫で破邪攻撃を弱点としません。また仙術の心得も少しは持っています。あなたの頭には大きな角が生えており、それを使って強力な攻撃をすることができますがその代わりに兜をかぶることができません。"},
+		"あなたは狛犬です。神社やお寺に勝手に住み着いて陰ながら守護しています。狛犬なので他の獣人ほど素早くありませんが体が丈夫で破邪攻撃を弱点としません。また仙術の心得も少しは持っています。あなたの頭には大きな角が生えており、それを使って強力な攻撃をすることができますがその代わりに兜をかぶることができません。実はあなたは体を二つ持っており、一部の特技を使うと二人共が一箇所に現れて一緒に戦います。"},
 	{TRUE,"矢田寺 成美",CLASS_NARUMI,RACE_MAGIC_JIZO,ENTRY_TENKUU,SEX_FEMALE,
 		"あなたは魔法の森の魔力で生命を得て動き出したお地蔵さんです。衆生の救済を自らの使命と考えていますが、出不精でほとんど森から出ようとしません。あなたは生命操作の魔法を最も得意としており、魔力の流れにも敏感です。人里離れた森で風雪に耐えてきたため冷気攻撃に強い耐性を持ちます。"},
 	{TRUE,"爾子田 里乃",CLASS_SATONO,RACE_DEMIGOD,ENTRY_TENKUU,SEX_FEMALE,
@@ -6038,6 +6043,18 @@ static unique_player_type unique_player_table[UNIQUE_PLAYER_NUM] =
 		"あなたは市場の神です。しかしあなたが司る非日常の場としての市場はとうの昔に廃れ、あなたは力を失い消え入りそうになっています。そんなときにある大天狗が起死回生のビジネススキームを持ち込んできました。これが成功すればあなたは再びかつての力を取り戻すことができるでしょう。そのためには幻想郷中の人妖に接触して能力をコピーし、アビリティカードとして流通させなければなりません。能力のコピーには知能と器用さが必要です。コピーする前に倒してしまうとその者の能力は二度と手に入らないので気をつけましょう。最初期のあなたは隠密能力だけは高いのですが他の能力は低めです。多くのカードが流通するとあなたの能力と特技は強力になり、代わりに隠密能力は低下します。" },
 	{ TRUE,"姫虫　百々世",CLASS_MOMOYO,RACE_DAIYOUKAI,ENTRY_KOURYUU,SEX_FEMALE,
 		"あなたは凶悪な大蜈蚣(オオムカデ)の大妖怪です。非常に高い肉体能力と戦闘系技能をもち、様々な攻撃や防御の特技を習得し、さらにレベルが上がると攻撃に毒属性が追加されます。またつるはしを装備すると武器の威力にボーナスがつきます。一対一の殴り合いならほぼ敵なしでしょう。ただし隠密や探索はからっきしです。中盤以降はなるべく周囲に注意を払いましょう。あなたは食事コマンドで鉱石を食べて一時的に特別な効果を得ることができます。" },
+
+	{ TRUE,"孫　美天",CLASS_BITEN,RACE_YOUKAI,ENTRY_JUUOUEN,SEX_FEMALE,
+		"あなたはほんの少し前までただの山猿でしたが、ある鬼にそそのかされて聖地の霊を喰ったことで妖怪化しました。その後紆余曲折を経て畜生界の動物霊の暴力組織「鬼傑組」の遊撃隊に所属しています。もとが猿だけあって森での立ち回りはお手の物です。戦闘においては棒術と投擲を得意とします。さらに仙術を一領域習得することができますがこちらの適性はあまり高くありません。" },
+	{ FALSE,"三頭　慧ノ子",CLASS_ENOKO,RACE_WARBEAST,ENTRY_JUUOUEN,SEX_FEMALE,
+		"未実装" },
+	{ FALSE,"天火人　ちやり",CLASS_CHIYARI,RACE_YOUKAI,ENTRY_JUUOUEN,SEX_FEMALE,
+		"未実装" },
+	{ FALSE,"豫母都　日狭美",CLASS_HISAMI,RACE_DEATH,ENTRY_JUUOUEN,SEX_FEMALE,
+		"未実装" },
+	{ FALSE,"日白　残無",CLASS_BITEN,RACE_YOUKAI,ENTRY_JUUOUEN,SEX_FEMALE,
+		"未実装" },
+
 
 	{TRUE,"伊吹　萃香",CLASS_SUIKA,RACE_ONI,ENTRY_TASOGARE,SEX_FEMALE,
 	"あなたは幻想郷で長らく忘れられていた強大な鬼です。小柄ながら最高クラスの身体能力を持ち格闘と鈍器を得意とします。密と疎を操る能力を持ち、巨大化したり霧になったりアイテムを集めるなど多彩な技を習得します。あなたはいくら酒を飲んでも倒れませんが、酔いが醒めると能力が大幅に低下してしまいます。"},
@@ -6085,6 +6102,8 @@ static unique_player_type unique_player_table[UNIQUE_PLAYER_NUM] =
 	{ TRUE,"奥野田　美宵",CLASS_MIYOI,RACE_ZASHIKIWARASHI,ENTRY_OTHER,SEX_FEMALE,
 		"あなたは伊吹萃香の酒瓢箪『伊吹瓢』に棲み着く座敷わらしです。瓢箪の影響によるものか人を酔い潰して夢や記憶に干渉する酔魔のような力を持っています。あなたには戦う力はほとんどありませんが、愛想よくお酒を勧めて敵の心すら開かせるほどの接客能力があります。お酒を何度も飲ませてそのまま酔い潰してしまえば倒したのと同じ扱いになります。しかし中には酒を勧めても応じないモンスターやいくら酒を飲んでも酔わないモンスターもいます。そういった敵に襲われてしまったらあなたにできることは逃亡あるのみです。あなたに必要な能力は魅力です。接客の成功率だけでなく飲ませる酒の強さにも影響を与えます。" },
 
+	{ FALSE,"宮出口　瑞霊",CLASS_BITEN,RACE_YOUKAI,ENTRY_OTHER,SEX_FEMALE,
+		"未実装" },
 
 
 
@@ -6236,7 +6255,7 @@ static bool get_unique_player(void)
 	cptr str;
 	char c;
 	int entry;
-	unique_player_type table[12];
+	unique_player_type table[16];
 	int cnt_table;
 	char temp[80*9];
 	cptr t;
@@ -6295,7 +6314,7 @@ static bool get_unique_player(void)
 		cnt_table = 0;
 		for (i = 0; i < UNIQUE_PLAYER_NUM; i++)if (unique_player_table[i].entry == entry)
 		{
-			if (cnt_table == 12)
+			if (cnt_table == 16)
 			{
 				put_str("ERROR:get_unique_player()のcnt_tableが一杯", 12, 10);
 				break;
@@ -7790,6 +7809,7 @@ void gain_perma_mutation(void)
 	if (p_ptr->pclass == CLASS_KUTAKA) p_ptr->muta2_perma |= (MUT2_BIRDBRAIN);
 
 	if(p_ptr->pclass == CLASS_URUMI) p_ptr->muta2_perma |= MUT2_BIGHORN;
+	if (p_ptr->pclass == CLASS_BITEN) p_ptr->muta2_perma |= MUT2_TAIL;
 
 	if (p_ptr->pclass == CLASS_SAKI)p_ptr->muta3_perma |= MUT3_SPEEDSTER | MUT3_WINGS;
 

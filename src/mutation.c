@@ -1203,6 +1203,9 @@ muta_desc = "慈悲深い白いオーラがあなたをとりまいた...";
 				break;
 			}
 
+			//すでに特定勢力に参加している面々と参加しそうにない人
+			if (p_ptr->pclass == CLASS_BITEN || p_ptr->pclass == CLASS_ENOKO || p_ptr->pclass == CLASS_CHIYARI || p_ptr->pclass == CLASS_ZANMU) break;
+
 			muta_class = &(p_ptr->muta4);
 			muta_which = MUT4_GHOST_WOLF;
 			muta_desc = "オオカミの動物霊に憑依された！";
@@ -1216,6 +1219,8 @@ muta_desc = "慈悲深い白いオーラがあなたをとりまいた...";
 				msg_print("動物霊が寄ってきたがあなたを見て逃げていった。");
 				break;
 			}
+			//すでに特定勢力に参加している面々と参加しそうにない人
+			if (p_ptr->pclass == CLASS_BITEN || p_ptr->pclass == CLASS_ENOKO || p_ptr->pclass == CLASS_CHIYARI || p_ptr->pclass == CLASS_ZANMU) break;
 
 			muta_class = &(p_ptr->muta4);
 			muta_which = MUT4_GHOST_OTTER;
@@ -1230,6 +1235,9 @@ muta_desc = "慈悲深い白いオーラがあなたをとりまいた...";
 				msg_print("動物霊が寄ってきたがあなたを見て逃げていった。");
 				break;
 			}
+			//すでに特定勢力に参加している面々と参加しそうにない人
+			if (p_ptr->pclass == CLASS_BITEN || p_ptr->pclass == CLASS_ENOKO || p_ptr->pclass == CLASS_CHIYARI || p_ptr->pclass == CLASS_ZANMU) break;
+
 			muta_class = &(p_ptr->muta4);
 			muta_which = MUT4_GHOST_EAGLE;
 			muta_desc = "オオワシの動物霊に憑依された！";
@@ -1242,6 +1250,9 @@ muta_desc = "慈悲深い白いオーラがあなたをとりまいた...";
 				msg_print("動物霊が寄ってきたがあなたを見て逃げていった。");
 				break;
 			}
+			//すでに特定勢力に参加している面々と参加しそうにない人
+			if (p_ptr->pclass == CLASS_BITEN || p_ptr->pclass == CLASS_ENOKO || p_ptr->pclass == CLASS_CHIYARI || p_ptr->pclass == CLASS_ZANMU) break;
+
 			muta_class = &(p_ptr->muta4);
 			muta_which = MUT4_GHOST_JELLYFISH;
 			muta_desc = "クラゲの動物霊に憑依された！";
@@ -1254,6 +1265,9 @@ muta_desc = "慈悲深い白いオーラがあなたをとりまいた...";
 				msg_print("動物霊が寄ってきたがあなたを見て逃げていった。");
 				break;
 			}
+			//すでに特定勢力に参加している面々と参加しそうにない人
+			if (p_ptr->pclass == CLASS_BITEN || p_ptr->pclass == CLASS_ENOKO || p_ptr->pclass == CLASS_CHIYARI || p_ptr->pclass == CLASS_ZANMU) break;
+
 			muta_class = &(p_ptr->muta4);
 			muta_which = MUT4_GHOST_COW;
 			muta_desc = "ウシの動物霊に憑依された！";
@@ -1266,6 +1280,9 @@ muta_desc = "慈悲深い白いオーラがあなたをとりまいた...";
 				msg_print("動物霊が寄ってきたがあなたを見て逃げていった。");
 				break;
 			}
+			//すでに特定勢力に参加している面々と参加しそうにない人
+			if (p_ptr->pclass == CLASS_BITEN || p_ptr->pclass == CLASS_ENOKO || p_ptr->pclass == CLASS_CHIYARI || p_ptr->pclass == CLASS_ZANMU) break;
+
 			muta_class = &(p_ptr->muta4);
 			muta_which = MUT4_GHOST_CHICKEN;
 			muta_desc = "ヒヨコの動物霊に憑依された！";
@@ -1278,6 +1295,9 @@ muta_desc = "慈悲深い白いオーラがあなたをとりまいた...";
 				msg_print("動物霊が寄ってきたがあなたを見て逃げていった。");
 				break;
 			}
+			//すでに特定勢力に参加している面々と参加しそうにない人
+			if (p_ptr->pclass == CLASS_BITEN || p_ptr->pclass == CLASS_ENOKO || p_ptr->pclass == CLASS_CHIYARI || p_ptr->pclass == CLASS_ZANMU) break;
+
 			muta_class = &(p_ptr->muta4);
 			muta_which = MUT4_GHOST_TORTOISE;
 			muta_desc = "カメの動物霊に憑依された！";
@@ -1290,6 +1310,9 @@ muta_desc = "慈悲深い白いオーラがあなたをとりまいた...";
 				msg_print("動物霊が寄ってきたがあなたを見て逃げていった。");
 				break;
 			}
+			//すでに特定勢力に参加している面々と参加しそうにない人
+			if (p_ptr->pclass == CLASS_BITEN || p_ptr->pclass == CLASS_ENOKO || p_ptr->pclass == CLASS_CHIYARI || p_ptr->pclass == CLASS_ZANMU) break;
+
 			muta_class = &(p_ptr->muta4);
 			muta_which = MUT4_GHOST_HANIWA;
 			muta_desc = "ハニワの……動物？……霊？に憑依された！";

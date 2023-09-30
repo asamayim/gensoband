@@ -4826,6 +4826,13 @@ msg_format("%sは無傷の球の呪文を唱えた。", m_name);
 				breath(y, x, m_idx, GF_INACT, 100, 3, FALSE, 0, FALSE);
 				break;
 
+			case MON_HISAMI:
+				if (blind) msg_format("突然体が何かに締め付けられた！", m_name);
+				else msg_format("地面から蔓のようなものが生えてきてあなたを拘束した！", m_name);
+
+				breath(y, x, m_idx, GF_NO_MOVE, 10+randint1(10), 3, FALSE, 0, FALSE);
+				break;
+
 			case MON_CHIMATA:
 				if (blind) msg_format("%^sから異様なエネルギーが放射された！", m_name);
 				else msg_format("%^sは虹色の嵐を巻き起こした！", m_name);
@@ -5384,14 +5391,21 @@ msg_print("しかし効力を跳ね返した！");
 		case 160+13:
 		{
 			disturb(1, 1);
+
+			if (m_ptr->r_idx == MON_ENOKO)
+			{
+				msg_format("%^sはあなたの周りに何かをバラ撒いた！", m_name);
+				hack_flag_enoko_make_beartrap = TRUE;
+			}
+
 #ifdef JP
-if (blind) msg_format("%^sが何かをつぶやいた。周りの地面に何かが現れた気がする。", m_name);
+			else if (blind) msg_format("%^sが何かをつぶやいた。周りの地面に何かが現れた気がする。", m_name);
 #else
-			if (blind) msg_format("%^s mumbles, and then cackles evilly.", m_name);
+			else if (blind) msg_format("%^s mumbles, and then cackles evilly.", m_name);
 #endif
 
 #ifdef JP
-else msg_format("%^sが呪文を唱えた。周りの地面に何かが現れた気がする。", m_name);
+			else msg_format("%^sが呪文を唱えた。周りの地面に何かが現れた気がする。", m_name);
 #else
 			else msg_format("%^s casts a spell and cackles evilly.", m_name);
 #endif
@@ -5399,6 +5413,9 @@ else msg_format("%^sが呪文を唱えた。周りの地面に何かが現れた気がする。", m_name)
 			learn_spell(MS_MAKE_TRAP);
 			nue_check_mult = 30;
 			(void)trap_creation(y, x);
+
+			hack_flag_enoko_make_beartrap = FALSE;
+
 			break;
 		}
 
@@ -5443,8 +5460,9 @@ msg_print("記憶が薄れてしまった。");
 			disturb(1, 1);
 			{
 #ifdef JP
-if( m_ptr->r_idx == MON_KOISHI) msg_format("%^sがあなたの目を深く覗き込んだ…", m_name);
-else	msg_format("%^sの大いなる悪意があなたの精神を絡め取った…", m_name);
+				if( m_ptr->r_idx == MON_KOISHI) msg_format("%^sがあなたの目を深く覗き込んだ…", m_name);
+				else if (m_ptr->r_idx == MON_ZANMU) msg_format("%^sと対峙していると途方もない虚無感に襲われた！", m_name);
+				else	msg_format("%^sの大いなる悪意があなたの精神を絡め取った…", m_name);
 #endif
 
 			}

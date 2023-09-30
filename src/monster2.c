@@ -1199,6 +1199,12 @@ static bool summon_specific_aux(int r_idx)
 			okay = (r_ptr->d_char == 't' && r_idx != MON_G_TENGU && !(r_ptr->flags1 & RF1_UNIQUE));
 			break;
 		}
+		
+		case SUMMON_MONKEYS:
+		{
+			okay = (r_idx == MON_FLYING_MONKEY || r_idx == MON_NIKKO_MONKEY);
+			break;
+		}
 
 
 	}

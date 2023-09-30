@@ -1412,8 +1412,7 @@ bool check_rest_f50(int r_idx)
 
 
 /*:::フロアのアイテムを走査し、モードに合致し一番近いものの距離を大まかに知らせる。*/
-/*:::mode:1.高級品 2.アーティファクト 3.素材 4.左全てと珍品 5.呪われたアイテム 6.素材とキノコ*/
-//7:女苑が装備可能な品..のつもりだったがボツ
+/*:::mode:1.高級品 2.アーティファクト 3.素材 4.左全てと珍品 5.呪われたアイテム 6.素材とキノコ 7:珍品*/
 void search_specific_object(int mode)
 {
 	int i;
@@ -1455,13 +1454,11 @@ void search_specific_object(int mode)
 			if (o_ptr->tval != TV_MATERIAL && o_ptr->tval != TV_MUSHROOM) continue;
 			if (o_ptr->tval == TV_MATERIAL && (o_ptr->sval == SV_MATERIAL_STONE || o_ptr->sval == SV_MATERIAL_SCRAP_IRON)) continue;
 		}
-		/*
 		else if (mode == 7)
 		{
-			if (!object_is_wearable(o_ptr) || !object_is_cheap_to_jyoon(o_ptr)) continue;
+			if (o_ptr->tval != TV_SOUVENIR) continue;
 
 		}
-		*/
 		else
 		{
 			msg_print("ERROR:search_specific_object()に定義されていないmode値が渡された");
@@ -1481,11 +1478,11 @@ void search_specific_object(int mode)
 		if(mode == 4) msg_format("しかし興味を惹くものは見当たらなかった。");
 		if(mode == 5) msg_format("この階には厄に満ちた物品はないようだ。");
 		if(mode == 6) msg_format("この階の植生にはとくに興味を引くものはない。");
-	//	if (mode == 7) msg_format("この階には興味を引くものはなさそうだ。");
+		if(mode == 7) msg_format("この階には興味を引くものはなさそうだ。");
 	}
 	else
 	{
-		char msg_mode[24];
+		char msg_mode[40];
 		char msg_dist[16];
 
 		if(mode == 1) my_strcpy(msg_mode,"匠の仕事の痕跡",sizeof(msg_mode)-2);
@@ -1494,7 +1491,7 @@ void search_specific_object(int mode)
 		if(mode == 4) my_strcpy(msg_mode,"何かの痕跡",sizeof(msg_mode)-2);
 		if(mode == 5) my_strcpy(msg_mode,"厄の気配",sizeof(msg_mode)-2);
 		if(mode == 6) my_strcpy(msg_mode,"特徴的な痕跡",sizeof(msg_mode)-2);
-	//	if (mode == 7) my_strcpy(msg_mode, "高価な服飾品の匂い", sizeof(msg_mode) - 2);
+		if(mode == 7) my_strcpy(msg_mode,"珍しい物品の気配", sizeof(msg_mode) - 2);
 
 		if(temp_dist < 15) my_strcpy(msg_dist,"近い！",sizeof(msg_dist)-2);
 		else if(temp_dist < 30) my_strcpy(msg_dist,"やや近い。",sizeof(msg_dist)-2);
@@ -6535,6 +6532,7 @@ void marisa_gain_power(object_type *o_ptr, int mult)
 				if(tv == TV_MATERIAL && sv == SV_MATERIAL_EMERALD) gain = 200;
 				if(tv == TV_MATERIAL && sv == SV_MATERIAL_HOPE_FRAGMENT) gain = 300;
 				if(tv == TV_SOUVENIR && sv == SV_SOUVENIR_PHOENIX_FEATHER) gain = 500;
+				if (tv == TV_SOUVENIR && sv == SV_SOUVENIR_MOON_ORB) gain = 200;
 				break;
 			case MARISA_POWER_DARK:
 				if(tv == TV_MUSHROOM && sv == SV_MUSHROOM_SICKNESS) gain = 6;

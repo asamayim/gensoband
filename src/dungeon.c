@@ -2951,6 +2951,11 @@ static void process_world_aux_timeout(void)
 		(void)set_tim_aggravation(p_ptr->tim_aggravation - 1, TRUE);
 	}
 
+	if (p_ptr->transportation_trap)
+	{
+		set_tim_transportation_trap(p_ptr->transportation_trap - 1, TRUE);
+
+	}
 
 
 	/* Multi-shadow */
@@ -3135,6 +3140,15 @@ static void process_world_aux_timeout(void)
 
 		/* Apply some healing */
 		(void)set_cut(p_ptr->cut - adjust);
+	}
+
+	//v2.0.11 ˆÚ“®‹ÖŽ~ ‰ñ•œ‚É‚Í‘Ï‹v‚Å‚È‚­˜r—Í‚ðŽg‚¤
+	if (p_ptr->tim_no_move)
+	{
+		int adjust = adj_con_fix[p_ptr->stat_ind[A_STR]] + 1;
+
+		/* Apply some healing */
+		(void)set_no_move(p_ptr->tim_no_move - adjust);
 	}
 
 	///mod140326 ƒAƒ‹ƒR[ƒ‹‚à“¯—l‚ÉŽ¡–ü‚·‚é‚æ‚¤‚É‚·‚é
@@ -8306,6 +8320,7 @@ static void process_player(void)
 			    !p_ptr->blind && !p_ptr->confused &&
 			    !p_ptr->poisoned && !p_ptr->afraid &&
 			    !p_ptr->stun && !p_ptr->cut &&
+				!p_ptr->tim_no_move && //v2.0.11 ˆÚ“®‹ÖŽ~
 			    !p_ptr->slow && !p_ptr->paralyzed &&
 			    !p_ptr->image && !p_ptr->word_recall &&
 				!REF_BROKEN_VAL && //v1.1.66
