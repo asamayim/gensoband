@@ -80,10 +80,10 @@
 #define H_VER_MAJOR 2
 #define H_VER_MINOR 0
 #define H_VER_PATCH 11
-#define H_VER_EXTRA 1
+#define H_VER_EXTRA 2
 
 /*:::＊＊＊◆◆◆アップロード時には必ずこれをコメントアウトする◆◆◆＊＊＊:::*/
-#define SCORE_SERVER_TEST
+//#define SCORE_SERVER_TEST
 /*:::＊＊＊◆◆◆アップロード時には必ずこれをコメントアウトする◆◆◆＊＊＊:::*/
 
 ///\131117 sysdel
