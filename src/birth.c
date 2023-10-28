@@ -3115,6 +3115,8 @@ outfit_type birth_outfit_class[] = {
 	{ CLASS_BITEN,2,0,TV_CLOTHES, SV_CLOTHES,1 },
 	{ CLASS_BITEN,2,ART_BITEN,0,0,1 },
 
+	{ CLASS_ENOKO,2,0,TV_CLOTHES, SV_CLOTHES,1 },
+	{ CLASS_ENOKO,2,ART_ENOKO,0,0,1 },
 
 	{-1,0,0,0,0,0} //終端dummy
 };
@@ -6046,8 +6048,8 @@ static unique_player_type unique_player_table[UNIQUE_PLAYER_NUM] =
 
 	{ TRUE,"孫　美天",CLASS_BITEN,RACE_YOUKAI,ENTRY_JUUOUEN,SEX_FEMALE,
 		"あなたはほんの少し前までただの山猿でしたが、ある鬼にそそのかされて聖地の霊を喰ったことで妖怪化しました。その後紆余曲折を経て畜生界の動物霊の暴力組織「鬼傑組」の遊撃隊に所属しています。もとが猿だけあって森での立ち回りはお手の物です。戦闘においては棒術と投擲を得意とします。さらに仙術を一領域習得することができますがこちらの適性はあまり高くありません。" },
-	{ FALSE,"三頭　慧ノ子",CLASS_ENOKO,RACE_WARBEAST,ENTRY_JUUOUEN,SEX_FEMALE,
-		"未実装" },
+	{ TRUE,"三頭　慧ノ子",CLASS_ENOKO,RACE_WARBEAST,ENTRY_JUUOUEN,SEX_FEMALE,
+		"あなたは破戒僧だった頃の日白残無の肉を食らって永遠の呪いを受けたヤマイヌです。両腕に物騒なトラバサミが取り付けられており、これによって強力な格闘攻撃ができますが代わりに武器や盾を装備することができなくなります。薬や巻物などの消耗品は問題なく使用できます。またあなたは罠の扱いを得意としており、罠を設置して敵を罠にかけることができます。敵と対峙する前にダメージを与えたり弱体化させるなどのトリッキーな戦い方が可能です。あなたは鬼の宝玉を首からかけています。この宝玉はあなたに大きな力をもたらしますが、これを装備していると周りの人妖が宝を狙って襲いかかってきます。" },
 	{ FALSE,"天火人　ちやり",CLASS_CHIYARI,RACE_YOUKAI,ENTRY_JUUOUEN,SEX_FEMALE,
 		"未実装" },
 	{ FALSE,"豫母都　日狭美",CLASS_HISAMI,RACE_DEATH,ENTRY_JUUOUEN,SEX_FEMALE,

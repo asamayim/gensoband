@@ -14,6 +14,156 @@ static bool use_itemcard = FALSE;
 */
 
 
+//v2.0.12 慧ノ子
+class_power_type class_power_enoko[] =
+{
+	{ 5,3,10,FALSE,FALSE,A_INT,0,0,"トラップ感知",
+	"周囲にある罠を感知する。" },
+
+	{ 12,15,30,FALSE,TRUE,A_INT,0,0,"トラップ設置",
+	"自分のいるグリッドにトラップを設置する。設置できるトラップの種類はレベルアップで増える。モンスターがこのグリッドを通過しようとするときトラップが発動する。高レベルなモンスターや賢いモンスターはトラップを無効化しやすい。" },
+
+	{ 20,5,35,FALSE,FALSE,A_DEX,0,0,"トラップ発動",
+	"トラップを発動させるビームを放つ。発動したトラップにモンスターを巻き込むことができる。プレイヤーも範囲内にいるとダメージを受ける。" },
+
+	{ 26,25,50,FALSE,FALSE,A_STR,0,0,"火炎のブレス",
+	"現在HPの1/4の威力の炎のブレスを吐く。" },
+
+	{ 32,0,0,FALSE,FALSE,A_DEX,0,0,"待ち伏せ",
+	"その場で何もせず待機する。次の行動が隣接攻撃のとき攻撃回数が上昇する。" },
+
+	{ 38,10,70,FALSE,FALSE,A_CON,0,0,"再生",
+	"HPを回復し傷や毒を治療する。満腹度を消費する。" },
+
+	{ 43,90,85,FALSE,FALSE,A_STR,0,0,"ケルベロスファイア",
+	"現在HPの1/4の威力の炎のブレスを同じターゲットに3連続で吐く。" },
+
+
+	{ 99,0,0,FALSE,FALSE,0,0,0,"dummy","" },
+};
+
+
+cptr do_cmd_class_power_aux_enoko(int num, bool only_info)
+{
+	int dir, dice, sides, base, i;
+	int plev = p_ptr->lev;
+	int cons = p_ptr->concent;
+
+	switch (num)
+	{
+
+	case 0:
+	{
+		int rad = DETECT_RAD_DEFAULT;
+		if (only_info) return format("範囲:%d", rad);
+
+		msg_print("周辺の罠のありかを探った。");
+		detect_traps(rad, TRUE);
+
+	}
+	break;
+
+	case 1: //トラップ設置
+	{
+
+		if (only_info) return format("");
+
+		//アイテムカード「トラバサミ」使用時は置かれるトラップがトラバサミに固定される
+		if (!place_chosen_trap(plev,use_itemcard)) return NULL;
+
+	}
+	break;
+
+	case 2:
+	{
+		int range = 4 + p_ptr->lev / 3;
+		if (only_info) return format("範囲:%d", range);
+		if (!get_aim_dir(&dir)) return NULL;
+
+		msg_print("あなたは地面に掌を押し当てた。");
+		fire_beam(GF_ACTIV_TRAP, dir, 0);
+
+	}
+	break;
+
+
+	case 3: //火炎のブレス
+	{
+		int dam;
+		dam = p_ptr->chp / 4;
+		if (dam<1) dam = 1;
+		if (dam > 1600) dam = 1600;
+
+		if (only_info) return format("損傷:%d", dam);
+
+		if (!get_aim_dir(&dir)) return NULL;
+		msg_print("あなたは炎を吐いた！");
+
+		fire_ball(GF_FIRE, dir, dam, (p_ptr->lev > 35 ? -3 : -2));
+		break;
+	}
+
+	case 4: //待ち伏せ p_ptr->concent使用
+	{
+		if (only_info) return format("");
+
+		do_cmd_concentrate(0);
+
+		break;
+	}
+
+	case 5://再生
+	{
+		int use_food = 1000;
+		int base = p_ptr->lev * 2;
+		if (only_info) return format("回復:%d+1d%d", base, base);
+
+		if (p_ptr->food < use_food + PY_FOOD_WEAK)
+		{
+			msg_print("回復に使う栄養が足りないようだ。");
+			return NULL;
+		}
+
+		msg_print("あなたは自分の体に意識を集中した..");
+		hp_player(base + randint1(base));
+		set_poisoned(0);
+		set_cut(0);
+		set_food(p_ptr->food - use_food);
+
+	}
+	break;
+
+	case 6: //ケルベロスファイア(火炎のブレス*3)
+	{
+		int i, dam;
+		dam = p_ptr->chp / 4; //＠のHPが多めだし石油罠でブーストできるので少し控えめにしとく
+		if (dam<1) dam = 1;
+		if (dam > 1600) dam = 1600;
+
+		if (only_info) return format("損傷:%d * 3", dam);
+
+		if (!get_aim_dir(&dir)) return NULL;
+
+		//真・吸血と同じ繰り返し方法にしておく
+		for (i = 0; i<3; i++)
+		{
+			fire_ball(GF_FIRE, dir, dam, (p_ptr->lev > 35 ? -3 : -2));
+		}
+	}
+	break;
+
+
+
+	default:
+		msg_format("ERROR:実装していない特技が呼ばれた num:%d", num);
+		return NULL;
+	}
+	return "";
+}
+
+
+
+
 //v2.0.11 美天特技
 class_power_type class_power_biten[] =
 {
@@ -35445,6 +35595,12 @@ void do_cmd_new_class_power(bool only_browse)
 		power_desc = "特技";
 		break;
 
+	case CLASS_ENOKO:
+		class_power_table = class_power_enoko;
+		class_power_aux = do_cmd_class_power_aux_enoko;
+		power_desc = "特技";
+		break;
+
 
 	default:
 		msg_print("あなたは職業による特技を持っていない。");
@@ -36775,6 +36931,9 @@ const support_item_type support_item_list[] =
 		{ 90,20, 70,1,20,	MON_BITEN,class_power_biten,do_cmd_class_power_aux_biten,2,
 		"緊箍児","それは大量の猿を召喚する。" },
 
+	//v2.0.12 慧ノ子　トラップ設置(トラバサミのみ)
+		{ 80,10,50,5,5,	MON_ENOKO,class_power_enoko,do_cmd_class_power_aux_enoko,1,
+		"トラバサミ","地面にトラバサミを仕掛ける。モンスターがかかると短時間移動禁止状態になる。" },
 
 		
 

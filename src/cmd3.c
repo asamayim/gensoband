@@ -3702,6 +3702,8 @@ bool wield_check( int slot, int item_new)
 		return (FALSE);
 	}
 
+
+
 	//v1.1.57 一時アイテム「七星剣」は外せない
 	if (o_ptr_old->tval == TV_SWORD && o_ptr_old->sval == SV_WEAPON_SEVEN_STAR)
 	{
@@ -3731,6 +3733,16 @@ bool wield_check( int slot, int item_new)
 			return (FALSE);
 		}
 	}
+	//v2.0.12慧ノ子は武器や盾を持てない グリマリなど武器扱いでない特殊アイテムは持てる
+	else if (p_ptr->pclass == CLASS_ENOKO)
+	{
+		if ((slot == INVEN_RARM || slot == INVEN_LARM) && (object_is_weapon(o_ptr_new) || object_is_shooting_weapon(o_ptr_new)|| o_ptr_new->tval == TV_SHIELD))
+		{
+			msg_print("トラバサミに引っかかって持てない。");
+			return (FALSE);
+		}
+	}
+
 	else if(p_ptr->pclass == CLASS_ALICE)
 	{
 		if(slot == INVEN_HANDS)

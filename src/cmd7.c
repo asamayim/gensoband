@@ -5870,6 +5870,8 @@ bool do_cmd_concentrate(int mode)
 {
 	int max;
 
+	if (!(CLASS_USE_CONCENT)) msg_print("ERROR:CLASS_USE_CONCENT‚É‚È‚¢E‹Æ‚Ådo_cmd_concentrate()‚ªŒÄ‚Î‚ê‚Ä‚¢‚é");
+
 	p_ptr->concent++;
 	switch(p_ptr->pclass)
 	{
@@ -5963,8 +5965,21 @@ bool do_cmd_concentrate(int mode)
 		}
 		break;
 
+	case CLASS_ENOKO:
+		max = 1;
+		if (p_ptr->concent > max)
+		{
+			p_ptr->concent = max;
+			msg_print("‚ ‚È‚½‚ÍUŒ‚‚Ì‹@‰ï‚ğ‰M‚Á‚Ä‚¢‚é...");
+		}
+		else
+		{
+			msg_print("‚ ‚È‚½‚Í•¨‰A‚É‰B‚ê‚Äg‚ğ’á‚­‚µ‚½B");
+		}
+		break;
+
 	default:
-		msg_print("‚±‚ÌE‹Æ‚Ìconcentrate’l‰ÁZƒ‹[ƒ`ƒ“‚ª“o˜^‚³‚ê‚Ä‚¢‚È‚¢");
+		msg_print("ERROR:‚±‚ÌE‹Æ‚Ìdo_cmd_concentrate()‚Ìˆ—‚ª‹Lq‚³‚ê‚Ä‚¢‚È‚¢");
 		return FALSE;
 	}
 

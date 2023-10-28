@@ -2953,6 +2953,12 @@ bool do_riding(bool force)
 
 	if (p_ptr->special_defense & KATA_MUSOU) set_action(ACTION_NONE);
 
+	if (p_ptr->pclass == CLASS_ENOKO)
+	{
+		msg_print("トラバサミが邪魔で騎乗ができない。");
+		return FALSE;
+	}
+
 	if(p_ptr->pclass == CLASS_SHINMYOU_2) 
 	{
 		msg_print("お椀に乗ったまま騎乗はできない。");

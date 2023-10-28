@@ -1394,6 +1394,11 @@ void activate_floor_trap(int y, int x, u32b mpe_mode)
 	monster_race *r_ptr;
 	int damage;
 
+	int project_who = PROJECT_WHO_TRAP;
+
+	//＠が仕掛けたトラップの場合who値を0にする。＠がダメージを受けなくなりユニークモンスターにトドメを刺せるようになる
+	if (c_ptr->cave_xtra_flag & CAVE_XTRA_FLAG_YOUR_TRAP) project_who = 0;
+		
 	flag_break_trap = (mpe_mode & MPE_BREAK_TRAP);
 
 
@@ -1551,12 +1556,12 @@ void activate_floor_trap(int y, int x, u32b mpe_mode)
 			else
 			{
 				msg_print("落とし穴だ！");
-				project(PROJECT_WHO_TRAP, 0, y, x, damage, GF_PIT_FALL, (PROJECT_JUMP | PROJECT_KILL | PROJECT_PLAYER), -1);
+				project(project_who, 0, y, x, damage, GF_PIT_FALL, (PROJECT_JUMP | PROJECT_KILL | PROJECT_PLAYER), -1);
 			}
 		}
 		else if (trap_monster)
 		{
-			project(PROJECT_WHO_TRAP, 0, y, x, damage, GF_PIT_FALL, (PROJECT_JUMP | PROJECT_KILL | PROJECT_PLAYER), -1);
+			project(project_who, 0, y, x, damage, GF_PIT_FALL, (PROJECT_JUMP | PROJECT_KILL | PROJECT_PLAYER), -1);
 		}
 		else
 		{
@@ -1595,9 +1600,9 @@ void activate_floor_trap(int y, int x, u32b mpe_mode)
 		//いずれトラップをモンスターが踏むように改造する機能を実装したとして、
 		//飛ぶモンスターが踏み入ったときに発動しないよう設定する必要がある。
 		if (trap_feat_type == TRAP_SPIKED_PIT)
-			project(PROJECT_WHO_TRAP, (2 + randint1(5) / 4) , y, x, 4, GF_WATER_FLOW, PROJECT_JUMP | PROJECT_GRID, -1);
+			project(project_who, (2 + randint1(5) / 4) , y, x, 4, GF_WATER_FLOW, PROJECT_JUMP | PROJECT_GRID, -1);
 		else
-			project(PROJECT_WHO_TRAP, (3 + randint1(3)/3), y, x, 100+dun_level, GF_DIG_OIL, PROJECT_JUMP | PROJECT_GRID, -1);
+			project(project_who, (3 + randint1(3)/3), y, x, 100+dun_level, GF_DIG_OIL, PROJECT_JUMP | PROJECT_GRID, -1);
 
 
 		break;
@@ -1683,7 +1688,7 @@ void activate_floor_trap(int y, int x, u32b mpe_mode)
 #endif
 
 		damage = MAX(5, dun_level) * 3;
-		project(PROJECT_WHO_TRAP, 2, y, x, damage, GF_FIRE, (PROJECT_JUMP | PROJECT_KILL | PROJECT_PLAYER | PROJECT_GRID), -1);
+		project(project_who, 2, y, x, damage, GF_FIRE, (PROJECT_JUMP | PROJECT_KILL | PROJECT_PLAYER | PROJECT_GRID), -1);
 
 	}
 	break;
@@ -1699,7 +1704,7 @@ void activate_floor_trap(int y, int x, u32b mpe_mode)
 
 		damage = MAX(5, dun_level) * 3;
 
-		project(PROJECT_WHO_TRAP, 2, y, x, damage, GF_ACID, (PROJECT_JUMP | PROJECT_KILL | PROJECT_PLAYER | PROJECT_GRID), -1);
+		project(project_who, 2, y, x, damage, GF_ACID, (PROJECT_JUMP | PROJECT_KILL | PROJECT_PLAYER | PROJECT_GRID), -1);
 
 	}
 	break;
@@ -1713,7 +1718,7 @@ void activate_floor_trap(int y, int x, u32b mpe_mode)
 #endif
 
 		damage = MAX(5, dun_level) * 3;
-		project(PROJECT_WHO_TRAP, 3, y, x, damage, GF_POIS, (PROJECT_JUMP | PROJECT_KILL | PROJECT_PLAYER | PROJECT_GRID), -1);
+		project(project_who, 3, y, x, damage, GF_POIS, (PROJECT_JUMP | PROJECT_KILL | PROJECT_PLAYER | PROJECT_GRID), -1);
 
 	}
 	break;
@@ -1794,6 +1799,7 @@ void activate_floor_trap(int y, int x, u32b mpe_mode)
 #else
 		msg_print("A black gas surrounds you!");
 #endif
+		//ここのwhoは常に0
 		project(0, 3, y, x, power, GF_OLD_CONF, (PROJECT_JUMP | PROJECT_HIDE | PROJECT_KILL), -1);
 
 		if (!p_ptr->resist_blind && distance(y, x, py, px) < 3)
@@ -1811,7 +1817,7 @@ void activate_floor_trap(int y, int x, u32b mpe_mode)
 #else
 		msg_print("A gas of scintillating colors surrounds you!");
 #endif
-		project(PROJECT_WHO_TRAP, 3, y, x, power, GF_OLD_CONF, (PROJECT_JUMP | PROJECT_HIDE | PROJECT_KILL | PROJECT_PLAYER), -1);
+		project(project_who, 3, y, x, power, GF_OLD_CONF, (PROJECT_JUMP | PROJECT_HIDE | PROJECT_KILL | PROJECT_PLAYER), -1);
 	}
 	break;
 
@@ -1824,7 +1830,7 @@ void activate_floor_trap(int y, int x, u32b mpe_mode)
 #else
 		msg_print("A gas of scintillating colors surrounds you!");
 #endif
-		project(PROJECT_WHO_TRAP, 3, y, x, power, GF_OLD_SLEEP, (PROJECT_JUMP | PROJECT_HIDE | PROJECT_KILL | PROJECT_PLAYER), -1);
+		project(project_who, 3, y, x, power, GF_OLD_SLEEP, (PROJECT_JUMP | PROJECT_HIDE | PROJECT_KILL | PROJECT_PLAYER), -1);
 
 	}
 	break;
@@ -1856,7 +1862,7 @@ void activate_floor_trap(int y, int x, u32b mpe_mode)
 #endif
 
 		aggravate_monsters(0, FALSE);
-		project(PROJECT_WHO_TRAP, 1, y, x, power, GF_STUN, (PROJECT_JUMP | PROJECT_HIDE | PROJECT_KILL), -1);
+		project(project_who, 1, y, x, power, GF_STUN, (PROJECT_JUMP | PROJECT_HIDE | PROJECT_KILL), -1);
 
 	}
 	break;
@@ -1925,7 +1931,7 @@ void activate_floor_trap(int y, int x, u32b mpe_mode)
 				if (!in_bounds(y1, x1)) continue;
 
 				/* Require line of projection */
-				if (!projectable(py, px, y1, x1)) continue;
+				if (!projectable(y, x, y1, x1)) continue;
 
 				if (summon_specific(0, y1, x1, lev, SUMMON_ARMAGE_EVIL, (PM_NO_PET)))
 				{
@@ -1947,7 +1953,7 @@ void activate_floor_trap(int y, int x, u32b mpe_mode)
 					good_ptr->target_y = evil_ptr->fy;
 					good_ptr->target_x = evil_ptr->fx;
 				}
-				//モンスターに踏ませた場合、所属勢力でないほうから集中攻撃を受けることにしてみる。＠が踏むときに比べて遥かに大ダメージを受けるかもしれない
+				//モンスターに踏ませた場合、所属勢力でないほうから集中攻撃を受けることにしてみる
 				if (trap_monster && !(r_ptr->flags3 & RF3_ANG_CHAOS) && evil_idx)
 				{
 					evil_ptr->target_y = y;
@@ -2052,7 +2058,7 @@ void activate_floor_trap(int y, int x, u32b mpe_mode)
 			else
 				msg_print("壁からビームが撃ち出された！");
 
-			(void)project(PROJECT_WHO_TRAP, 0, y, x, damage, typ, flg, -1);
+			(void)project(project_who, 0, y, x, damage, typ, flg, -1);
 			hack_project_start_x = 0;
 			hack_project_start_y = 0;
 
@@ -2079,7 +2085,7 @@ void activate_floor_trap(int y, int x, u32b mpe_mode)
 			else
 			{
 				msg_print("トラバサミにかかった！");
-				project(PROJECT_WHO_TRAP, 0, y, x, power, GF_NO_MOVE, (PROJECT_JUMP | PROJECT_HIDE | PROJECT_KILL | PROJECT_PLAYER), -1);
+				project(project_who, 0, y, x, power, GF_NO_MOVE, (PROJECT_JUMP | PROJECT_HIDE | PROJECT_KILL | PROJECT_PLAYER), -1);
 			}
 
 		}
@@ -2092,7 +2098,7 @@ void activate_floor_trap(int y, int x, u32b mpe_mode)
 			else
 			{
 				msg_format("%sはトラバサミにかかった！", m_name);
-				project(PROJECT_WHO_TRAP, 0, y, x, power, GF_NO_MOVE, (PROJECT_JUMP | PROJECT_HIDE | PROJECT_KILL | PROJECT_PLAYER), -1);
+				project(project_who, 0, y, x, power, GF_NO_MOVE, (PROJECT_JUMP | PROJECT_HIDE | PROJECT_KILL | PROJECT_PLAYER), -1);
 			}
 
 		}
@@ -2115,7 +2121,7 @@ void activate_floor_trap(int y, int x, u32b mpe_mode)
 	{
 
 		msg_print("轟音を立てて天井が落ちてきた！");
-		project_hack3(PROJECT_WHO_TRAP, y, x, GF_DISP_ALL, 1, 150, 150);
+		project_hack3(PROJECT_project_whoWHO_TRAP, y, x, GF_DISP_ALL, 1, 150, 150);
 
 	}
 	break;
@@ -2128,7 +2134,7 @@ void activate_floor_trap(int y, int x, u32b mpe_mode)
 #else
 		msg_print("A gas of scintillating colors surrounds you!");
 #endif
-		project(PROJECT_WHO_TRAP, 6, y, x, 250, GF_DIG_OIL, (PROJECT_JUMP | PROJECT_KILL | PROJECT_PLAYER | PROJECT_GRID), -1);
+		project(project_who, 6, y, x, 250, GF_DIG_OIL, (PROJECT_JUMP | PROJECT_KILL | PROJECT_PLAYER | PROJECT_GRID), -1);
 
 	}
 	break;
@@ -2142,9 +2148,9 @@ void activate_floor_trap(int y, int x, u32b mpe_mode)
 		msg_print("A gas of scintillating colors surrounds you!");
 #endif
 
-		project(PROJECT_WHO_TRAP, 4, y, x, 200, GF_WATER_FLOW, (PROJECT_JUMP | PROJECT_GRID), -1);
-		project(PROJECT_WHO_TRAP, 4, y, x, 200, GF_WATER, (PROJECT_JUMP | PROJECT_HIDE | PROJECT_KILL | PROJECT_PLAYER | PROJECT_GRID), -1);
-		project(PROJECT_WHO_TRAP, 1, y, x, 100, GF_NO_MOVE, (PROJECT_JUMP | PROJECT_HIDE | PROJECT_KILL | PROJECT_PLAYER | PROJECT_GRID), -1);
+		project(project_who, 4, y, x, 200, GF_WATER_FLOW, (PROJECT_JUMP | PROJECT_GRID), -1);
+		project(project_who, 4, y, x, 200, GF_WATER, (PROJECT_JUMP | PROJECT_HIDE | PROJECT_KILL | PROJECT_PLAYER | PROJECT_GRID), -1);
+		project(project_who, 1, y, x, 100, GF_NO_MOVE, (PROJECT_JUMP | PROJECT_HIDE | PROJECT_KILL | PROJECT_PLAYER | PROJECT_GRID), -1);
 	}
 	break;
 
@@ -2156,7 +2162,7 @@ void activate_floor_trap(int y, int x, u32b mpe_mode)
 
 		msg_print("間欠泉が噴き出した！");
 		damage = damroll(10, 10) + dun_level * 2;
-		project(PROJECT_WHO_TRAP, 3, y, x, damage, GF_STEAM, (PROJECT_JUMP | PROJECT_KILL | PROJECT_PLAYER | PROJECT_GRID), -1);
+		project(project_who, 3, y, x, damage, GF_STEAM, (PROJECT_JUMP | PROJECT_KILL | PROJECT_PLAYER | PROJECT_GRID), -1);
 
 		//＠は上のフロアに飛ばされる
 		if (trap_player && p_ptr->chp >= 0 && dun_level > 1 && !p_ptr->inside_arena && !(EXTRA_MODE) && !p_ptr->anti_tele)
@@ -3044,6 +3050,135 @@ msg_print("まばゆい閃光が走った！");
 
 #endif
 
+//v2.0.12
+//指定グリッドに指定したトラップを設置する
+//list_idxはenoko_make_trap_list[]の添字
+//設置成功したときTRUE
+bool place_chosen_trap_aux(int y, int x, int list_idx)
+{
+	int trap_idx;
+	cave_type *c_ptr = &cave[y][x];
+	bool flag_ok = TRUE;
+
+	trap_idx = enoko_make_trap_list[list_idx].trap_idx;
+
+	if (!in_bounds(y, x)) flag_ok = FALSE;
+	if (!cave_clean_bold(y, x)) flag_ok = FALSE;
+
+	//落とし戸の配置制限
+	if (flag_ok && trap_idx == TRAP_TRAPDOOR)
+	{
+		//地上とダンジョン最下層とアリーナには落とし戸を作れない
+		if (!dun_level) flag_ok = FALSE;
+		if (dun_level >= d_info[dungeon_type].maxdepth) flag_ok = FALSE;
+		if (p_ptr->inside_arena) flag_ok = FALSE;
+
+		//クエストダンジョンには落とし戸を作れない(EXTRAでは作れてもいいか？一度テストする)
+		if (!EXTRA_MODE && p_ptr->inside_quest) flag_ok = FALSE;
+
+		//難易度EASYでは鉄獄50階に落とし戸を作れない
+		if (difficulty == DIFFICULTY_EASY && dungeon_type == DUNGEON_ANGBAND &&  dun_level == 50) flag_ok = FALSE;
+
+	}
+
+	//ハルマゲドン・トラップの配置制限
+	if (flag_ok && trap_idx == TRAP_ARMAGEDDON)
+	{
+		int i,j,tx,ty;
+
+		//クエストダンジョンには作れない(ランダムクエストやメインクエストボスフロアには作れる)
+		if (p_ptr->inside_quest && is_fixed_quest_idx(p_ptr->inside_quest))flag_ok = FALSE;
+
+		//通路や壁際には作れない(隣接グリッドが全て床でないといけない)
+		for (i = -1; i < 1; i++) for (j = -1; j < 1; j++)
+		{
+			ty = y + i;
+			tx = x + j;
+			if (!in_bounds2(ty, tx) || !cave_have_flag_bold(ty, tx, FF_FLOOR))
+			{
+				flag_ok = FALSE;
+				break;
+			}
+		}
+
+	}
+
+	if (!flag_ok)
+	{
+		msg_print("トラップの設置に失敗した。");
+		return FALSE;
+	}
+
+	c_ptr->feat = f_tag_to_index_in_init(enoko_make_trap_list[list_idx].f_tag);
+
+	//＠製のトラップであることを示すフラグ。＠が踏み込んでも発動せずモンスターが踏み込むと解除判定に失敗したら発動する。
+	c_ptr->cave_xtra_flag |= CAVE_XTRA_FLAG_YOUR_TRAP;
+
+	note_spot(y, x);
+	lite_spot(y, x);
+
+	return TRUE;
+
+}
+
+
+//2.0.12
+//トラップを一覧から選択して＠の足元に設置する
+//慧ノ子のトラップ配置に使う。アイテムカードと将来の拡張性考慮のため職業を限定しない
+//plevは配置可能なトラップの制限に影響する。
+//only_beartrapはアイテムカード使用時に置かれるトラップがトラバサミに固定される。
+bool place_chosen_trap(int plev, bool only_beartrap)
+{
+
+	int i, list_idx;
+	int list_len = 0;
+	char c;
+
+	//設置できるトラップが1つだけのときトラップ一覧表示はしない
+	if (only_beartrap)
+	{
+		list_idx = 0;
+	}
+	else
+	{
+		//配置できるトラップ一覧を表示
+		screen_save();
+		for (i = 1; i<22; i++)Term_erase(17, i, 255);
+		prt("どのトラップを配置しよう？", 2, 30);
+		for (i = 0; enoko_make_trap_list[i].player_level; i++)
+		{
+
+			if (enoko_make_trap_list[i].player_level > plev) break;
+			prt(format("%c) %s", 'a' + i, enoko_make_trap_list[i].trap_name), 3 + i, 30);
+			list_len++;
+		}
+		if (!list_len) { msg_print("ERROR:place_chosen_trap()でリストが作れない"); screen_load(); return FALSE; }
+
+		//一覧からトラップを選択
+		while (TRUE)
+		{
+			c = inkey();
+
+			if (c == ESCAPE)
+			{
+				screen_load();
+				return FALSE;
+			}
+			list_idx = c - 'a';
+			if (list_idx < 0 || list_idx >= list_len) continue;
+			break;
+		}
+		screen_load();
+
+	}
+
+	if (!place_chosen_trap_aux(py, px, list_idx)) return FALSE;
+
+	msg_format("%sを設置した。", enoko_make_trap_list[list_idx].trap_name);
+
+	return TRUE;
+}
+
 /*:::オーラによるダメージを受ける処理*/
 ///mon オーラダメージ
 ///mod140211 他のソースファイルから使うためにstaticを外した。
@@ -3658,8 +3793,6 @@ int find_martial_arts_method(int findmode)
 
 	}
 
-
-
 	//伸腕攻撃　変容魔法や河童レイシャル　追加格闘が出ないのでパンチのみ 一部クラスは専用攻撃優先
 	if(findmode == MELEE_FIND_LONGARM)
 	{
@@ -3744,14 +3877,15 @@ int find_martial_arts_method(int findmode)
 
 
 /*優先4:専用攻撃が出る職業 */
-	///pend 多くの職業は手が塞がっててもパンチとか出てしまうので暇があれば直したい
+	///TODO: 多くの職業は手が塞がっててもパンチとか出てしまうので暇があれば直したい
 	switch(p_ptr->pclass)
 	{
 	case CLASS_MINDCRAFTER:
 		return MELEE_MODE_MIND;
 	case CLASS_NINJA:
 		return MELEE_MODE_NINJA;
-
+	case CLASS_ENOKO:
+		return MELEE_MODE_ENOKO;
 	//格闘家の専用攻撃は素手時のみ
 	case CLASS_MARTIAL_ARTIST:
 		if((randint0(100) < plev+30) && !kick) return MELEE_MODE_MA;
@@ -8258,7 +8392,7 @@ bool move_player_effect(int ny, int nx, u32b mpe_mode)
 		disturb(0, 1);
 
 		/* Hidden trap */
-		/*:::隠しトラップに引っかかった場合トラップ発見処理　ここを通らないときはトラップ解除に失敗したとき*/
+		/*:::隠しトラップに引っかかった場合トラップ発見処理　ここを通らないときはトラップ解除に失敗したときとわざと踏んだとき*/
 		if (c_ptr->mimic || have_flag(f_ptr->flags, FF_SECRET))
 		{
 			/* Message */
@@ -8275,7 +8409,12 @@ bool move_player_effect(int ny, int nx, u32b mpe_mode)
 		/* Hit the trap */
 		//hit_trap((mpe_mode & MPE_BREAK_TRAP) ? TRUE : FALSE);
 
-		activate_floor_trap(py,px,mpe_mode );
+		//v2.0.12 自分の設置したトラップに関する条件式追加
+		//トラップを発動する。ただし自分で設置したトラップの場合は>コマンドでわざと踏むときを除き発動しない。
+		if (!(c_ptr->cave_xtra_flag & CAVE_XTRA_FLAG_YOUR_TRAP) || mpe_mode & MPE_ACTIVATE_TRAP)
+		{
+			activate_floor_trap(py, px, mpe_mode);
+		}
 
 
 		if (!player_bold(ny, nx) || p_ptr->is_dead || p_ptr->leaving) return FALSE;
@@ -8313,6 +8452,7 @@ bool trap_can_be_ignored(int feat)
 	feature_type *f_ptr = &f_info[feat];
 
 	if (!have_flag(f_ptr->flags, FF_TRAP)) return TRUE;
+
 
 	switch (f_ptr->subtype)
 	{
@@ -8788,7 +8928,8 @@ void move_player(int dir, bool do_pickup, bool break_trap, bool activate_trap)
 	/* Disarm a visible trap */
 	else if ((do_pickup != easy_disarm) && have_flag(f_ptr->flags, FF_DISARM) && !c_ptr->mimic && !activate_trap)
 	{
-		if (!trap_can_be_ignored(c_ptr->feat))
+		//2.0.12 自分で設置したトラップは解除を試みない
+		if (!trap_can_be_ignored(c_ptr->feat) && !(c_ptr->cave_xtra_flag & CAVE_XTRA_FLAG_YOUR_TRAP))
 		{
 			(void)do_cmd_disarm_aux(y, x, dir);
 			return;
@@ -9838,7 +9979,8 @@ static int travel_test(int prev_dir)
 	if (!easy_open && is_closed_door(c_ptr->feat)) return (0);
 
 	/* Visible and unignorable trap abort tarveling */
-	if (!c_ptr->mimic && !trap_can_be_ignored(c_ptr->feat)) return (0);
+	//v2.0.12 自分で設置したトラップは無視してよい
+	if (!c_ptr->mimic && !trap_can_be_ignored(c_ptr->feat) && !(c_ptr->cave_xtra_flag & CAVE_XTRA_FLAG_YOUR_TRAP)) return (0);
 
 	/* Move new grid */
 	return (new_dir);

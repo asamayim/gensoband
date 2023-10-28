@@ -135,6 +135,8 @@ void reset_concentration(bool msg)
 			msg_print("ビートが止んだ。");
 		else if(p_ptr->pclass == CLASS_SOLDIER)
 			msg_print("集中が途切れた。");
+		else if (p_ptr->pclass == CLASS_ENOKO)
+			msg_print("集中が途切れた。");
 		//v1.1.14 依姫祇園様の剣リセット処理
 		else if(p_ptr->pclass == CLASS_YORIHIME)
 		{
