@@ -325,7 +325,7 @@ cptr do_cmd_class_power_aux_biten(int num, bool only_info)
 		}
 		else
 		{
-			//投擲時ダメージ概算　投擲向き★ボーナスとか重量ボーナスとかは細かく計算せず雑に参入している
+			//投擲時ダメージ概算　投擲向き★ボーナスとか重量ボーナスとかは細かく計算せず雑に算入している
 			int mult = 3;
 			u32b flgs[TR_FLAG_SIZE];
 
@@ -1175,7 +1175,8 @@ cptr do_cmd_class_power_aux_misumaru(int num, bool only_info)
 	{
 		if (only_info) return format("");
 
-		activate_magatama(FALSE);
+		//v2.0.13 キャンセル時に行動力消費してたので修正
+		if(!activate_magatama(FALSE)) return NULL;
 
 	}
 	break;
@@ -35884,8 +35885,6 @@ void do_cmd_new_class_power(bool only_browse)
 
 	}
 
-	//この辺screen_load()や再描画関連でバグ残ってるかもしれない。
-
 	/* Restore the screen */
 	if (redraw && !only_browse) screen_load();
 	/* Show choices */
@@ -35898,8 +35897,8 @@ void do_cmd_new_class_power(bool only_browse)
 		screen_load();
 		return;
 	}
-/*:::技の選択終了。失敗率判定へ。*/
 
+	/*:::技の選択終了。失敗率判定へ。*/
 
 	screen_load();
 
@@ -37078,7 +37077,9 @@ int calc_itemcard_slot_size(void)
 {
 	int num = 8;
 
-	if(inventory[INVEN_RARM].name1 == ART_GRIMOIRE_OF_MARISA ||inventory[INVEN_LARM].name1 == ART_GRIMOIRE_OF_MARISA )	num += 4;
+	//★グリモワール・オブ・マリサを装備しているとスロット数+4
+	if (check_equip_specific_fixed_art(ART_GRIMOIRE_OF_MARISA, TRUE)) num += 4;
+	//if(inventory[INVEN_RARM].name1 == ART_GRIMOIRE_OF_MARISA ||inventory[INVEN_LARM].name1 == ART_GRIMOIRE_OF_MARISA )	num += 4;
 
 	if(num > INVEN_SPECIAL_ITEM_SLOT_END){ msg_print("ERROR:アイテムカードスロット欄数が多すぎる"); return 8;}
 	return num;

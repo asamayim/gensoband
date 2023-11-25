@@ -1283,6 +1283,36 @@ static void chest_death(bool scatter, int y, int x, s16b o_idx)
 			}
 
 		}
+		//v2.0.13 ƒ„ƒNƒUí‘ˆ2
+		else if (o_ptr->sval == SV_CHEST_YAKUZA2)
+		{
+			msg_print("’†‚É‚ÍÜ‹à‚Æ‚‰¿‚È–ò‚ª“ü‚Á‚Ä‚¢‚½B");
+
+			//ŒdƒmŽq‚ð“|‚µ‚½‚Æ‚«
+			if (p_ptr->animal_ghost_align_flag & ANIMAL_GHOST_Q2_BEAT_KEIGA)
+			{
+				p_ptr->au += 50000;
+				k_idx = lookup_kind(TV_POTION, SV_POTION_INC_STR);
+			}
+			else if (p_ptr->animal_ghost_align_flag & ANIMAL_GHOST_Q2_BEAT_KIKETSU)
+			{
+				p_ptr->au += 60000;
+				k_idx = lookup_kind(TV_POTION, SV_POTION_INC_INT);
+
+			}
+			else if (p_ptr->animal_ghost_align_flag & ANIMAL_GHOST_Q2_BEAT_GOUYOKU)
+			{
+				p_ptr->au += 70000;
+				k_idx = lookup_kind(TV_POTION, SV_POTION_INC_CON);
+			}
+			else
+			{
+				msg_format("ERROR:‚±‚Ì” ‚Ìƒtƒ‰ƒOÝ’è‚ª‚¨‚©‚µ‚¢");
+				return;
+			}
+			p_ptr->redraw |= PR_GOLD;
+
+		}
 		//v1.1.98 ˜A‘±¨‡Ž–Œ‡U
 		else if (o_ptr->sval == SV_CHEST_HANGOKU2)
 		{

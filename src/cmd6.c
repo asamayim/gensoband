@@ -622,6 +622,12 @@ bool do_cmd_eat_food_aux(int item)
 					msg_print("あなたは戒律により肉を食べられない。");
 					return FALSE;
 				}
+				else if (p_ptr->prace == RACE_LUNARIAN)
+				{
+					msg_print("この食物は穢れに満ちていて食べられない。");
+					return FALSE;
+				}
+
 				else
 				{
 					msg_print("脂が乗っていて実に美味だ！");
