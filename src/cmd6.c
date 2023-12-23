@@ -1320,7 +1320,11 @@ msg_print("食べ物がアゴを素通りして落ち、消えた！");
 	{
 		(void)set_food(p_ptr->food + food_val);
 	}
-
+	else if (p_ptr->pclass == CLASS_CHIYARI)
+	{
+		msg_print("あなたは血を飲まないと腹を満たせない。");
+		set_food(p_ptr->food + ((food_val) / 10));
+	}
 	else if(p_ptr->pclass == CLASS_KOGASA || p_ptr->pclass == CLASS_DOREMY || p_ptr->pclass == CLASS_HINA)
 	{
 		msg_print("こんな物では全然腹が膨れない。");

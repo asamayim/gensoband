@@ -14,6 +14,322 @@ static bool use_itemcard = FALSE;
 */
 
 
+
+
+
+//v2.0.13 ちやり
+//magic_num1[0]に採血によるMPストックを記録
+class_power_type class_power_chiyari[] =
+{
+
+	{ 1,0,25,FALSE,FALSE,A_DEX,0,0,"採血",
+	"隣接する生物・アンデッド・デーモンのモンスター一体から血を奪ってダメージを与える。実体のないモンスターには効果がない。高レベルの敵ほど多くの血を奪える。足元が「石油」地形の場合はそこから血液を得る。" },
+
+	{ 1,0,0,FALSE,FALSE,A_DEX,0,0,"血を飲む",
+	"特技「採血」で奪った血を飲み、HPとMPと満腹度を回復する。" },
+
+	{ 12,12,30,FALSE,TRUE,A_CHR,0,2,"鬼火",
+	"火炎属性のボールで攻撃する。切り傷の深さに応じて威力が上昇する。" },
+
+	{ 20,10,0,TRUE,FALSE,A_STR,0,0,"自傷",
+	"自分自身に切り傷をつける。繰り返すと傷が悪化する。切り傷の深さに応じて特技や魔法の威力(レベル判定値)が上昇するが毎ターンごとにダメージを受ける。" },
+
+	{ 27,27,40,TRUE,FALSE,A_DEX,0,10,"汚染のボルト",
+	"汚染属性のボルトを放つ。切り傷の深さに応じて威力が上昇する。" },
+
+	{ 33,45,65,FALSE,TRUE,A_STR,0,0,"移送の罠",
+	"隣接するモンスター一体を高確率で現在のフロアから追放する。" },
+
+	{ 40,40,75,FALSE,TRUE,A_CHR,0,0,"凶暴な鬼火",
+	"プラズマ属性の強力なボールで攻撃する。切り傷の深さに応じて威力が上昇する。" },
+
+	{ 46,90,80,FALSE,TRUE,A_CHR,0,0,"カースドデビル",
+	"自分の周囲に強力な地獄の業火属性と血の呪い属性の攻撃を行う。切り傷の深さに応じて威力が上昇する。種族が悪魔や魔王になっているとさらに上昇する。" },
+
+	{ 99,0,0,FALSE,FALSE,0,0,0,"dummy","" },
+};
+
+cptr do_cmd_class_power_aux_chiyari(int num, bool only_info)
+{
+	int dir, i;
+	int plev = calc_spell_caster_level(FALSE);//プレイヤーレベル+切り傷によるブーストを適用　性格狂気によるブーストは適用しない
+	int chr_adj = adj_general[p_ptr->stat_ind[A_CHR]];
+
+	int max_blood_stock = 100 + p_ptr->lev * 6;
+	int cur_blood_stock = p_ptr->magic_num1[0];
+
+	switch (num)
+	{
+
+	case 0://採血
+	{
+		int y, x;
+		monster_type *m_ptr;
+		monster_race *r_ptr;
+
+		if (only_info) return format("現在:%d/%d", cur_blood_stock, max_blood_stock);
+
+		if (cur_blood_stock == max_blood_stock)
+		{
+			msg_print("もう血が一杯だ。");
+			return NULL;
+		}
+
+		if (cave_have_flag_bold(py, px, FF_OIL_FIELD))
+		{
+			int gain = MAX(20,dun_level);
+			msg_print("足元に溜まった古代の血液を補給した。");
+			cur_blood_stock += gain;
+			if (cur_blood_stock > max_blood_stock) cur_blood_stock = max_blood_stock;
+			p_ptr->magic_num1[0] = cur_blood_stock;
+
+			break;
+		}
+
+		if (!get_rep_dir2(&dir)) return NULL;
+		if (dir == 5) return NULL;
+
+		y = py + ddy[dir];
+		x = px + ddx[dir];
+		m_ptr = &m_list[cave[y][x].m_idx];
+
+
+		if (cave[y][x].m_idx && (m_ptr->ml))
+		{
+			char m_name[80];
+			monster_desc(m_name, m_ptr, 0);
+			r_ptr = &r_info[m_ptr->r_idx];
+
+			if (r_ptr->flags2 & RF2_PASS_WALL)
+			{
+				msg_format("注射針が%sの体をすり抜けた！", m_name);
+			}
+			else if (r_ptr->flags3 & (RF3_DEMON | RF3_UNDEAD) || monster_living(r_ptr))
+			{
+				int gain;
+				msg_format("%sに注射針を突き刺した！", m_name);
+
+				gain = MAX(r_ptr->level,10) + randint1(r_ptr->level);
+				if (r_ptr->flags1 & RF1_UNIQUE || r_ptr->flags7 & RF7_UNIQUE2) gain *= 2;
+				gain += plev / 2 + randint1(plev / 2);
+
+				project(0, 0, m_ptr->fy, m_ptr->fx, randint1(MAX(10,plev)), GF_ARROW, PROJECT_KILL | PROJECT_JUMP, -1);
+				msg_format("血液を採取した。", m_name);
+
+				cur_blood_stock += gain;
+				if (cur_blood_stock > max_blood_stock)cur_blood_stock = max_blood_stock;
+
+				p_ptr->magic_num1[0] = cur_blood_stock;
+
+			}
+			else
+			{
+				msg_format("%sに注射針を突き刺した...が血を奪えなかった。", m_name);
+				project(0, 0, m_ptr->fy, m_ptr->fx, randint1(MAX(5, plev)), GF_ARROW, PROJECT_KILL | PROJECT_JUMP, -1);
+
+			}
+			anger_monster(m_ptr);
+		}
+		else
+		{
+			msg_format("そこには何もいない。");
+			return NULL;
+		}
+
+		break;
+	}
+	case 1://血を飲む
+	{
+		int heal_hp = cur_blood_stock;
+		int gain_mana = cur_blood_stock/2;
+
+
+		if (only_info) return format("回復:%dHP/%dMP", heal_hp, gain_mana);
+
+		if (!cur_blood_stock)
+		{
+			msg_print("血の備蓄が空っぽだ。");
+			return NULL;
+		}
+
+		msg_print("集めた血を飲み干した。");
+		hp_player(heal_hp);
+		player_gain_mana(gain_mana);
+		if (p_ptr->food < PY_FOOD_MAX - 1)
+		{
+			int food = MAX(1000, cur_blood_stock * 100);
+			if (p_ptr->food + food >= PY_FOOD_MAX) food = PY_FOOD_MAX - 1 - p_ptr->food;
+			set_food(p_ptr->food + food);
+		}
+		p_ptr->magic_num1[0] = 0;
+		break;
+	}
+
+
+
+
+	case 2://鬼火
+	{
+		int base = 20 + plev * 2 + chr_adj;
+
+		if (only_info) return format("損傷:%d+1d%d", base, base);
+
+		if (!get_aim_dir(&dir)) return NULL;
+		if (!fire_ball_jump(GF_FIRE, dir, base+randint1(base), 1, "鬼火を放った。")) return NULL;
+
+		break;
+	}
+	case 3://自傷
+	{
+		int add_cut = plev;
+
+		if (only_info) return format("");
+
+
+		if (p_ptr->cut < CUT_2)
+		{
+			msg_print("指先から血が滲んだ。");
+			set_cut(p_ptr->cut + CUT_2 + 10);
+		}
+		else if (p_ptr->cut < CUT_4)
+		{
+			if (p_ptr->chp < 50 && !get_check_strict("本当にこれ以上自分の体を傷つけますか？", CHECK_OKAY_CANCEL)) return NULL;
+
+			msg_print("掌から血が流れ落ちた。");//大変な傷
+			set_cut(p_ptr->cut + CUT_4);
+
+		}
+		else if (p_ptr->cut < CUT_6)
+		{
+			if (p_ptr->chp < 100 && !get_check_strict("*本当に*これ以上自分の体を傷つけますか？", CHECK_OKAY_CANCEL)) return NULL;
+
+			msg_print("手首から血が迸った！");//重傷
+			set_cut(p_ptr->cut + CUT_6);
+
+		}
+		else
+		{
+			if (p_ptr->chp < 300 && !get_check_strict("***本当に***これ以上自分の体を傷つけますか？", CHECK_OKAY_CANCEL)) return NULL;
+			msg_print("全身から血が噴き出した！");//深刻な大怪我
+			set_cut(p_ptr->cut + CUT_7);
+		}
+
+
+	}
+	break;
+
+	case 4: //注射器投げ
+	{
+
+		int	dam = plev * 3 + chr_adj * 3;
+
+		if (use_itemcard) dam = 200;
+
+		if (only_info) return format("損傷:%d", dam);
+
+		if (!get_aim_dir(&dir)) return NULL;
+		msg_format("血を詰めた注射器を飛ばした。");
+		fire_bolt(GF_POLLUTE, dir, dam);
+
+	}
+	break;
+
+	case 5://移送の罠 
+	{
+
+		int y, x;
+		monster_type *m_ptr;
+
+		int power = plev + chr_adj * 5;
+
+		if (only_info) return format("効力:%d", power);
+
+
+		if (!get_rep_dir2(&dir)) return FALSE;
+		if (dir == 5) return FALSE;
+		y = py + ddy[dir];
+		x = px + ddx[dir];
+		m_ptr = &m_list[cave[y][x].m_idx];
+
+		if (cave[y][x].m_idx && (m_ptr->ml))
+		{
+			char m_name[120];
+
+			if (is_friendly(m_ptr)) power *= 2;
+
+			monster_desc(m_name, m_ptr, 0);
+
+			msg_format("あなたは%sを騙して移送の罠にかけようとした...", m_name);
+
+			if (check_transportation_trap(m_ptr, power))
+			{
+				msg_format("%sはこのフロアから消えた。", m_name);
+
+				delete_monster_idx(cave[y][x].m_idx);
+
+				break;
+			}
+
+			msg_print("失敗！");
+
+			if (is_friendly(m_ptr))
+			{
+				msg_format("%sは怒った！", m_name);
+				set_hostile(m_ptr);
+			}
+
+		}
+		else
+		{
+			msg_format("そこには何もいない。");
+			return NULL;
+		}
+	}
+	break;
+
+
+	case 6://凶暴な鬼火
+		{
+			int base = plev * 4 + chr_adj * 5;
+
+			if (only_info) return format("損傷:%d+1d%d", base, base);
+
+			if (!get_aim_dir(&dir)) return NULL;
+			if (!fire_ball_jump(GF_PLASMA, dir, base+randint1(base), 3, "巨大な鬼火が荒れ狂った！")) return NULL;
+
+			break;
+		}
+
+	case 7: //カースドデビル
+	{
+		int base = plev * 8 + chr_adj * 8;
+
+		if (p_ptr->mimic_form == MIMIC_DEMON_LORD) base += base / 3;
+		else if (p_ptr->mimic_form == MIMIC_DEMON) base += base / 5;
+
+
+		if (only_info) return format("損傷:～%d * 2", base / 2);
+
+		msg_format("呪われた血を撒き散らした！");
+		project(0, 6, py, px, base, GF_HELL_FIRE, (PROJECT_GRID | PROJECT_KILL), -1);
+		project(0, 6, py, px, base, GF_BLOOD_CURSE, (PROJECT_GRID | PROJECT_HIDE | PROJECT_KILL), -1);
+
+	}
+	break;
+
+	default:
+		if (only_info) return format("未実装");
+		msg_format("ERROR:実装していない特技が呼ばれた num:%d", num);
+		return NULL;
+	}
+	return "";
+}
+
+
+
+
+
+
 //v2.0.12 慧ノ子
 class_power_type class_power_enoko[] =
 {
@@ -35602,6 +35918,11 @@ void do_cmd_new_class_power(bool only_browse)
 		power_desc = "特技";
 		break;
 
+	case CLASS_CHIYARI:
+		class_power_table = class_power_chiyari;
+		class_power_aux = do_cmd_class_power_aux_chiyari;
+		power_desc = "特技";
+		break;
 
 	default:
 		msg_print("あなたは職業による特技を持っていない。");
@@ -36931,10 +37252,13 @@ const support_item_type support_item_list[] =
 		"緊箍児","それは大量の猿を召喚する。" },
 
 	//v2.0.12 慧ノ子　トラップ設置(トラバサミのみ)
-		{ 80,10,50,5,5,	MON_ENOKO,class_power_enoko,do_cmd_class_power_aux_enoko,1,
+		{ 80,10,50,5,4,	MON_ENOKO,class_power_enoko,do_cmd_class_power_aux_enoko,1,
 		"トラバサミ","地面にトラバサミを仕掛ける。モンスターがかかると短時間移動禁止状態になる。" },
 
-		
+	//v2.0.14 ちやり　汚染ボルト
+		{100,25,75,5,5,	MON_CHIYARI,class_power_chiyari,do_cmd_class_power_aux_chiyari,4,
+		"汚染された血液","それは汚染属性のボルトで敵を攻撃する。" },
+
 
 	{0,0,0,0,0,0,NULL,NULL,0,"終端ダミー",""},
 };

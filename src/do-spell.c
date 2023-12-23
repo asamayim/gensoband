@@ -5,6 +5,45 @@
 #include "angband.h"
 
 
+
+//v2.0.14 魔法の威力計算などに使うプレイヤーレベル値が特定条件で増加する処理を独立させた
+//apply_berserker:性格狂気のブーストを適用するかどうか　ちやり特技のときは適用しない
+int calc_spell_caster_level(bool apply_berserker)
+{
+
+	//基本はプレイヤーのレベル
+	int spell_level = p_ptr->lev;
+
+	//八橋「エコーチェンバー」使用時に魔法レベルを1.5倍に強化
+	if (p_ptr->pclass == CLASS_YATSUHASHI && music_singing(MUSIC_NEW_TSUKUMO_ECHO)) spell_level = spell_level * 3 / 2;
+
+	//ちやりは切り傷の度合いに応じて魔法レベル強化
+	if (p_ptr->pclass == CLASS_CHIYARI && p_ptr->cut)
+	{
+		int mod = 100;
+
+		if (p_ptr->cut > CUT_7)		mod = 250;//基本ダメージ200/turn
+		else if (p_ptr->cut > CUT_6)	mod = 180;//80
+		else if (p_ptr->cut > CUT_5)	mod = 160;//32
+		else if (p_ptr->cut > CUT_4)	mod = 140;//16
+		else if (p_ptr->cut > CUT_3)	mod = 125;//7
+		else if (p_ptr->cut > CUT_2)	mod = 115;//3
+		else if (p_ptr->cut > CUT_1)	mod = 110;//1
+
+		spell_level = spell_level * mod / 100;
+
+	}
+
+	//性格「狂気」のとき魔法レベル強化
+	if (apply_berserker && p_ptr->pseikaku == SEIKAKU_BERSERK) spell_level *= 2;
+
+	//上限は通常レベルの3倍にしておく
+	if (spell_level > 150) spell_level = 150;
+
+	return spell_level;
+
+}
+
 /*
  * Generate dice info string such as "foo 2d10"
  */
@@ -1556,14 +1595,13 @@ bool select_pay(int *cost)
  *::: */
 static bool new_summoning(int num, int y, int x, int lev, int type, u32b mode)
 {
-	int plev = p_ptr->lev;
 
 	int who;
 	int i;
 	bool success = FALSE;
 
-	if (p_ptr->pclass == CLASS_YATSUHASHI && music_singing(MUSIC_NEW_TSUKUMO_ECHO)) plev *= 2;
-	if(p_ptr->pseikaku == SEIKAKU_BERSERK) plev *= 2;
+	int plev = calc_spell_caster_level(TRUE);//v2.0.14 魔法レベル計算式独立
+
 
 	/* Default level */
 	if (!lev) lev = plev * 2 / 3 + randint1(plev / 2);
@@ -13731,10 +13769,7 @@ static cptr do_new_spell_element(int spell, int mode)
 #endif
 
 	int dir;
-	int plev = p_ptr->lev;
-
-	if (p_ptr->pclass == CLASS_YATSUHASHI && music_singing(MUSIC_NEW_TSUKUMO_ECHO)) plev = plev * 3 / 2;
-	if(p_ptr->pseikaku == SEIKAKU_BERSERK) plev *= 2;
+	int plev = calc_spell_caster_level(TRUE);//v2.0.14 魔法レベル計算式独立
 
 	switch (spell)
 	{
@@ -13947,6 +13982,7 @@ static cptr do_new_spell_element(int spell, int mode)
 
 			if(cp_ptr->magicmaster) count += plev / 20;
 			if(count<1) count = 1; //paranoia
+			if (count > 16) count = 16;
 
 			if (info) return info_multi_damage_dice(dice, sides);
 
@@ -14565,10 +14601,7 @@ static cptr do_new_spell_chaos(int spell, int mode)
 #endif
 
 	int dir;
-	int plev = p_ptr->lev;
-
-	if (p_ptr->pclass == CLASS_YATSUHASHI && music_singing(MUSIC_NEW_TSUKUMO_ECHO)) plev = plev * 3 / 2;
-	if(p_ptr->pseikaku == SEIKAKU_BERSERK) plev *= 2;
+	int plev = calc_spell_caster_level(TRUE);//v2.0.14 魔法レベル計算式独立
 
 
 	switch (spell)
@@ -15598,11 +15631,9 @@ static cptr do_new_spell_foresee(int spell, int mode)
 
 	int dir;
 	int rad= DETECT_RAD_DEFAULT;
-	int plev = p_ptr->lev;
 	int damage;
 
-	if (p_ptr->pclass == CLASS_YATSUHASHI && music_singing(MUSIC_NEW_TSUKUMO_ECHO)) plev = plev * 3 / 2;
-	if(p_ptr->pseikaku == SEIKAKU_BERSERK) plev *= 2;
+	int plev = calc_spell_caster_level(TRUE);//v2.0.14 魔法レベル計算式独立
 
 	switch (spell)
 	{
@@ -16273,11 +16304,9 @@ static cptr do_new_spell_enchant(int spell, int mode)
 	bool cast = (mode == SPELL_CAST) ? TRUE : FALSE;
 
 	int dir;
-	int plev = p_ptr->lev;
 	int dice,sides,base,damage;
 
-	if (p_ptr->pclass == CLASS_YATSUHASHI && music_singing(MUSIC_NEW_TSUKUMO_ECHO)) plev = plev * 3 / 2;
-	if(p_ptr->pseikaku == SEIKAKU_BERSERK) plev *= 2;
+	int plev = calc_spell_caster_level(TRUE);//v2.0.14 魔法レベル計算式独立
 
 	switch (spell)
 	{
@@ -17029,6 +17058,8 @@ static cptr do_new_spell_enchant(int spell, int mode)
 			int dice = plev;
 			int sides = 50;
 
+			if (dice > 100) dice = 100;
+
 			if (info) return info_damage(dice, sides, 0);
 
 			if (cast)
@@ -17176,9 +17207,7 @@ static cptr do_new_spell_nature(int spell, int mode)
 #endif
 
 	int dir;
-	int plev = p_ptr->lev;
-	if (p_ptr->pclass == CLASS_YATSUHASHI && music_singing(MUSIC_NEW_TSUKUMO_ECHO)) plev = plev * 3 / 2;
-	if(p_ptr->pseikaku == SEIKAKU_BERSERK) plev *= 2;
+	int plev = calc_spell_caster_level(TRUE);//v2.0.14 魔法レベル計算式独立
 
 	switch (spell)
 	{
@@ -18025,9 +18054,7 @@ static cptr do_new_spell_necromancy(int spell, int mode)
 #endif
 
 	int dir;
-	int plev = p_ptr->lev;
-	if (p_ptr->pclass == CLASS_YATSUHASHI && music_singing(MUSIC_NEW_TSUKUMO_ECHO)) plev = plev * 3 / 2;
-	if(p_ptr->pseikaku == SEIKAKU_BERSERK) plev *= 2;
+	int plev = calc_spell_caster_level(TRUE);//v2.0.14 魔法レベル計算式独立
 
 	switch (spell)
 	{
@@ -18925,10 +18952,7 @@ static cptr do_new_spell_life(int spell, int mode)
 	bool cast = (mode == SPELL_CAST) ? TRUE : FALSE;
 
 	int dir;
-	int plev = p_ptr->lev;
-
-	if (p_ptr->pclass == CLASS_YATSUHASHI && music_singing(MUSIC_NEW_TSUKUMO_ECHO)) plev = plev * 3 / 2;
-	if(p_ptr->pseikaku == SEIKAKU_BERSERK) plev *= 2;
+	int plev = calc_spell_caster_level(TRUE);//v2.0.14 魔法レベル計算式独立
 
 	switch (spell)
 	{
@@ -19794,10 +19818,8 @@ static cptr do_new_spell_transform(int spell, int mode)
 	bool cast = (mode == SPELL_CAST) ? TRUE : FALSE;
 
 	int dir;
-	int plev = p_ptr->lev;
 	int dice,sides,base,damage;
-	if (p_ptr->pclass == CLASS_YATSUHASHI && music_singing(MUSIC_NEW_TSUKUMO_ECHO)) plev = plev * 3 / 2;
-	if(p_ptr->pseikaku == SEIKAKU_BERSERK) plev *= 2;
+	int plev = calc_spell_caster_level(TRUE);//v2.0.14 魔法レベル計算式独立
 
 	switch (spell)
 	{
@@ -19887,6 +19909,8 @@ static cptr do_new_spell_transform(int spell, int mode)
     
 		{
 			int mult = 2 + plev / 15;
+
+			if (mult > 10)mult = 10;
 
 			if (info) return format("倍率：%d",mult);
 
@@ -20867,10 +20891,7 @@ static cptr do_new_spell_darkness(int spell, int mode)
 #endif
 
 	int dir;
-	int plev = p_ptr->lev;
-
-	if (p_ptr->pclass == CLASS_YATSUHASHI && music_singing(MUSIC_NEW_TSUKUMO_ECHO)) plev = plev * 3 / 2;
-	if(p_ptr->pseikaku == SEIKAKU_BERSERK) plev *= 2;
+	int plev = calc_spell_caster_level(TRUE);//v2.0.14 魔法レベル計算式独立
 
 	switch (spell)
 	{
@@ -21864,9 +21885,7 @@ static cptr do_new_spell_summon(int spell, int mode)
 #endif
 
 	int dir;
-	int plev = p_ptr->lev;
-	if (p_ptr->pclass == CLASS_YATSUHASHI && music_singing(MUSIC_NEW_TSUKUMO_ECHO)) plev = plev * 3 / 2;
-	if(p_ptr->pseikaku == SEIKAKU_BERSERK) plev *= 2;
+	int plev = calc_spell_caster_level(TRUE);//v2.0.14 魔法レベル計算式独立
 
 	switch (spell)
 	{
@@ -22904,9 +22923,7 @@ static cptr do_new_spell_mystic(int spell, int mode)
 	bool cast = (mode == SPELL_CAST) ? TRUE : FALSE;
 
 	int dir;
-	int plev = p_ptr->lev;
-	if (p_ptr->pclass == CLASS_YATSUHASHI && music_singing(MUSIC_NEW_TSUKUMO_ECHO)) plev = plev * 3 / 2;
-	if(p_ptr->pseikaku == SEIKAKU_BERSERK) plev *= 2;
+	int plev = calc_spell_caster_level(TRUE);//v2.0.14 魔法レベル計算式独立
 
 	switch (spell)
 	{
@@ -23696,9 +23713,7 @@ static cptr do_new_spell_punish(int spell, int mode)
 	bool cast = (mode == SPELL_CAST) ? TRUE : FALSE;
 
 	int dir;
-	int plev = p_ptr->lev;
-	if (p_ptr->pclass == CLASS_YATSUHASHI && music_singing(MUSIC_NEW_TSUKUMO_ECHO)) plev = plev * 3 / 2;
-	if(p_ptr->pseikaku == SEIKAKU_BERSERK) plev *= 2;
+	int plev = calc_spell_caster_level(TRUE);//v2.0.14 魔法レベル計算式独立
 
 	switch (spell)
 	{
@@ -24515,9 +24530,7 @@ static cptr do_new_spell_occult(int spell, int mode)
 #endif
 
 	int dir;
-	int plev = p_ptr->lev;
-	if (p_ptr->pclass == CLASS_YATSUHASHI && music_singing(MUSIC_NEW_TSUKUMO_ECHO)) plev = plev * 3 / 2;
-	if(p_ptr->pseikaku == SEIKAKU_BERSERK) plev *= 2;
+	int plev = calc_spell_caster_level(TRUE);//v2.0.14 魔法レベル計算式独立
 
 	switch (spell)
 	{

@@ -1055,7 +1055,7 @@ cptr use_ability_card_aux(object_type *o_ptr, bool only_info)
 
 		if (only_info) return format("このカードを発動するとアイテムをひとつ選択して1/3の価値の＄に変えることができる。");
 
-		alchemy(0);
+		if(!alchemy(0)) return NULL;
 	}
 	break;
 
@@ -1064,7 +1064,8 @@ cptr use_ability_card_aux(object_type *o_ptr, bool only_info)
 
 		if (only_info) return format("このカードを発動すると鉱石・宝石系アイテムをひとつ選択して3倍の価値の＄に変えることができる。");
 
-		alchemy(1);
+		if (!alchemy(1)) return NULL;
+
 	}
 	break;
 
@@ -1783,20 +1784,24 @@ bool use_ability_card(object_type *o_ptr)
 	/* Sound */
 	sound(SOUND_ZAP);
 
-
 	//(未鑑定ロッドの判明に相当する処理はない。カードは生成時に常に*鑑定*されているため)
 
-	
-	//msg_format("あなたは『%s』のアビリティカードを発動した！", ac_ptr->card_name);
-	//↑メッセージが冗長なので消す
+	//チャージタイム加算
+	//v2.0.14 打ち出の小槌などアイテムを消費するカードを使ったときにチャージ加算対象アイテムがずれるので効果発動前に加算してキャンセル時に戻すことにする
+	o_ptr->timeout += ac_ptr->charge_turn;
+	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
 
 	//実行部分。ターゲットキャンセルなどしたらNULLが返り行動消費しない
-	if (!use_ability_card_aux(o_ptr, FALSE)) return FALSE;
-
-	//チャージタイム加算
-	o_ptr->timeout += ac_ptr->charge_turn;
+	if (!use_ability_card_aux(o_ptr, FALSE))
+	{
+		//キャンセル時に加算したチャージを戻す
+		o_ptr->timeout -= ac_ptr->charge_turn;
+		p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
+		window_stuff();
+		return FALSE;
+	}
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
+
 
 	return TRUE;
 
