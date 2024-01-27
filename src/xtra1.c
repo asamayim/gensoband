@@ -6465,9 +6465,13 @@ void calc_bonuses(void)
 			p_ptr->dis_to_d[0] += 5;
 			p_ptr->dis_to_d[1] += 5;
 		}
-
-
 		break;
+
+	case CLASS_HISAMI:
+		p_ptr->sustain_chr = TRUE;
+		if (plev > 39) p_ptr->resist_time = TRUE;
+		break;
+
 
 
 	default:

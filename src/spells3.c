@@ -610,7 +610,11 @@ void teleport_player_to(int ny, int nx, u32b mode)
 	//同じ処理をteleport_player_aux()にも記述する
 	if (p_ptr->tim_no_move)
 	{
-		if (mode & TELEPORT_NONMAGICAL)
+		if (mode & TELEPORT_ANYPLACE)
+		{
+			set_no_move(0);
+		}
+		else if (mode & TELEPORT_NONMAGICAL)
 		{
 			msg_print("あなたはその場から動けない！");
 			return;
@@ -633,7 +637,14 @@ void teleport_player_to(int ny, int nx, u32b mode)
 			if (in_bounds(y, x)) break;
 		}
 
-		if(mode & TELEPORT_ANYPLACE && (!cave[y][x].m_idx || (cave[y][x].m_idx == p_ptr->riding))) break;
+		//v2.0.15 TELEPORT_ANYPLACEの条件整理
+		//騎乗中以外のモンスターがおらず、侵入不可能な永久地形でなければどこにでも行ける
+		if (mode & TELEPORT_ANYPLACE)
+		{
+			if((!cave[y][x].m_idx || (cave[y][x].m_idx == p_ptr->riding))
+				&& (!cave_have_flag_bold(y,x,FF_PERMANENT) || cave_have_flag_bold(y, x, FF_MOVE))) 
+				break;
+		}
 		/* Accept any grid when wizard mode */
 		if (p_ptr->wizard && !(mode & TELEPORT_PASSIVE) && (!cave[y][x].m_idx || (cave[y][x].m_idx == p_ptr->riding))) break;
 

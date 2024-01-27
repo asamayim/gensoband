@@ -1062,7 +1062,8 @@ bool do_cmd_eat_food_aux(int item)
 
 		}
 
-		if (p_ptr->pclass == CLASS_YUYUKO && yuyuko_get_mana > 0)
+		//v2.0.15 日狭美も菓子でMP回復するようにする
+		if ((p_ptr->pclass == CLASS_YUYUKO || p_ptr->pclass == CLASS_HISAMI) && yuyuko_get_mana > 0)
 		{
 			msg_print("あなたは甘味を堪能して上機嫌だ。");
 			player_gain_mana(yuyuko_get_mana);
