@@ -777,7 +777,7 @@ N:73:ç|ìSÇÃñÓ
 E:& Steel Arrow~
 G:{:s
 I:21:1:0
-W:10:0:4:1
+W:10:0:4:5
 A:20/4:40/2:60/2
 P:0:3d4:0:0:0
 F:SHOW_MODS | IGNORE_FIRE 
@@ -8037,7 +8037,7 @@ N:792:êj
 E:& Needle~
 G:|:W
 I:36:2:0
-W:0:0:1:7
+W:0:0:1:3
 A:2/1:40/1:60/1
 P:0:1d5:0:0:0
 F:SHOW_MODS | THROW | IGNORE_FIRE

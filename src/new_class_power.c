@@ -30,7 +30,7 @@ class_power_type class_power_hisami[] =
 	"視界内の自分よりレベルの高いモンスター一体を指定し、そのモンスターを常に感知し続ける。一度対象を定めたらそのモンスターがフロアにいる限り対象を変更できない。ストーキング中のモンスターにさらに使うとそのモンスターの情報を調査する。" },
 
 	{ 27,0,50,FALSE,FALSE,A_CHR,0,0,"キャッチ",
-	"隣接するアンデッド一体をフロアから追放する。追放した敵のレベルに応じた金が手に入るが、プレイヤーの魅力・モンスターとのレベル差・モンスターの残り体力によっては減額されたりマイナスになることがある。クエストダンジョンでは使えない。配下とユニークモンスターには効果がない。" },
+	"隣接するアンデッド一体をフロアから追放する。追放した敵のレベルに応じてMPが回復するが、プレイヤーの魅力・モンスターとのレベル差・モンスターの残り体力によっては量が減ったり交渉失敗することがある。クエストダンジョンでは使えない。配下とユニークモンスターには効果がない。" },
 
 	{ 35,40,70,FALSE,FALSE,A_DEX,0,0,"ストーキングⅡ",
 	"ストーキング中のモンスターの近くにテレポートする。テレポート無効地形や反テレポートバリアなどを無視するが、その場合プレイヤーは1d100のダメージを受ける。" },
@@ -224,9 +224,10 @@ cptr do_cmd_class_power_aux_hisami(int num, bool only_info)
 		x = px + ddx[dir];
 		m_ptr = &m_list[cave[y][x].m_idx];
 
+		//v2.0.16 外來韋編によるとボーナスは金じゃないらしいのでMPに変える
 		if (cave[y][x].m_idx && (m_ptr->ml))
 		{
-			int gain_money;
+			int gain_mana;
 			int bonus_line;
 			int mult;
 
@@ -259,40 +260,46 @@ cptr do_cmd_class_power_aux_hisami(int num, bool only_info)
 			}
 
 			//基本報酬
-			gain_money = r_ptr->level * r_ptr->level * r_ptr->level / 4;
-			if (gain_money < 100) gain_money = 100;
+			gain_mana = r_ptr->level * r_ptr->level / 10;
+			if (gain_mana < 10) gain_mana = 10;
 			//増殖するモンスターは大幅に減らす
-			if (r_ptr->flags2 & RF2_MULTIPLY) gain_money /= 10;
+			if (r_ptr->flags2 & RF2_MULTIPLY) gain_mana /= 10;
 
 			//報酬が満額出る敵HP(%) 基本25%からレベル差と魅力補正値で変動し最低10%
 			bonus_line = 25 - r_ptr->level + p_ptr->lev + chr_adj;
 			if (bonus_line < 10) bonus_line = 10;
 
-			//敵の現在HPが満額ラインから1%高くなるごとに報酬が2%減っていく。マイナスになることもある
+			//敵の現在HPが満額ラインから1%高くなるごとに報酬が2%減っていく
 			//lev50chr40でlev55HP100%の敵にプラマイゼロ
 			//lev50chr50でlev75まで行ける
 			mult = 100 - (m_ptr->hp * 100 / m_ptr->max_maxhp - bonus_line) * 2;
 			if (mult > 100) mult = 100;
 
-			//multが0以下なら続けるか確認する
-			if (mult<0 && !get_check_strict("交渉の旗色が悪い。続けますか？", CHECK_DEFAULT_Y)) return "";
+			//multが0以下なら続けるか確認する→交渉失敗
+			//if (mult<0 && !get_check_strict("交渉の旗色が悪い。続けますか？", CHECK_DEFAULT_Y)) return "";
+			if (mult <= 0)
+			{
+				msg_format("条件が折り合わない。%sとの交渉に失敗した。", m_name);
+				break;
+			}
 
 			msg_format("あなたは%sを地獄へご案内した！", m_name);
 
-			if (mult > 50) msg_print("ボーナスが出た！");
-			else if (mult >= 0) msg_print("しかしボーナスの大部分を分け前として渡すことになった。");
-			else msg_print("ボーナスを全て渡しても足りず自腹を切る羽目になった...");
+			if (mult > 50) 
+				msg_print("ボーナスが出た！");
+			else
+				msg_print("しかしボーナスの大部分を分け前として渡すことになった。");
 
 			//モンスター消滅
 			check_quest_completion(m_ptr);
 			delete_monster_idx(cave[y][x].m_idx);
 
-			if (mult >= 0) msg_format("$%dを受け取った。",gain_money * mult / 100);
-			else msg_format("$%dを失った。", gain_money * mult / 100 * -1);
+			gain_mana = gain_mana * mult / 100;
+			if (gain_mana < 1) gain_mana = 1;
 
-			p_ptr->au += gain_money * mult / 100;
-			if (p_ptr->au < 0) p_ptr->au = 0; //借金にはならないようにしとく。別にやってもゲーム上問題はないんだが
-			p_ptr->redraw |= PR_GOLD;
+			msg_format("%dの魔力を得た。", gain_mana);
+
+			player_gain_mana(gain_mana);
 
 		}
 		else
@@ -9486,10 +9493,10 @@ class_power_type class_power_nemuno[] =
 		"食料を調達する。"},
 
 	{15,30,30,TRUE,FALSE,A_CHR,0,20,"聖域作成Ⅰ",
-		"誰もいない部屋を「縄張り」にする。縄張りの中では能力が大幅に上昇し、恐怖耐性、麻痺耐性、急回復を得る。また縄張りに入ってきたモンスターを常に感知する。縄張りから離れている間に他のモンスターが縄張りに入ると縄張りを奪われることがある。"},
+		"誰もいない部屋を「聖域」にする。聖域の中では能力が大幅に上昇し、恐怖耐性、麻痺耐性、急回復を得る。また聖域に入ってきたモンスターを常に感知する。聖域から離れている間に他のモンスターが聖域に入るとそこが聖域でなくなることがある。"},
 
 	{20,30,40,FALSE,TRUE,A_WIS,0,0,"囚われの秋雨",
-		"縄張りの中全てに低威力の遅鈍属性攻撃を行う。" },
+		"聖域の中全てに低威力の遅鈍属性攻撃を行う。" },
 
 	{25,25,50,FALSE,FALSE,A_STR,0,0,"山姥の包丁研ぎ",
 		"装備中の武器に一時的に「切れ味」を付加する。すでに切れ味のある武器は「*切れ味*」になる。刃のある武器を装備していないと使えない。装備を変更すると効果が消える。"},
@@ -9501,13 +9508,13 @@ class_power_type class_power_nemuno[] =
 	"隣接したモンスター一体に通常の倍の回数の攻撃を行う。ただし攻撃後に武器が劣化する。刃のある武器を装備していないと使用できない。" },
 
 	{37,47,70,FALSE,TRUE,A_WIS,0,10,"呪われた柴榑雨",
-		"縄張りの中全てに強力な水属性攻撃を行う。" },
+		"聖域の中全てに強力な水属性攻撃を行う。" },
 
 	{40,30,70,FALSE,TRUE,A_INT,0,0,"窮僻の山姥",
-		"縄張りの中で敵が使う召喚魔法を高確率で阻害する。縄張りから出るか縄張りが効力を失うと効果が切れる。" },
+		"聖域の中で敵が使う召喚魔法を高確率で阻害する。聖域から出るか聖域が効力を失うと効果が切れる。" },
 
 	{43,60,80,FALSE,FALSE,A_STR,0,0,"マウンテンマーダー",
-		"周囲の広範囲のモンスターに対して無差別攻撃を行う。対象との距離によって攻撃回数が増減する。縄張り内にいるとき攻撃回数がさらに増える。この攻撃ではオーラダメージを受けない。"},
+		"周囲の広範囲のモンスターに対して無差別攻撃を行う。対象との距離によって攻撃回数が増減する。聖域内にいるとき攻撃回数がさらに増える。この攻撃ではオーラダメージを受けない。"},
 
 	{99,0,0,FALSE,FALSE,0,0,0,"dummy",""},
 };
@@ -9537,12 +9544,12 @@ cptr do_cmd_class_power_aux_nemuno(int num, bool only_info)
 
 			if (IS_NEMUNO_IN_SANCTUARY)
 			{
-				msg_print("ここはすでにあなたの縄張りだ。");
+				msg_print("ここはすでに聖域だ。");
 				return NULL;
 			}
 			if (!(cave[py][px].info & CAVE_ROOM))
 			{
-				msg_print("部屋でない場所を縄張りにすることはできない。");
+				msg_print("部屋でない場所を聖域にすることはできない。");
 				return NULL;
 			}
 			make_nemuno_sanctuary();
@@ -9646,7 +9653,7 @@ cptr do_cmd_class_power_aux_nemuno(int num, bool only_info)
 
 		if (!IS_NEMUNO_IN_SANCTUARY)
 		{
-			msg_print("縄張りの中でないと使えない。");
+			msg_print("聖域の中でないと使えない。");
 			return NULL;
 		}
 
@@ -35350,7 +35357,7 @@ bool check_class_skill_usable(char *errmsg,int skillnum, class_power_type *class
 	{
 		if (!IS_NEMUNO_IN_SANCTUARY && (skillnum == 2 || skillnum == 6 || skillnum == 7))
 		{
-			my_strcpy(errmsg, "この特技は縄張りの中にいないと使えない。", 150);
+			my_strcpy(errmsg, "この特技は聖域の中にいないと使えない。", 150);
 			return FALSE;
 		}
 	}

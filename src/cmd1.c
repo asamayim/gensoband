@@ -8242,10 +8242,10 @@ bool move_player_effect(int ny, int nx, u32b mpe_mode)
 		if((c_ptr->cave_xtra_flag & CAVE_XTRA_FLAG_NEMUNO) != (oc_ptr->cave_xtra_flag & CAVE_XTRA_FLAG_NEMUNO))
 		{
 			if(c_ptr->cave_xtra_flag & CAVE_XTRA_FLAG_NEMUNO)
-				msg_print("‚ ‚È‚½‚Í“ê’£‚è‚É–ß‚Á‚½B");
+				msg_print("‚ ‚È‚½‚Í¹ˆæ‚É“ü‚Á‚½B");
 			else
 			{
-				msg_print("‚ ‚È‚½‚Í“ê’£‚è‚©‚ço‚½B");
+				msg_print("‚ ‚È‚½‚Í¹ˆæ‚©‚ço‚½B");
 				//v1.1.54 ƒlƒ€ƒm¢Š«‘jŠQ“Á‹Z‚Ì‰ðœ
 				p_ptr->special_defense &= ~(SD_UNIQUE_CLASS_POWER);
 				p_ptr->redraw |= (PR_STATUS);

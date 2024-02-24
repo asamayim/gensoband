@@ -11358,6 +11358,7 @@ static bool make_nemuno_sanctuary_aux2(byte y, byte x)
 }
 
 //v1.1.35 ネムノが縄張りを作る。lite_room()を参考にした。
+//v2.0.16 「縄張り」を「聖域」に変えた。外來韋編での記述より。
 void make_nemuno_sanctuary(void)
 {
 	bool flag_success = TRUE;
@@ -11373,7 +11374,7 @@ void make_nemuno_sanctuary(void)
 
 	if(!(cave[py][px].info & CAVE_ROOM))
 	{
-		msg_print("部屋でない場所を縄張りにすることはできない。");
+		msg_print("部屋でない場所を聖域にすることはできない。");
 		return;
 	}
 
@@ -11425,11 +11426,11 @@ void make_nemuno_sanctuary(void)
 
 	if(!flag_success)
 	{
-		msg_print("この部屋には敵対的な気配がする！ここを縄張りにすることはできない。");
+		msg_print("この部屋には敵対的な気配がする！ここを聖域にすることはできない。");
 	}
 	else if(temp_n < 4)
 	{
-		msg_print("ここは狭すぎて縄張りに向かない。");
+		msg_print("ここは狭すぎて聖域にできない。");
 	}
 	else
 	{
@@ -11445,7 +11446,7 @@ void make_nemuno_sanctuary(void)
 			lite_spot(y,x);
 		}
 
-		msg_print("あなたはこの部屋を新たな縄張りにした！");
+		msg_print("あなたはこの部屋を不可侵の聖域に定めた！");
 		p_ptr->update |= (PU_BONUS | PU_HP);
 
 	}
@@ -11491,11 +11492,11 @@ void erase_nemuno_sanctuary(bool force,bool redraw)
 	{
 		if(force)
 		{
-			msg_print("縄張りを奪われてしまった！");
+			msg_print("聖域を奪われてしまった！");
 		}
 		else
 		{
-			msg_print("あなたは古い縄張りを放棄した。");
+			msg_print("あなたは古い聖域を放棄した。");
 		}
 	}
 	//v1.1.54 ネムノ召喚阻害特技の解除
