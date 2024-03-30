@@ -331,6 +331,7 @@ void reset_tim_flags(void)
 void dispel_player(void)
 {
 	int i;
+
 	(void)set_fast(0, TRUE);
 	(void)set_lightspeed(0, TRUE);
 	(void)set_slow(0, TRUE);
@@ -8781,7 +8782,10 @@ bool set_tim_general(int v, bool do_dec, int ind, int num)
 			else if (p_ptr->pclass == CLASS_MIYOI)
 			{
 				msg_format("あなたはそっとその場から去ろうと試みた...");
-
+			}
+			else if (p_ptr->pclass == CLASS_ZANMU)
+			{
+				msg_format("あなたは無いはずのものに対し不思議な力を行使した。");
 			}
 			else
 			{
@@ -8956,6 +8960,10 @@ bool set_tim_general(int v, bool do_dec, int ind, int num)
 			else if (p_ptr->pclass == CLASS_MIYOI)
 			{
 				msg_format("あなたは普段の動きに戻った。");
+			}
+			else if (p_ptr->pclass == CLASS_ZANMU)
+			{
+				msg_format("力の影響が止まった。");
 			}
 			else
 			{

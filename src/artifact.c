@@ -4201,7 +4201,12 @@ bool activate_random_artifact(object_type *o_ptr, int item)
 		case ACT_RESIST_ALL:
 		{
 #ifdef JP
-			msg_print("様々な色に輝いている...");
+
+			if (o_ptr->name1 == ART_IKKYU)
+				msg_print("全てを受け入れる境地に至った気がする...");
+			else
+				msg_print("様々な色に輝いている...");
+
 #else
 			msg_print("It glows many colours...");
 #endif

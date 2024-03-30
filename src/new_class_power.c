@@ -15,6 +15,303 @@ static bool use_itemcard = FALSE;
 
 
 
+// v2.0.17 残無専用技
+class_power_type class_power_zanmu[] =
+{
+
+	{ 5,10,25,FALSE,FALSE,A_INT,0,0,"周辺調査",
+	"周囲のモンスターとトラップを感知する。さらにレベル20でアイテム、レベル30で地形を感知する。" },
+
+	{ 10,0,0,FALSE,FALSE,A_WIS,0,0,"精神統一",
+	"精神を集中して魔力を回復する。" },
+
+	{ 15,25,35,FALSE,TRUE,A_INT,0,0,"虚無操作Ⅰ",
+	"モンスター一体を高確率でフロアから追放する。クエスト打倒対象のモンスターには効果がない。" },
+
+	{ 20,25,40,FALSE,FALSE,A_CHR,0,5,"純霊弾",
+	"分解属性のボールを放つ。" },
+
+	{ 25,50,50,FALSE,FALSE,A_WIS,0,0,"虚無操作Ⅱ",
+	"ダンジョンを「ほぼ」一瞬で作り変える。地上やクエストが進行中のフロアでは効果がない。" },
+
+	{ 30,56,60,FALSE,TRUE,A_CHR,0,12,"無心純霊弾",
+	"周囲のランダムなターゲットに向かって分解属性のボールを連射する。" },
+
+	{ 35,80,70,FALSE,TRUE,A_INT,0,0,"虚無操作Ⅲ",
+	"一時的に「未来予知」「レーダーセンス」を得る。" },
+
+	{ 40,160,80,FALSE,TRUE,A_CHR,0,0,"亡羊のキングダム",
+	"周囲の広範囲のモンスターを友好的にしようと試みる。クエスト打倒対象モンスターと精神を持たないモンスターには効果がない。" },
+
+	{ 45,120,85,FALSE,TRUE,A_CHR,0,0,"虚無操作Ⅳ",
+	"一時的に無属性攻撃に対する耐性を得る。" },
+
+
+	{ 99,0,0,FALSE,FALSE,0,0,0,"dummy","" },
+
+};
+
+cptr do_cmd_class_power_aux_zanmu(int num, bool only_info)
+{
+	int dir, dice, sides, base, damage, i;
+	int plev = p_ptr->lev;
+	int chr_adj = adj_general[p_ptr->stat_ind[A_CHR]];
+
+	switch (num)
+	{
+
+	case 0://周辺調査
+	{
+		int rad = DETECT_RAD_DEFAULT;
+		if (only_info) return format("範囲:%d", rad);
+
+		msg_print("あなたは周囲の情報を推測した。");
+
+		detect_monsters_normal(rad);
+		detect_monsters_invis(rad);
+		detect_traps(rad, TRUE);
+		if (plev > 19)
+		{
+			detect_objects_gold(rad);
+			detect_objects_normal(rad);
+		}
+		if (plev > 29)
+		{
+			map_area(rad);
+		}
+
+		break;
+	}
+
+
+
+	case 1:
+		{
+			if (only_info) return format("");
+
+			msg_print("精神を集中した。");
+			player_gain_mana(plev / 8 + randint1(plev / 8));
+
+		}
+		break;
+
+
+	case 2://移送の罠強化版 
+	{
+
+		int y, x;
+		monster_type *m_ptr;
+
+		int power = 50 + plev * 4 + chr_adj * 5;
+
+		if (only_info) return format("効力:%d", power);
+
+		if (p_ptr->inside_arena || p_ptr->inside_battle || p_ptr->inside_quest && is_fixed_quest_idx(p_ptr->inside_quest) || EXTRA_QUEST_FLOOR)
+		{
+			msg_print("ここでは使えない。");
+			return NULL;
+		}
+
+		if (!get_aim_dir(&dir)) return NULL;
+		if (dir != 5 || !target_okay() || !projectable(target_row, target_col, py, px))
+		{
+			msg_print("視界内のターゲットを明示的に指定しないといけない。");
+			return NULL;
+		}
+		y = target_row;
+		x = target_col;
+
+		m_ptr = &m_list[cave[y][x].m_idx];
+
+		if (cave[y][x].m_idx && (m_ptr->ml))
+		{
+			char m_name[120];
+
+			monster_desc(m_name, m_ptr, 0);
+
+			msg_format("耐え難い虚無感が%sを襲った！", m_name);
+
+			if (check_transportation_trap(m_ptr, power))
+			{
+				msg_format("%sはこのフロアから消えた。", m_name);
+
+				delete_monster_idx(cave[y][x].m_idx);
+
+				break;
+			}
+
+			msg_print("失敗！");
+
+			if (is_friendly(m_ptr))
+			{
+				msg_format("%sは怒った！", m_name);
+				set_hostile(m_ptr);
+			}
+
+		}
+		else
+		{
+			msg_format("そこには何もいない。");
+			return NULL;
+		}
+	}
+	break;
+
+	case 3: //純霊弾
+	{
+		int rad = 2 + plev / 40;
+		int base = plev + chr_adj * 2;
+		int dice = 15 + plev / 2;
+		int sides = 7 + chr_adj / 10;
+
+		if (only_info) return format("半径:%d 損傷:%d+%dd%d", rad, base, dice, sides);
+
+		if (!get_aim_dir(&dir)) return NULL;
+		fire_ball(GF_DISINTEGRATE, dir, base + damroll(dice, sides), rad);
+	}
+	break;
+
+
+	case 4://即時現実変容
+	{
+		if (only_info) return "";
+
+		if (p_ptr->inside_arena || (EXTRA_MODE))
+		{
+			msg_print("今その特技は使えない。");
+			return NULL;
+		}
+
+		msg_print("あなたは今とは違う世界の可能性に思いを馳せた。");
+
+		p_ptr->alter_reality = 1;
+		p_ptr->redraw |= (PR_STATUS);
+
+	}
+	break;
+
+
+	case 5://無心純霊弾　夢想封印と似た計算にする
+	{
+		int rank = 8;
+		int rad = 1 + plev / 40 + rank / 4;
+		bool flag = FALSE;
+		int num = 3 + plev / 15 + rank / 2;
+		int dam = plev + chr_adj;
+
+		if (use_itemcard) rank = 5;
+
+		if (dam < 30) dam = 30;
+
+		if (only_info) return format("損傷:%d * %d", dam, num);
+
+		msg_format("あなたの周りに幾つもの霊光が現れた・・");
+		for (i = 0; i<num; i++)
+		{
+			if (fire_random_target(GF_DISINTEGRATE, dam, 3, rad, 0))flag = TRUE;
+			if (i == 0 && !flag)
+			{
+				msg_format("しかし敵が見当たらなかった。");
+				break;
+			}
+		}
+		break;
+
+	}
+
+	case 6:
+	{
+		int v;
+		base = p_ptr->lev / 2;
+		if (only_info) return format("期間:%d + 1d%d", base, base);
+		v = randint1(base) + base;
+		msg_print("あなたの想像力は現在と未来を紡ぎ出した！");
+
+		set_radar_sense(v, FALSE);
+		set_foresight(v, FALSE);
+
+		break;
+	}
+
+	case 7:
+	{
+		char m_name[80];
+		int range = MAX(10, chr_adj);
+		if (only_info) return format("範囲:%d",range);
+
+		if (p_ptr->cursed & TRC_AGGRAVATE)
+		{
+			msg_print("今は誰もあなたの話に耳を貸してくれそうにない。");
+			return NULL;
+		}
+		if ((p_ptr->inside_quest && is_fixed_quest_idx(p_ptr->inside_quest)) || EXTRA_QUEST_FLOOR)
+		{
+			msg_print("ここはすでに戦場だ。説得の前にすることがある。");
+			return NULL;
+		}
+
+		if(one_in_(3))
+			msg_print("あなたは道行くモンスター達へ辻説法を始めた。");
+		else if (one_in_(2))
+			msg_print("あなたはこのフロアの改革案のプレゼンテーションを始めた。");
+		else
+			msg_print("あなたは演説を始めた。");
+
+		for (i = 1; i < m_max; i++)
+		{
+			monster_type *m_ptr;
+			m_ptr = &m_list[i];
+			if (!m_ptr->r_idx) continue;
+			if (m_ptr->cdis > range) continue;
+
+			//起こす
+			set_monster_csleep(i, 0);
+
+			if (!is_hostile(m_ptr)) continue;
+			monster_desc(m_name, m_ptr, 0);
+
+
+			if ((r_info[m_ptr->r_idx].flags1 & RF1_QUESTOR)
+				|| (r_info[m_ptr->r_idx].flagsr & RFR_RES_ALL)
+				|| (r_info[m_ptr->r_idx].flags2 & RF2_EMPTY_MIND)
+				)
+			{
+				msg_format("%sは敵対的なままだ！", m_name);
+			}
+			else
+			{
+				msg_format("%sはあなたに友好的になった。", m_name);
+				set_friendly(m_ptr);
+			}
+		}
+
+		break;
+	}
+
+
+	case 8:
+	{
+		base = 10 + p_ptr->lev / 5;
+		if (only_info) return format("期間:%d + 1d%d", base, base);
+		set_tim_general(base + randint1(base), TRUE, 0, 0);
+		break;
+	}
+
+
+
+	default:
+		if (only_info) return format("未実装");
+		msg_format("ERROR:実装していない特技が呼ばれた num:%d", num);
+		return NULL;
+
+
+	}
+	return "";
+}
+
+
+
+
 //v2.0.15 日狭美
 //ストーキング中のモンスターのmflagにMFLAG_SPECIALを立てる
 class_power_type class_power_hisami[] =
@@ -36374,6 +36671,12 @@ void do_cmd_new_class_power(bool only_browse)
 		power_desc = "特技";
 		break;
 
+	case CLASS_ZANMU:
+		class_power_table = class_power_zanmu;
+		class_power_aux = do_cmd_class_power_aux_zanmu;
+		power_desc = "特技";
+		break;
+
 	default:
 		msg_print("あなたは職業による特技を持っていない。");
 		return;
@@ -37712,6 +38015,11 @@ const support_item_type support_item_list[] =
 	//v2.0.15 ヒサミ
 		{ 70,20,80,7,3,	MON_HISAMI,class_power_hisami,do_cmd_class_power_aux_hisami,1,
 		"山葡萄","それはモンスター一体を一時的に移動不能状態にする。" },
+
+	//v2.0.17 残無 無心純霊弾
+		{ 100, 60, 128,6,12,	MON_ZANMU,class_power_zanmu,do_cmd_class_power_aux_zanmu,5,
+		"真っ赤な髑髏","それは周囲のランダムな敵に分解属性のボールを連続で放つ。レベルが上がると威力、数、爆発半径が上昇する。" },
+
 
 	{0,0,0,0,0,0,NULL,NULL,0,"終端ダミー",""},
 };

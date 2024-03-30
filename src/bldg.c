@@ -14741,7 +14741,8 @@ msg_print("ここにはクエストの入口はない。");
 			///mod150328 ぬえは狸陣営のみ
 			else if(p_ptr->pclass == CLASS_NUE) enable_a = FALSE;
 			//霊夢と映姫は殲滅のみ
-			else if(p_ptr->pclass == CLASS_REIMU || p_ptr->pclass == CLASS_EIKI) 
+			//v2.0.17 残無も全滅のみにしとく
+			else if(p_ptr->pclass == CLASS_REIMU || p_ptr->pclass == CLASS_EIKI || p_ptr->pclass == CLASS_ZANMU)
 			{
 				 enable_a = FALSE;
 				 enable_b = FALSE;
@@ -14850,7 +14851,8 @@ msg_print("ここにはクエストの入口はない。");
 				}
 			//さとまいは？埴輪か全滅？
 			//霊夢・映姫・久侘歌・種族死神は全滅オンリー
-				else if (p_ptr->pclass == CLASS_REIMU || p_ptr->pclass == CLASS_EIKI || p_ptr->pclass == CLASS_KUTAKA || p_ptr->prace == RACE_DEATH)
+				//v2.0.17 残無も全滅オンリー
+				else if (p_ptr->pclass == CLASS_REIMU || p_ptr->pclass == CLASS_EIKI || p_ptr->pclass == CLASS_KUTAKA || p_ptr->prace == RACE_DEATH || p_ptr->pclass == CLASS_ZANMU)
 				{
 					selectable_flags = (ANIMAL_GHOST_ALIGN_KILLTHEMALL);
 				}

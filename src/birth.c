@@ -3129,6 +3129,7 @@ outfit_type birth_outfit_class[] = {
 	{ CLASS_CHIYARI,2,0,TV_CLOTHES, SV_CLOTH_T_SHIRT,1 },
 
 	{ CLASS_HISAMI,2,0,TV_CLOTHES, SV_CLOTHES,1 },
+	{ CLASS_ZANMU,2,0,TV_CLOTHES, SV_CLOTHES,1 },
 
 	{-1,0,0,0,0,0} //終端dummy
 };
@@ -6066,8 +6067,8 @@ static unique_player_type unique_player_table[UNIQUE_PLAYER_NUM] =
 		"あなたは「天火人」と呼ばれる吸血妖怪です。旧血の池地獄に長い間引き籠もっていましたが最近外に出てきました。あなたは通常の食事が口に合わず、代わりに特技で他者から血を奪ってそれを飲むことで腹を満たして体力と魔力を回復します。あなたは呪われた血が好みのためゾンビやデーモンの血でも気にしません。またあなたは自らの血を使って攻撃力を大幅に強化する特技を持っています。使いすぎて出血ダメージで倒れないように気をつけましょう。" },
 	{ TRUE,"豫母都　日狭美",CLASS_HISAMI,RACE_DEATH,ENTRY_JUUOUEN,SEX_FEMALE,
 		"あなたは地獄の住人の黄泉醜女(ヨモツシコメ)です。日白残無の部下として地獄の案内人をしたり裁きを待つ魂を勝手に地獄に誘ったりして暮らしています。戦闘においては魔法を主体に戦います。また敵を拘束したり特定の敵をどこまでも追いかけ回すような特技を習得します。あなたは甘味を食べるとMPを回復することができます。" },
-	{ FALSE,"日白　残無",CLASS_ZANMU,RACE_ONI,ENTRY_JUUOUEN,SEX_FEMALE,
-		"未実装" },
+	{ TRUE,"日白　残無",CLASS_ZANMU,RACE_ONI,ENTRY_JUUOUEN,SEX_FEMALE,
+		"あなたは地獄を支配し大改革をもたらした鬼です。かつては人間の破戒僧でした。あなたの高い知性は現在過去未来の様々なものを見通します。戦闘においては肉弾戦よりは魔法や投擲などを得意とします。魔法はあらゆる大領域から二領域を習得可能です。" },
 
 	{TRUE,"伊吹　萃香",CLASS_SUIKA,RACE_ONI,ENTRY_TASOGARE,SEX_FEMALE,
 	"あなたは幻想郷で長らく忘れられていた強大な鬼です。小柄ながら最高クラスの身体能力を持ち格闘と鈍器を得意とします。密と疎を操る能力を持ち、巨大化したり霧になったりアイテムを集めるなど多彩な技を習得します。あなたはいくら酒を飲んでも倒れませんが、酔いが醒めると能力が大幅に低下してしまいます。"},
@@ -7796,7 +7797,14 @@ void gain_perma_mutation(void)
 
 
 	if(p_ptr->pseikaku == SEIKAKU_LUCKY) p_ptr->muta3_perma |= MUT3_GOOD_LUCK;
-	if(p_ptr->prace == RACE_ONI) p_ptr->muta2_perma |= MUT2_BIGHORN;
+	if (p_ptr->prace == RACE_ONI)
+	{
+		if(p_ptr->pclass == CLASS_ZANMU)
+			p_ptr->muta2_perma |= MUT2_HORNS;
+		else
+			p_ptr->muta2_perma |= MUT2_BIGHORN;
+	}
+
 	if(p_ptr->prace == RACE_NINGYO) p_ptr->muta3_perma |= MUT3_FISH_TAIL;
 	if(p_ptr->pclass == CLASS_TEWI) p_ptr->muta3_perma |= MUT3_GOOD_LUCK;
 	if(p_ptr->pclass == CLASS_SUIKA) p_ptr->muta2_perma |= MUT2_ALCOHOL;

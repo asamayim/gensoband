@@ -5991,7 +5991,7 @@ void do_cmd_load_screen(void)
 ///sys res ~9ƒRƒ}ƒ“ƒh‚Å‚Ì‘Ï«ˆê——
 cptr inven_res_label = 
 #ifdef JP
- "                               Ž_“d‰Î—â“ÅŒõˆÅ”j…¹Œ–Žž“×—ò ‹°–ƒ—–Ó‹¶ “§Š´•‚rŒx”½";
+ "                               Ž_“d‰Î—â“Å‘MˆÃ”j…¹Œ–Žž“×—ò ‹°–ƒ—–Ó‹¶ “§Š´•‚rŒx”½";
 #else
  "                               AcElFiCoPoLiDkShSoNtNxCaDi BlFeCfFaSeHlEpSdRgLv";
 #endif

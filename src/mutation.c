@@ -1325,7 +1325,7 @@ muta_desc = "慈悲深い白いオーラがあなたをとりまいた...";
 				break;
 			}
 			//ヘカとプリズムリバーは弾く。mut4を扱えないため
-			if (p_ptr->pclass == CLASS_HECATIA)
+			if (p_ptr->pclass == CLASS_HECATIA || p_ptr->pclass == CLASS_ZANMU)
 			{
 				msg_print("強力な怨霊が寄ってきたがあなたを見て逃げていった。");
 				break;
