@@ -2250,7 +2250,7 @@ static void do_cmd_wiz_play(void)
 			wiz_statistics(q_ptr);
 		}
 
-		if (ch == 'r' || ch == 'r')
+		if (ch == 'r' || ch == 'R')
 		{
 			wiz_reroll_item(q_ptr);
 		}

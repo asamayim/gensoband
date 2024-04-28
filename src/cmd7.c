@@ -2237,7 +2237,11 @@ void engineer_malfunction(int typ, int dam)
 		{
 			if(typ == GF_WATER) chance = dam * machine_table[o_ptr->sval].hate_water / 100;
 			else if(typ == GF_ELEC) chance = dam * machine_table[o_ptr->sval].hate_elec / 100;
-			else msg_format("ERROR:未定義の属性でengineer_malfunction()が呼ばれた");
+			else
+			{
+				msg_format("ERROR:未定義の属性でengineer_malfunction()が呼ばれた");
+				return;
+			}
 			if(randint0(100) < chance)
 			{
 				object_desc(o_name, o_ptr, 0);
@@ -5838,6 +5842,7 @@ void kyouko_echo(bool del, int thrown_spell)
 	if(num < 0 || num > 128)
 	{
 		msg_print("ERROR:kyouko_echo()で不正なthrown_spell値が渡された");
+		return;
 	}
 
 	if(!monspell_list2[num].level || !monspell_list2[num].use_words) return; //使用不可の魔法、「言葉を使う」フラグのない魔法は非対象
@@ -8896,7 +8901,7 @@ cptr use_marisa_magic(int num, bool only_info)
 		case 23: //ディープエコロジカルボム 1200-1600
 		{
 			int rad = 4 + plev / 16;
-			int tx,ty;
+			int tx=0,ty=0;
 			int flg = PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP;
 			int len = 6 + plev / 16;
 			int damage = 500 + plev * 16 + chr_adj * 10;

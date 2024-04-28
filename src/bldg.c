@@ -2153,7 +2153,7 @@ static void material_2_maripo(void)
 	object_type *o_ptr;
 	cptr q, s;
 	char o_name[MAX_NLEN];
-	int i, base_point, total_point;
+	int i, base_point=0, total_point;
 
 	building_prt_maripo();
 
@@ -5649,6 +5649,25 @@ bool check_quest_unique_text(void)
 				strcpy(quest_text[line++], "貴方、本当に人の道を踏み外しかけてるんじゃないの？」");
 			}
 		}
+		else if (pr == RACE_FAIRY)
+		{
+			if (accept)
+			{
+				strcpy(quest_text[line++], "阿求「そこの穴？あれは下水道に通じる人孔よ。");
+				strcpy(quest_text[line++], "最近何かが棲み着いてるみたいで近々調査する予定よ。");
+				strcpy(quest_text[line++], "危ないから入らないようにね。」");
+			}
+			else if (fail)
+			{
+				strcpy(quest_text[line++], "阿求「そう、そこまでひどいことになっていたのね。");
+				strcpy(quest_text[line++], "最近本当に物騒なんだから気をつけなさい。」");
+			}
+			else
+			{
+				strcpy(quest_text[line++], "阿求「死者だの大ワニだのを倒してきた…ですって？");
+				strcpy(quest_text[line++], "貴方、妖精から妖怪になりかけてない？」");
+			}
+		}
 		break;
 
 		//破滅1　チルノ
@@ -7515,6 +7534,37 @@ bool check_quest_unique_text(void)
 				strcpy(quest_text[line++], "それにしても小鈴の先が思いやられるわ…」");
 			}
 		}
+		else if (pr == RACE_FAIRY)
+		{
+			if (accept)
+			{
+				strcpy(quest_text[line++], "阿求「ねえ、貸本屋の小鈴をどこかで見なかった？");
+				strcpy(quest_text[line++], "　いま行方不明になってて皆で探してるの。");
+				strcpy(quest_text[line++], "　できればお友達にも聞いてみてほしいわ。」");
+			}
+			if (comp)
+			{
+				strcpy(quest_text[line++], "阿求「そう、そんな事になっていたなんて...");
+				strcpy(quest_text[line++], "　妖精のあなたが連れ戻してくれたのは僥倖というものね。");
+				strcpy(quest_text[line++], "　そのリュックはあげるからできればあまり噂にしないであげて。」");
+				strcpy(quest_text[line++], "　");
+				strcpy(quest_text[line++], "　");
+				strcpy(quest_text[line++], "　　　　　　　　(妖精の危険度を上方修正したほうがいいかしら...)");
+
+			}
+			if (fail)
+			{
+				strcpy(quest_text[line++], "阿求「神社で小鈴に襲われたですって？");
+				strcpy(quest_text[line++], "　ありがとう、すぐに保護させるわ。");
+				strcpy(quest_text[line++], "　小鈴が迷惑かけてごめんなさいね。");
+				strcpy(quest_text[line++], "　でもこのことはできれば秘密にしてあげて？」");
+
+			}
+
+		}
+
+
+
 		break;
 
 		//夢の世界の＠打倒クエ　v1.1.52 菫子特殊性格セリフ変更
@@ -7806,6 +7856,15 @@ bool check_quest_unique_text(void)
 			{
 				strcpy(quest_text[line++], "巫女はアジトを半壊させた末にようやく帰っていった。");
 				strcpy(quest_text[line++], "我々が一体何をしたというのか？");
+			}
+		}
+		else if (pr == RACE_FAIRY)
+		{
+			if (accept)
+			{
+				strcpy(quest_text[line++], "たかね「なんだ妖精か。いや今は妖精の手も借りたい。");
+				strcpy(quest_text[line++], "　今からみんなで博麗霊夢と弾幕ごっこをやるんだ！");
+				strcpy(quest_text[line++], "　パワーアップアイテムは持ったか？よし突っ込め！」");
 			}
 		}
 
@@ -9217,7 +9276,7 @@ static int repair_broken_weapon_aux(int bcost)
 
 	if (!get_item(&item, q, s, (USE_INVEN | USE_EQUIP))) return (0);
 
-	if(!(wield_check(item,INVEN_PACK))) return (0);
+	if(!(wield_check(item,INVEN_PACK,0))) return (0);
 
 	/* Get the item (in the pack) */
 	o_ptr = &inventory[item];
@@ -9254,7 +9313,7 @@ static int repair_broken_weapon_aux(int bcost)
 		msg_print("私の話を聞いていなかったのか？");
 		return (0);
 	}
-	if(!(wield_check(mater,INVEN_PACK))) return (0);
+	if(!(wield_check(mater,INVEN_PACK,0))) return (0);
 
 	/* Get the item (in the pack) */
 	mo_ptr = &inventory[mater];
@@ -12404,7 +12463,7 @@ void grassroots_barter()
 			//flush();
 			return;
 		}
-		if(!(wield_check(item,INVEN_PACK)))
+		if(!(wield_check(item,INVEN_PACK,0)))
 		{
 			//flush();
 			return;
@@ -12631,7 +12690,7 @@ void grassroots_barter()
 void grassroots_trading_cards(void)
 {
 	int i;
-	int ref_pval,ref_num,ref_cost,ref_totalcost; //プレイヤーが渡したカードの情報
+	int ref_pval=0,ref_num,ref_cost,ref_totalcost; //プレイヤーが渡したカードの情報
 	char c;
 	int cs;
 	cptr q, s;
@@ -13990,7 +14049,7 @@ static void yuma_eats_cursed_item(void)
 	if (!get_item(&item, q, s, (USE_INVEN | USE_EQUIP))) return;
 	o_ptr = &inventory[item];
 
-	if (!(wield_check(item, INVEN_PACK)))
+	if (!(wield_check(item, INVEN_PACK,0)))
 	{
 		return;
 	}

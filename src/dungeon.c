@@ -2685,17 +2685,18 @@ static void process_world_aux_timeout(void)
 
 	//v1.1.57 特殊武器「七星の剣」のタイムカウントと消滅処理
 	//カウントの記録にxtra4を使うことにした。
+	//v2.0.18 フランの「魔法の剣」も同じ処理で消滅
 	for (i = INVEN_RARM; i <= INVEN_LARM; i++)
 	{
 		object_type *o_ptr = &inventory[i];
 
-		if (o_ptr->tval != TV_SWORD || o_ptr->sval != SV_WEAPON_SEVEN_STAR) continue;
+		if (o_ptr->tval != TV_SWORD || (o_ptr->sval != SV_WEAPON_SEVEN_STAR && o_ptr->sval != SV_WEAPON_MAGIC_SWORD)) continue;
 
 		o_ptr->xtra4++;
 
 		if (o_ptr->xtra4 > 25)
 		{
-			msg_print("七星の剣が消えた。");
+			msg_print("手の中の剣が消えた。");
 			inven_item_increase(i, -1);
 			inven_item_optimize(i);
 			kamaenaoshi(i);
@@ -4584,7 +4585,7 @@ void process_world_aux_alcohol(void)
 		
 		if(inventory[slot].k_idx )
 		{
-			if(!wield_check(slot,0)) msg_format("何だか脱ぎたくなったが自重した。");
+			if(!wield_check(slot,0,0)) msg_format("何だか脱ぎたくなったが自重した。");
 			else if( object_is_cursed(&inventory[slot]) || check_invalidate_inventory(slot) ) msg_format("何だか脱ぎたくなったが脱げなかった。");
 			else
 			{

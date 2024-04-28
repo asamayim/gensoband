@@ -8741,7 +8741,7 @@ static void dump_aux_race_history(FILE *fff)
 static void dump_aux_skills(FILE *fff)
 {
 	int i,skill_exp;
-	char skill_name[SKILL_EXP_MAX][12] ={"格闘","盾","乗馬","二刀流","投擲","","","","","","短剣","長剣","刀","鈍器","棒","斧","槍","長柄武器","弓","クロスボウ","銃"};
+	char skill_name[SKILL_EXP_MAX][16] ={"格闘","盾","乗馬","二刀流","投擲","","","","","","短剣","長剣","刀","鈍器","棒","斧","槍","長柄武器","弓","クロスボウ","銃"};
 
 	fprintf(fff, "\n  [技能一覧]\n");
 	fprintf(fff, "技能の種類    適性    技能レベル\n");
