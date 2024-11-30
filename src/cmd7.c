@@ -1412,7 +1412,7 @@ bool check_rest_f50(int r_idx)
 
 
 /*:::フロアのアイテムを走査し、モードに合致し一番近いものの距離を大まかに知らせる。*/
-/*:::mode:1.高級品 2.アーティファクト 3.素材 4.左全てと珍品 5.呪われたアイテム 6.素材とキノコ 7:珍品*/
+/*:::mode:1.高級品 2.アーティファクト 3.素材 4.左全てと珍品 5.呪われたアイテム 6.素材とキノコ 7:珍品 8:食べられるもの 9:魔力を帯びたもの*/
 void search_specific_object(int mode)
 {
 	int i;
@@ -1457,13 +1457,20 @@ void search_specific_object(int mode)
 		else if (mode == 7)
 		{
 			if (o_ptr->tval != TV_SOUVENIR) continue;
-
 		}
+		else if (mode == 8)
+		{
+			if (!object_is_eatable(o_ptr)) continue;
+		}
+		else if (mode == 9)
+		{
+			if (!object_is_magic_item(o_ptr)) continue;
+		}
+
 		else
 		{
 			msg_print("ERROR:search_specific_object()に定義されていないmode値が渡された");
 			return;
-
 		}
 
 		count++;
@@ -1479,6 +1486,8 @@ void search_specific_object(int mode)
 		if(mode == 5) msg_format("この階には厄に満ちた物品はないようだ。");
 		if(mode == 6) msg_format("この階の植生にはとくに興味を引くものはない。");
 		if(mode == 7) msg_format("この階には興味を引くものはなさそうだ。");
+		if(mode == 8) msg_format("この辺りには食べられそうなものは見当たらない。");
+		if(mode == 9) msg_format("この辺りに魔力の残滓は感知されなかった。");
 	}
 	else
 	{
@@ -1492,6 +1501,8 @@ void search_specific_object(int mode)
 		if(mode == 5) my_strcpy(msg_mode,"厄の気配",sizeof(msg_mode)-2);
 		if(mode == 6) my_strcpy(msg_mode,"特徴的な痕跡",sizeof(msg_mode)-2);
 		if(mode == 7) my_strcpy(msg_mode,"珍しい物品の気配", sizeof(msg_mode) - 2);
+		if(mode == 8) my_strcpy(msg_mode,"食べられそうな物", sizeof(msg_mode) - 2);
+		if(mode == 9) my_strcpy(msg_mode,"魔力を帯びた物", sizeof(msg_mode) - 2);
 
 		if(temp_dist < 15) my_strcpy(msg_dist,"近い！",sizeof(msg_dist)-2);
 		else if(temp_dist < 30) my_strcpy(msg_dist,"やや近い。",sizeof(msg_dist)-2);
@@ -1499,7 +1510,11 @@ void search_specific_object(int mode)
 		else if(temp_dist < 100) my_strcpy(msg_dist,"遠い。",sizeof(msg_dist)-2);
 		else  my_strcpy(msg_dist,"かなり遠い。",sizeof(msg_dist)-2);
 
-		msg_format("%sを感じる。%s",msg_mode, msg_dist);
+		if(mode == 8 || mode == 9)
+			msg_format("蜂たちが%sを見つけた。%s",msg_mode, msg_dist);
+		else
+			msg_format("%sを感じる。%s", msg_mode, msg_dist);
+
 	}
 }
 
@@ -6589,6 +6604,7 @@ void marisa_gain_power(object_type *o_ptr, int mult)
 				if(tv == TV_MATERIAL && sv == SV_MATERIAL_RUBY) gain = 200;
 				if(tv == TV_MATERIAL && sv == SV_MATERIAL_HIHIIROKANE) gain = 1000;
 				if (tv == TV_SOUVENIR && sv == SV_SOUVENIR_ELDER_THINGS_CRYSTAL) gain = 300;
+				if (tv == TV_SWEETS && sv == SV_SWEETS_HONEY) gain = 2;
 
 				break;
 			case MARISA_POWER_STAR:
@@ -6603,6 +6619,7 @@ void marisa_gain_power(object_type *o_ptr, int mult)
 				if(tv == TV_MATERIAL && sv == SV_MATERIAL_METEORICIRON) gain = 1000;
 				if(tv == TV_MATERIAL && sv == SV_MATERIAL_MYSTERIUM) gain = 500;
 				if(tv == TV_MATERIAL && sv == SV_MATERIAL_HIHIIROKANE) gain = 1000;
+				if (tv == TV_SWEETS && sv == SV_SWEETS_HONEY) gain = 2;
 				break;
 			case MARISA_POWER_SUPER:
 				if(tv == TV_MUSHROOM && sv == SV_MUSHROOM_RESTORING) gain = 8;
@@ -6619,6 +6636,7 @@ void marisa_gain_power(object_type *o_ptr, int mult)
 				if (tv == TV_MUSHROOM && sv == SV_MUSHROOM_PUFFBALL) gain = 10;
 				if (tv == TV_SOUVENIR && sv == SV_SOUVENIR_ELDER_THINGS_CRYSTAL) gain = 300;
 				if (tv == TV_MATERIAL && sv == SV_MATERIAL_RYUUZYU) gain = 100;
+				if (tv == TV_SWEETS && sv == SV_SWEETS_HONEY) gain = 2;
 				break;
 			default:
 			msg_print("ERROR:marisa_gain_power()");

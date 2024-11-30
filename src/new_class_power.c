@@ -14,6 +14,275 @@ static bool use_itemcard = FALSE;
 */
 
 
+//v2.0.19 養蜂家
+//p_ptr->magic_num1[0]に生成可能な蜂蜜数(*100)を記録
+class_power_type class_power_beekeeper[] =
+{
+
+	{ 1,0,0,FALSE,FALSE,A_CHR,0,0,"蜂蜜採取",
+	"アイテム「蜂蜜」を生成する。生成できる量は時間経過に伴い回復する。難易度EXTRAではフロア移動で回復する。蜂蜜を食べると満腹度とMPが回復するが耐性がないと体調を崩してしまう。" },
+
+	{ 5,5,20,FALSE,FALSE,A_INT,0,0,"食料探索",
+	"フロアに落ちている食べられるアイテムを探す。アイテムの存在と大まかな距離を知ることができる。" },
+
+	{ 10,20,30,FALSE,FALSE,A_INT,0,0,"蜂蜜酒製造",
+	"蜂蜜2つを消費し「蜂蜜酒」を生成する。売ると多少の金になる。高レベルになると「黄金の蜂蜜酒」ができることがある。" },
+
+	{ 15,10,30,FALSE,FALSE,A_CHR,0,0,"蜂を呼ぶ",
+	"友好的な蜂の群れを召喚する。魅力が高いと呼び出せる量が増える。レベル40以降は配下として召喚する。" },
+
+	{ 20,15,35,FALSE,FALSE,A_INT,0,0,"魔力探知",
+	"フロアに落ちている魔力を帯びたアイテムを探す。アイテムの存在と大まかな距離を知ることができる。装飾品、巻物、薬、杖、魔法棒、ロッド、カード、魔法のかかった武具が該当する。" },
+
+	{ 25,20,40,FALSE,FALSE,A_CHR,0,4,"攻撃命令",
+	"ターゲットしたモンスターに蜂が攻撃する。攻撃の威力は知能と魅力で決まり、装備品の修正値の影響も受ける。" },
+
+	{ 30,30,50,FALSE,FALSE,A_INT,0,0,"偵察命令",
+	"周辺の地形とモンスターを感知する。" },
+
+	{ 35,40,60,FALSE,FALSE,A_CHR,0,0,"護衛命令",
+	"一時的にACと探索能力が上昇し、さらに隣接攻撃を受けた時に蜂が反撃するようになる。隠密能力が低下する。" },
+
+	{ 40,80,80,FALSE,TRUE,A_INT,0,0,"魔法薬製造",
+	"蜂蜜5つを消費し「魔力復活の薬」を生成する。" },
+
+	{ 45,50,70,FALSE,TRUE,A_INT,0,0,"知覚共有",
+	"一定時間、周囲の地形・アイテム・モンスターを感知し続けるようになる。" },
+
+	{ 50,100,75,FALSE,FALSE,A_CHR,0,0,"全軍突撃命令",
+	"視界内の全てのモンスターに蜂が攻撃する。" },
+
+	{ 99,0,0,FALSE,FALSE,0,0,0,"dummy","" },
+};
+
+
+
+cptr do_cmd_class_power_aux_beekeeper(int num, bool only_info)
+{
+	int plev = p_ptr->lev;
+	int chr_adj = adj_general[p_ptr->stat_ind[A_CHR]];
+	int dir;
+
+	switch (num)
+	{
+	case 0://蜂蜜採取
+	{
+		int prod_num = p_ptr->magic_num1[0] / 100;
+
+		object_type forge, *q_ptr = &forge;
+		if (only_info) return format("採取可能量:%d", prod_num);
+
+		if (!prod_num)
+		{
+			msg_print("まだ蜂蜜が集まっていない。");
+			return NULL;
+		}
+
+		msg_print("蜂たちの集めた蜂蜜を回収した。");
+		object_prep(q_ptr, lookup_kind(TV_SWEETS, SV_SWEETS_HONEY));
+
+		q_ptr->number = prod_num;//99を超えないようadd_hohey()で処理している
+		p_ptr->magic_num1[0] = 0;
+
+		drop_near(q_ptr, -1, py, px);
+		break;
+	}
+
+	case 1:
+	{
+		if (only_info) return format("");
+		msg_print("あなたは蜂たちに食料の探索を命じた。");
+		search_specific_object(8);
+		break;
+	}
+
+	case 2:	//蜂蜜酒製造
+	case 8: //魔力復活薬生成
+	{
+		object_type forge;
+		object_type *q_ptr = &forge;
+		int need_num;
+		int item_slot = -1;
+		int i;
+		int tv, sv;
+
+		if (num == 2) need_num = 2;
+		else 	need_num = 5;
+
+		if (only_info) return format("");
+
+		//必要な蜂蜜があるかどうか確認。銘で分けるなどして複数の蜂蜜がインベントリにあることは考慮しない。
+		for (i = 0; i<INVEN_PACK; i++)
+		{
+			object_type *o_ptr = &inventory[i];
+			if (o_ptr->tval != TV_SWEETS) continue;
+			if (o_ptr->sval != SV_SWEETS_HONEY) continue;
+			if (o_ptr->number < need_num) continue;
+
+			item_slot = i;
+			break;
+		}
+
+		if (item_slot < 0)
+		{
+			msg_print("必要なだけの蜂蜜がない。");
+			return NULL;
+		}
+
+		msg_print("あなたは醸造器具を取り出した...");
+
+		inven_item_increase(item_slot, -(need_num));
+		inven_item_describe(item_slot);
+		inven_item_optimize(item_slot);
+
+		//蜂蜜酒生成のとき高レベルだと黄金の蜂蜜酒になる可能性がある
+		if (num == 2 && weird_luck() && randint1(plev) > 20)
+		{
+			tv = TV_ALCOHOL;
+			sv = SV_ALCOHOL_GOLDEN_MEAD;
+		}
+		else if (num == 2)
+		{
+			tv = TV_ALCOHOL;
+			sv = SV_ALCOHOL_MEAD;
+		}
+		else
+		{
+			tv = TV_POTION;
+			sv = SV_POTION_RESTORE_MANA;
+		}
+
+		object_prep(q_ptr, lookup_kind(tv, sv));
+		drop_near(q_ptr, -1, py, px);
+
+	}
+	break;
+
+	case 3:
+	{
+		bool flag = FALSE;
+		int i;
+		int count = 1 + plev / 24;
+		if (only_info) return "";
+
+		for (i = 0; i<count; i++)
+		{
+			u32b mode;
+			//召喚された蜂にはcloneフラグをつける。わざと倒して蜂蜜を大量入手できないようにするため
+			if (plev < 40) mode = (PM_CLONE | PM_ALLOW_GROUP | PM_FORCE_FRIENDLY);
+			else  mode = (PM_CLONE | PM_ALLOW_GROUP | PM_FORCE_PET);
+
+			if ((summon_specific(-1, py, px, p_ptr->lev, SUMMON_BEES, mode)))flag = TRUE;
+		}
+		if (flag)
+			msg_print("あなたは蜂を呼び出した。");
+		else
+			msg_print("蜂は現れなかった。");
+
+		break;
+	}
+	case 4:
+	{
+		if (only_info) return format("");
+		msg_print("あなたは蜂たちに魔力の残滓を辿らせた。");
+		search_specific_object(9);//処理設定要
+		break;
+	}
+	case 5:	//蜂による遠隔攻撃　蜂による追加格闘のみ行う
+	{
+		int range = plev / 8;
+		int x, y;
+		monster_type *m_ptr, *m2_ptr;
+
+		if (only_info) return format("射程:%d", range);
+
+		project_length = range;
+		if (!get_aim_dir(&dir)) return NULL;
+		if (dir != 5 || !target_okay() || !projectable(target_row, target_col, py, px))
+		{
+			msg_print("視界内のターゲットを明示的に指定しないといけない。");
+			return NULL;
+		}
+		y = target_row;
+		x = target_col;
+
+		m_ptr = &m_list[cave[y][x].m_idx];
+
+		if (!m_ptr->r_idx || !m_ptr->ml)
+		{
+			msg_print("そこには何もいない。");
+			return NULL;
+		}
+		else
+		{
+			char m_name[80];
+			monster_desc(m_name, m_ptr, 0);
+			msg_format("蜂たちが%sに襲いかかった！", m_name);
+			py_attack(m_ptr->fy, m_ptr->fx, HISSATSU_ATTACK_BEE);
+
+		}
+	}
+	break;
+
+	case 6://周辺調査
+	{
+		int rad = DETECT_RAD_DEFAULT;
+		if (only_info) return format("範囲:%d", rad);
+
+		msg_print("蜂たちがあなたに周囲の情報を伝えた。");
+		map_area(rad);
+		detect_monsters_normal(rad);
+		detect_monsters_invis(rad);
+
+		break;
+	}
+
+	case 7: //護衛命令
+	{
+		int base = 5 + plev / 2;
+		int time;
+
+		if (only_info) return format("期間:%d+1d%d", base, base);
+		time = base + randint1(base);
+		set_tim_general(time, FALSE, 0, 0);
+
+	}
+	break;
+
+	//レーダーセンス
+	case 9:
+	{
+		int base = p_ptr->lev / 2;
+		if (only_info) return format("期間:%d+1d%d", base, base);
+
+		msg_format("あなたは蜂たちと視界を共有した。");
+		set_radar_sense(randint1(base) + base, FALSE);
+		break;
+	}
+
+	case 10:
+	{
+		if (only_info) return format("");
+
+		flag_friendly_attack = TRUE;
+		msg_format("あなたは全ての蜂を開放した！");
+		project_hack2(GF_YOUMU, 0, 0, 100);//妖夢の六根清浄斬を流用する
+		flag_friendly_attack = FALSE;
+
+	}
+	break;
+
+
+
+	default:
+		if (only_info) return format("未実装");
+		msg_format("ERROR:実装していない特技が呼ばれた num:%d", num);
+		return NULL;
+	}
+	return "";
+}
+
+
 
 // v2.0.17 残無専用技
 class_power_type class_power_zanmu[] =
@@ -3983,7 +4252,8 @@ class_power_type class_power_orin2[] =
 	{ 20,20,40,FALSE,FALSE,A_DEX,0,1,"追跡",
 	"隣接したモンスター一体を指定し、そのモンスターを常に感知し続ける。レベル30以上のときそのモンスターからの攻撃を受ける直前に自動的に短距離テレポートを試みる。テレポートにはMP30を消費し、モンスターのレベルが高いとテレポートに失敗しやすい。" },
 
-
+	{ 30,30,50,TRUE,FALSE,A_DEX,0,10,"早駆け",
+	"非常に素早く移動できるようになるがHPとMPが自然回復しなくなる。早駆け中にもう一度実行すると解除される。" },
 
 
 	{ 99,0,0,FALSE,FALSE,0,0,0,"dummy","" },
@@ -4082,6 +4352,39 @@ cptr do_cmd_class_power_aux_orin2(int num, bool only_info)
 		}
 
 
+	}
+	break;
+
+	//早駆け　本家忍者のと同じ
+	case 3:
+	{
+
+		if (only_info) return  format("");
+
+		if (p_ptr->action == ACTION_HAYAGAKE)
+		{
+			set_action(ACTION_NONE);
+			return NULL;
+		}
+		else
+		{
+			cave_type *c_ptr = &cave[py][px];
+			feature_type *f_ptr = &f_info[c_ptr->feat];
+
+			if (!have_flag(f_ptr->flags, FF_PROJECT) ||
+				(!p_ptr->levitation && have_flag(f_ptr->flags, FF_DEEP)))
+			{
+#ifdef JP
+				msg_print("ここでは素早く動けない。");
+#else
+				msg_print("You cannot run in here.");
+#endif
+			}
+			else
+			{
+				set_action(ACTION_HAYAGAKE);
+			}
+		}
 	}
 	break;
 
@@ -18569,7 +18872,7 @@ cptr do_cmd_class_power_aux_mokou(int num, bool only_info)
 				msg_print("カードから火の鳥が現れて飛んで行った！");
 			else
 				msg_print("火の鳥が飛んだ！");
-			fire_rocket((plev > 39)?GF_FIRE:GF_NUKE, dir, dam, rad);
+			fire_rocket((plev > 39)?GF_NUKE:GF_FIRE, dir, dam, rad);
 		}
 		break;
 	case 3:
@@ -21559,12 +21862,16 @@ class_power_type class_power_yamame[] =
 {
 
 	{1,5,0,TRUE,FALSE,A_DEX,0,0,"巣を張る",
-		"地形「蜘蛛の巣」を作る。巣の上にいるとACボーナスを得られる。レベル30以降はさらに高速移動能力を得られ、また巣の上にいるモンスターを感知する。"},
+		"地形「蜘蛛の巣」を作る。巣の上にいるとACにボーナスを得られる。レベル30以降はさらに高速移動能力を得られ、また巣の上にいるモンスターを感知する。"},
 	{12,10,35,FALSE,TRUE,A_STR,0,4,"キャプチャーウェブ",
 		"周囲に蜘蛛の巣を張り巡らせる。レベル25以上になるとさらに周囲の敵にダメージを与え減速させようとする。"},
-	{19,22,40,FALSE,FALSE,A_CON,0,0,"原因不明の熱病",
+	{16,22,40,FALSE,FALSE,A_CON,0,0,"原因不明の熱病",
 		"視界内の敵を混乱、朦朧させる。"},
-	{23,16,55,FALSE,FALSE,A_DEX,50,0,"カンダタロープ",
+
+	{20,20,45,TRUE,FALSE,A_CON,0,10,"ガスのブレス",
+		"現在HPの1/4の威力の毒のブレスを吐く。" },
+
+	{24,16,55,FALSE,FALSE,A_DEX,50,0,"カンダタロープ",
 		"近くの蜘蛛の巣を指定し、そこへ一瞬で移動する。反テレポート状態でも使用できる。もしその蜘蛛の巣の場所にモンスターがいた場合自分は移動せずそのモンスターを自分のところまで引き寄せる。ただし巨大な敵には効果がない。また装備品が重いと失敗しやすい。"},
 	{28,28,60,FALSE,FALSE,A_WIS,0,10,"フィルドミアズマ",
 		"視界内のすべてに汚染属性の攻撃を仕掛ける。"},
@@ -21655,8 +21962,27 @@ cptr do_cmd_class_power_aux_yamame(int num, bool only_info)
 
 			break;
 		}
-	case 3: //カンダタロープ
-	case 7: //v1.1.91 ヴェノムウェブ
+
+	//v2.0.19 ガスのブレス
+	case 3:
+	{
+		int dam = p_ptr->chp / 4;
+		if (dam<1) dam = 1;
+		if (dam > 1600) dam = 1600;
+
+		if (only_info) return format("損傷:%d", dam);
+		if (!get_aim_dir(&dir)) return NULL;
+
+		msg_print("あなたは大きく息を吸うと毒ガスを吹き出した！");
+
+		fire_ball(GF_POIS, dir, dam, -2);
+	}
+	break;
+
+
+
+	case 4: //カンダタロープ
+	case 8: //v1.1.91 ヴェノムウェブ
 		{
 			int range;
 			int x = 0, y = 0;
@@ -21726,7 +22052,7 @@ cptr do_cmd_class_power_aux_yamame(int num, bool only_info)
 		}
 
 
-	case 4: //フィルドミアズマ
+	case 5: //フィルドミアズマ
 		{
 			int dam = plev * 3 + chr_adj * 3;
 			if(only_info) return format("損傷:%d",dam);
@@ -21736,7 +22062,7 @@ cptr do_cmd_class_power_aux_yamame(int num, bool only_info)
 			break;
 		}
 
-	case 5: //樺黄小町
+	case 6: //樺黄小町
 		{
 			int y, x;
 			monster_type *m_ptr;
@@ -21797,7 +22123,7 @@ cptr do_cmd_class_power_aux_yamame(int num, bool only_info)
 			break;
 		}	
 
-	case 6: //階段生成
+	case 7: //階段生成
 	{
 		if (only_info) return format("");
 
@@ -21809,7 +22135,7 @@ cptr do_cmd_class_power_aux_yamame(int num, bool only_info)
 
 
 
-	case 8: //石窟の蜘蛛の巣
+	case 9: //石窟の蜘蛛の巣
 		{
 			if(only_info) return format("");
 			msg_print("周囲が光る網に埋め尽くされた！");
@@ -22831,7 +23157,8 @@ cptr do_cmd_class_power_aux_nitori(int skillnum, bool only_info)
 			ty = py + 99 * ddy[dir];
 			if ((dir == 5) && target_okay())
 			{
-				flg &= ~(PROJECT_STOP);
+				//v2.0.19 ターゲットするかどうかでロケットかボールか変わるとややこしいのでロケットに統一する
+				//flg &= ~(PROJECT_STOP);
 				tx = target_col;
 				ty = target_row;
 			}
@@ -36687,6 +37014,12 @@ void do_cmd_new_class_power(bool only_browse)
 		power_desc = "特技";
 		break;
 
+	case CLASS_BEEKEEPER:
+		class_power_table = class_power_beekeeper;
+		class_power_aux = do_cmd_class_power_aux_beekeeper;
+		power_desc = "特技";
+		break;
+
 	default:
 		msg_print("あなたは職業による特技を持っていない。");
 		return;
@@ -36697,6 +37030,13 @@ void do_cmd_new_class_power(bool only_browse)
 	{
 		msg_print("混乱していて集中できない！");
 		return;
+	}
+
+
+	//v2.0.19 内部的に無想の型を使う特技の使用中に別の特技が使える不具合を修正
+	if (p_ptr->special_defense & (KATA_MUSOU) & !only_browse)
+	{
+		set_action(ACTION_NONE);
 	}
 
 	screen_save();
@@ -37081,8 +37421,33 @@ void do_cmd_new_class_power(bool only_browse)
 			aggravate_monsters(0,TRUE);
 			msg_print("フロアのモンスター達から追われる身になった！");
 		}
+		//養蜂家は蜂に命令する特技に失敗すると蜂に襲われることがある
+		else if (p_ptr->pclass == CLASS_BEEKEEPER && num != 2 && num != 8)
+		{
+			int fail_check;
+
+			msg_format("蜂との意思疎通に失敗した！");
+
+			fail_check = p_ptr->stat_ind[A_CHR] + 3 - num * 3;
+			if (fail_check < 4)	fail_check = 4;
+			if (!randint0(fail_check))
+			{
+				bool flag_summon = FALSE;
+				//護衛命令キャンセル
+				set_tim_general(0, TRUE, 0, 0);
+				do
+				{
+					if ((summon_specific(-1, py, px, p_ptr->lev, SUMMON_BEES, (PM_ALLOW_GROUP | PM_FORCE_ENEMY)))) flag_summon = TRUE;
+
+				} while (!randint0(6));
+
+				if(flag_summon)	msg_format("蜂が襲いかかってきた！");
+			}
+		}
 		else
-			msg_format("%sの使用に失敗した！",power_desc);
+		{
+			msg_format("%sの使用に失敗した！", power_desc);
+		}
 
 	}
 
@@ -37639,7 +38004,7 @@ const support_item_type support_item_list[] =
 	{60,10, 50,3,7,	MON_YAMAME,class_power_yamame,do_cmd_class_power_aux_yamame,2,
 	"子蜘蛛の群れ","それは視界内の敵を混乱、朦朧させる。"},
 	//樺黄小町
-	{60,30, 80,6,5,	MON_YAMAME,class_power_yamame,do_cmd_class_power_aux_yamame,5,
+	{60,30, 80,6,5,	MON_YAMAME,class_power_yamame,do_cmd_class_power_aux_yamame,6,
 	"土蜘蛛の牙","それは隣接した敵にダメージを与える。毒耐性を持たない敵には三倍のダメージを与え、攻撃力を低下させ、低確率で一撃で倒す。"},
 
 	//諏訪清水

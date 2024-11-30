@@ -34,7 +34,8 @@
 //#define MAX_CLASS_CHOICE     MAX_CLASS
 ///mod140202 ユニーククラス実装のために通常選択職業番号最大を別にした
 //v1.1.87 カード売人追加のため27→28 これ以上一般職を増やすならこの辺のルーチンの書き直しが必要。
-#define MAX_CLASS_CHOICE     28
+//v2.0.19 養蜂家実装により職業選択部分を変更。この定数を廃止
+//#define MAX_CLASS_CHOICE     28
 
 
 static bool old_data_cheat_flag = FALSE;
@@ -300,8 +301,22 @@ static cptr class_jouhou[MAX_CLASS] =
 
 "あなたは耳の早い商売人あるいは投機家です。アビリティカードを見て将来の流行を確信し、カードを買い占めて一儲けしようと企んでいます。しかし同じことを考える者が次々に現れ、価格の高騰は必至です。とにかく急いでお金を貯め、守矢神社の近くのカード販売所、偽天棚の賭場、あるいはカードを持つ人妖からカードを買い漁りましょう。あなたには本職に遠く及ばないまでも多少の近接戦や魔法の心得があります。またカードケースを持っておりこの中にカードを8種類まで格納することができます。あなたに必要な能力はカードを発動するための魔道具技能、アビリティカードの威力を高めたり効率よく金策を行うための魅力です。",
 
-"あなたは気が付くと何処とも知れぬ草原に立っていました。人の手の入っていない自然の風景に心洗われるのも束の間、この場所はこれまでの人生で培ってきた常識が全く通じないこと、怪物が闊歩しており危険に満ちていること、そして自分が全く無力であることを知ります。あなたは幸運にも人の住む場所に辿り着きました。幸い言葉は通じるようです。里ではあなたのような人が来ることは初めてではないらしく、親切な人が博麗神社に行けば外へ送り返してくれると教えてくれました。しかし神社への道程は妖怪の巣窟だそうです。何かの異変が起こっているらしく里はざわついていますが、あなたにとっては何が異変で何が日常風景なのかすら定かではありません・・"
-
+"あなたは気が付くと何処とも知れぬ草原に立っていました。人の手の入っていない自然の風景に心洗われるのも束の間、この場所はこれまでの人生で培ってきた常識が全く通じないこと、怪物が闊歩しており危険に満ちていること、そして自分が全く無力であることを知ります。あなたは幸運にも人の住む場所に辿り着きました。幸い言葉は通じるようです。里ではあなたのような人が来ることは初めてではないらしく、親切な人が博麗神社に行けば外へ送り返してくれると教えてくれました。しかし神社への道程は妖怪の巣窟だそうです。何かの異変が起こっているらしく里はざわついていますが、あなたにとっては何が異変で何が日常風景なのかすら定かではありません・・",
+"","",//ユニーククラスの説明文はunique_player_table[]
+"","","","","","","","","","",
+"","","","","","","","","","",
+"","","","","","","","","","",
+"","","","","","","","","","",
+"","","","","","","","","","",
+"","","","","","","","","","",
+"","","","","","","","","","",
+"","","","","","","","","","",
+"","","","","","","","","","",
+"","","","","","","","","","",
+"","","","","","","","","","",
+"","","","","","","","","","",
+"","","","","",//class155
+"あなたは危険な魔法の森に居を構える変わり者です。近所の魔法使いが森の蜂を育てて蜂蜜を集めているのを見て真似してみることにしました。森の魔力で変質した蜂たちはあなたといくらかの意思疎通ができ、蜂蜜を集める以外にも色々と助けになってくれます。あなたには武器と魔法の心得が多少ありますがどちらも本職には遠く及びません。蜂たちをうまく使って生き延びましょう。ただし蜂への命令に失敗すると蜂は怒って攻撃してくるかもしれません。あなたに必要な能力は知能と魅力です。",//156:養蜂家
 #else
 
 "A Warrior is a hack-and-slash character, who solves most of his problems by cutting them to pieces, but will occasionally fall back on the help of a magical device.  Unfortunately, many high-level devices may be forever beyond their use.",
@@ -3131,6 +3146,12 @@ outfit_type birth_outfit_class[] = {
 	{ CLASS_HISAMI,2,0,TV_CLOTHES, SV_CLOTHES,1 },
 	{ CLASS_ZANMU,2,0,TV_CLOTHES, SV_CLOTHES,1 },
 
+	{ CLASS_BEEKEEPER,2,0,TV_CLOTHES, SV_CLOTH_PADDED,1 },
+	{ CLASS_BEEKEEPER,2,0,TV_AXE, SV_WEAPON_NATA,1 },
+	{ CLASS_BEEKEEPER,2,0,TV_SWEETS, SV_SWEETS_HONEY,10 },
+	{ CLASS_BEEKEEPER,2,0,TV_POTION, SV_POTION_CURE_POISON,3 },
+
+
 	{-1,0,0,0,0,0} //終端dummy
 };
 
@@ -4285,19 +4306,37 @@ static bool get_player_race(void)
  */
 static bool get_player_class(void)
 {
-	int     k, n, cs, os;
+	int     k, n, cs, os,i;
 	char    c;
-	char	sym[MAX_CLASS_CHOICE];
+	char	sym[MAX_CLASS];
 	char    p2 = ')';
 	char    buf[80], cur[80];
 	cptr    str;
 
+	int class_list_len=0;
+	int class_list[MAX_CLASS];
+	int class_idx;
+
+	/* v2.0.19 class_info[]の英職業名を使うことにした
 	cptr help_index[MAX_CLASS_CHOICE+1] =
 	{"Warrior","Mage","Priest","Explorer","Ranger","Paladin",
 	"Teacher","Maid","Martial-Artist","Mindcrafter","High-Mage","Civilian",
 	"Syugen","Magic-Knight","Bullet-Researcher","Archer","Magic-Eater","Engineer",
 	"Librarian","Samurai","Soldier","Chemist","Cavalry","Tsukumo-Master","Secondhand-dealer","Jeweler",
 	"Ninja", "Card-Dealer",""};
+	*/
+
+	//v2.0.19 一般職リストを作成する
+	for (i = 0; i < MAX_CLASS; i++)
+	{
+		if (class_info[i].flag_only_unique) continue;
+		if (i == CLASS_OUTSIDER) continue;
+
+		class_list[class_list_len] = i;
+
+		class_list_len++;
+	}
+
 
 	/* Extra info */
 	clear_from(10);
@@ -4316,11 +4355,12 @@ static bool get_player_class(void)
 
 
 	/* Dump classes */
-	for (n = 0; n < MAX_CLASS_CHOICE; n++)
+	for (n = 0; n < class_list_len; n++)
 	{
+		class_idx = class_list[n];
+
 		/* Analyze */
-		cp_ptr = &class_info[n];
-		//mp_ptr = &m_info[n];
+		cp_ptr = &class_info[class_idx];
 
 		///mod140202 性別ごとに職業名を分けた
 		if(p_ptr->psex == SEX_MALE)	str = cp_ptr->title;
@@ -4333,6 +4373,7 @@ static bool get_player_class(void)
 
 		/*:::向いてない職業には()をつける。現在は実質停止中*/
 		/* Display */
+		/*
 		if (!(rp_ptr->choice & (1L << n)))
 #ifdef JP
 			sprintf(buf, "%c%c(%s)", sym[n], p2, str);
@@ -4345,6 +4386,9 @@ static bool get_player_class(void)
 #else
 			sprintf(buf, "%c%c %s", sym[n], p2, str);
 #endif
+		*/
+
+		sprintf(buf, "%c%c%s", sym[n], p2, str);
 
 		if(cp_ptr->flag_nofixed) c_put_str(TERM_L_DARK, buf, 13 + (n/4), 2 + 19 * (n%4));
 		else put_str(buf, 13+ (n/4), 2 + 19 * (n%4));
@@ -4358,17 +4402,20 @@ static bool get_player_class(void)
 
 	/* Get a class */
 	k = -1;
-	cs = p_ptr->pclass;
-	os = MAX_CLASS_CHOICE;
+//	cs = p_ptr->pclass;
+//	os = MAX_CLASS_CHOICE;
+	cs = 0;
+	os = class_list_len;
 	while (1)
 	{
+		class_idx = class_list[cs];
 		/* Move Cursol */
 		if (cs != os)
 		{
-			if(os != MAX_CLASS_CHOICE && cp_ptr->flag_nofixed) c_put_str(TERM_L_DARK, cur, 13 + (os/4), 2 + 19 * (os%4));
+			if(os != class_list_len && cp_ptr->flag_nofixed) c_put_str(TERM_L_DARK, cur, 13 + (os/4), 2 + 19 * (os%4));
 			else c_put_str(TERM_WHITE, cur, 13 + (os/4), 2 + 19 * (os%4));
 			put_str("                                   ", 3, 40);
-			if(cs == MAX_CLASS_CHOICE)
+			if(cs == class_list_len)
 			{
 #ifdef JP
 				sprintf(cur, "%c%c%s", '*', p2, "ランダム");
@@ -4381,13 +4428,12 @@ static bool get_player_class(void)
 			else
 			{
 				int mul_score;
-				cp_ptr = &class_info[cs];
-			//	mp_ptr = &m_info[cs];
+				cp_ptr = &class_info[class_idx];
 				///mod140202 性別ごとに職業名を分けた
 				if(p_ptr->psex == SEX_MALE)	str = cp_ptr->title;
 				else						str = cp_ptr->f_title;
 
-
+/*種族に向かない職業に()をつける本家の仕様を無効化する
 				if (!(rp_ptr->choice & (1L << cs)))
 #ifdef JP
 					sprintf(cur, "%c%c(%s)", sym[cs], p2, str);
@@ -4400,6 +4446,9 @@ static bool get_player_class(void)
 #else
 					sprintf(cur, "%c%c %s", sym[cs], p2, str);
 #endif
+*/
+					sprintf(cur, "%c%c%s", sym[cs], p2, str);
+
 #ifdef JP
 					//c_put_str(TERM_L_BLUE, cp_ptr->title, 3, 40);
 					if(p_ptr->psex == SEX_MALE)	c_put_str(TERM_L_BLUE, cp_ptr->title, 3, 40);
@@ -4415,7 +4464,7 @@ static bool get_player_class(void)
 					put_str("Str  Int  Wis  Dex  Con  Chr   EXP ", 4, 40);
 #endif
 					mul_score = cp_ptr->score_mult;
-					extra_mode_score_mult(&mul_score,cs); 
+					extra_mode_score_mult(&mul_score,class_idx); 
 					sprintf(buf, "%+3d  %+3d  %+3d  %+3d  %+3d  %+3d %+4d%% %3d%% ",
 						cp_ptr->c_adj[0], cp_ptr->c_adj[1], cp_ptr->c_adj[2], cp_ptr->c_adj[3],
 						cp_ptr->c_adj[4], cp_ptr->c_adj[5], cp_ptr->c_exp, mul_score);
@@ -4428,7 +4477,7 @@ static bool get_player_class(void)
 		if (k >= 0) break;
 
 #ifdef JP
-		sprintf(buf, "職業を選んで下さい (%c-%c) ('='初期オプション設定): ", sym[0], sym[MAX_CLASS_CHOICE-1]);
+		sprintf(buf, "職業を選んで下さい (%c-%c) ('='初期オプション設定): ", sym[0], sym[class_list_len-1]);
 #else
 		sprintf(buf, "Choose a class (%c-%c) ('=' for options): ",  sym[0], sym[MAX_CLASS_CHOICE-1]);
 #endif
@@ -4439,22 +4488,24 @@ static bool get_player_class(void)
 		if (c == 'S') return (FALSE);
 		if (c == ' ' || c == '\r' || c == '\n')
 		{
-			if(cs == MAX_CLASS_CHOICE)
+			if(cs == class_list_len)
 			{
-				k = randint0(MAX_CLASS_CHOICE);
-				cs = k;
+				int tmp = randint0(class_list_len);
+				k = class_list[tmp];
+				cs = tmp;
 				continue;
 			}
 			else
 			{
-				k = cs;
+				k = class_list[cs];
 				break;
 			}
 		}
 		if (c == '*')
 		{
-			k = randint0(MAX_CLASS_CHOICE);
-			cs = k;
+			int tmp = randint0(class_list_len);
+			k = class_list[tmp];
+			cs = tmp;
 			continue;
 		}
 		if (c == '8')
@@ -4467,30 +4518,36 @@ static bool get_player_class(void)
 		}
 		if (c == '6')
 		{
-			if (cs < MAX_CLASS_CHOICE) cs++;
+			if (cs < class_list_len) cs++;
 		}
 		if (c == '2')
 		{
-			if ((cs + 4) <= MAX_CLASS_CHOICE) cs += 4;
+			if ((cs + 4) <= class_list_len) cs += 4;
 		}
+
 		k = (islower(c) ? A2I(c) : -1);
-		if ((k >= 0) && (k < MAX_CLASS_CHOICE))
+		if ((k >= 0) && (k < class_list_len))
 		{
 			cs = k;
 			continue;
 		}
+
 		k = (isupper(c) ? (26 + c - 'A') : -1);
-		if ((k >= 26) && (k < MAX_CLASS_CHOICE))
+		if ((k >= 26) && (k < class_list_len))
 		{
 			cs = k;
 			continue;
 		}
 		else k = -1;
 
-		if (c == '?' && cs < MAX_CLASS_CHOICE+1)
+
+
+
+		if (c == '?' && cs < class_list_len)
 		{
 			char help_entry[64];
-			sprintf(help_entry,"traceclas.txt#%s",help_index[cs]);
+//			sprintf(help_entry,"traceclas.txt#%s",help_index[cs]);
+			sprintf(help_entry,"traceclas.txt#%s",class_info[class_idx].E_title);
 #ifdef JP
 			show_help(help_entry);
 #else
@@ -4512,7 +4569,7 @@ static bool get_player_class(void)
 	}
 
 	/* Set class */
-	p_ptr->pclass = k;
+	p_ptr->pclass = class_idx;
 	cp_ptr = &class_info[p_ptr->pclass];
 	//mp_ptr = &m_info[p_ptr->pclass];
 

@@ -939,8 +939,19 @@ bool project_f(int who, int r, int y, int x, int dam, int typ)
 			message = "was crushed.";break;
 #endif
 		case GF_SOULSCULPTURE:
+			message = "Ža‚è“|‚³‚ê‚½"; break;
+
 		case GF_YOUMU:
-			message = "Ža‚è“|‚³‚ê‚½";break;
+			if (p_ptr->pclass == CLASS_BEEKEEPER)
+			{
+				message = "•²Ó‚³‚ê‚½"; 
+				break;
+			}
+			else
+			{
+				message = "Ža‚è“|‚³‚ê‚½"; 
+				break;
+			}
 
 		default:
 			message = NULL;break;
@@ -7369,8 +7380,15 @@ msg_format("‚¤‚Ü‚­•ß‚Ü‚¦‚ç‚ê‚È‚©‚Á‚½B");
 		}
 		case GF_YOUMU:
 		{
-			/* Return this monster's death */
-			return py_attack(y, x, HISSATSU_NO_AURA);
+			//v2.0.19 —{–I‰Æ‚ÌŽ‹ŠE“àUŒ‚‚É—¬—p
+			if (p_ptr->pclass == CLASS_BEEKEEPER)
+			{
+				return py_attack(y, x, HISSATSU_ATTACK_BEE);
+			}
+			else
+			{
+				return py_attack(y, x, HISSATSU_NO_AURA);
+			}
 		}
 
 

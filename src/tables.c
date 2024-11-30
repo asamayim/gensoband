@@ -6095,7 +6095,7 @@ const player_class class_info[MAX_CLASS] =
 		"Mizuchi",
 
 		{ -3, 2, 1, 0, -2, 2 },
-		20, 30, 35, 4, 16, 20, 35, 40,
+		20, 36, 35, 4, 16, 20, 35, 40,
 		12, 12, 12, 0,  3,  5, 12, 15,
 		2, 30, 40
 
@@ -6114,6 +6114,29 @@ const player_class class_info[MAX_CLASS] =
 				,MON_TSUKASA
 	},
 
+	{
+		"養蜂家",
+		"養蜂家",
+		"Beekeeper",
+
+		{ 0, 2, -1, 1, 0, 1 },
+		30, 36, 30, 3, 24, 24, 48, 40,
+		10, 12, 10, 0,  3,  4, 18, 12,
+		3, 30, 40
+
+		//追加値暫定
+		,{ 1,4,4,4,4,4,4,4,4,4,4,4,4,0,0,4 }
+		,A_INT
+		,4,2,90,
+		{ 2,2,2,2,3,0,0,0,0,0
+		,4,2,2,2,3,4,2,2,2,2
+		,1 }
+		,85,3,3,3,
+		FALSE,FALSE,FALSE
+		,TRUE
+		,3
+		,0 //not unique;
+	},
 
 
 };
@@ -11066,6 +11089,15 @@ const martial_arts_new ma_blows_new[] =
 	{ "%sにトラバサミのデスロールを見舞った！",   	MELEE_MODE_ENOKO,45, 40, 10, 10, MELEE_DEC_ATK ,10 },
 	{ "%sを三つの顎で噛んで噛んで噛みまくった！",   MELEE_MODE_ENOKO,47, 40, 12, 12, MELEE_DELAY ,12 },
 
+
+	//v2.0.19 養蜂家の蜂
+	{ "蜂たちが威嚇的な羽音を立てた。",			MELEE_MODE_BEES, 1,  0, 1, 1, 0 ,1 },
+	{ "小さな蜂が%sを刺した。",					MELEE_MODE_BEES,10,  0, 2, 8, MELEE_POIS ,1 },
+	{ "蜂の群れが%sに群がった。",				MELEE_MODE_BEES,20, 10, 3, 8, MELEE_POIS ,3 },
+	{ "無数の蜂が%sを押し包んだ！",				MELEE_MODE_BEES,28, 15, 4, 8, MELEE_POIS ,4 },
+	{ "蜂たちが%sに次々に毒針を突き立てた！",	MELEE_MODE_BEES,35, 25, 7, 8, MELEE_POIS ,6 },
+	{ "妖怪蜂の大群が%sを呑み込んだ！",			MELEE_MODE_BEES,43, 35, 10,10, MELEE_DEC_ATK ,8 },
+
 	{ "終端用dummy",0,0,0,1,1,0}
 };
 
@@ -13152,6 +13184,9 @@ const drug_material_type drug_material_table[] =
 	{ TV_SOUVENIR,SV_SOUVENIR_KODOKUZARA,30000,
 	{ 0,0,0,0,1000,-1000,1000,0 } },
 
+	//蜂蜜
+	{ TV_SWEETS,SV_SWEETS_HONEY ,500,
+	{ 0,0,0,0,200,200,300,300 } },
 
 	{0,0,0,{0,0,0,0,0,0,0,0}} //終端用ダミー
 };
