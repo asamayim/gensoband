@@ -36222,7 +36222,7 @@ return TRUE;
 }
 
 
-/*:::職業特技の選択と参照と成功判定*/
+/*職業特技の選択と参照と成功判定*/
 void do_cmd_new_class_power(bool only_browse)
 {
 	class_power_type *class_power_table;

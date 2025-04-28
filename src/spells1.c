@@ -12283,7 +12283,7 @@ bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int typ, in
 	}
 
 	if (p_ptr->pclass == CLASS_YATSUHASHI && music_singing(MUSIC_NEW_TSUKUMO_JINKIN)
-		&& m_ptr->r_idx && get_damage > 0 && !p_ptr->is_dead && (who > 0))
+		&& (who > 0) && m_ptr->r_idx && get_damage > 0 && !p_ptr->is_dead)
 	{
 		msg_format("%s‚Í‹Õ‚Ì‰¹‚É•ï‚Ü‚ê‚½EE", m_name);
 		project(0, 0, m_ptr->fy, m_ptr->fx, get_damage, GF_MISSILE, PROJECT_KILL, -1);
