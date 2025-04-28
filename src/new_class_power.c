@@ -13,6 +13,146 @@ static bool use_itemcard = FALSE;
 	tips
 */
 
+//v2.0.20 大妖精
+class_power_type class_power_daiyousei[] =
+{
+
+	{ 5,5,10,FALSE,TRUE,A_INT,0,0,"霧を泳ぐⅠ",
+	"自分の周囲のモンスターを混乱させようと試みる。" },
+
+	{ 12,6,20,FALSE,TRUE,A_CHR,0,1,"ファイア・ボルト",
+	"火炎属性のボルトを放つ。" },
+
+	{ 18,20,30,FALSE,TRUE,A_INT,0,0,"霧を泳ぐⅡ",
+	"視界内のモンスターを混乱させようと試みる。" },
+
+	{ 24,10,40,FALSE,TRUE,A_CHR,0,4,"ファイア・ボール",
+	"やや強力な火炎属性のボールを放つ。" },
+
+	{ 30,25,50,FALSE,TRUE,A_INT,0,0,"霧を泳ぐⅢ",
+	"モンスター一体を高確率で混乱・攻撃力低下状態にしようと試みる。" },
+
+	{ 35,20,60,FALSE,TRUE,A_CHR,0,8,"レーザー",
+	"閃光属性のビームを放つ。" },
+
+	{ 40,30,75,FALSE,TRUE,A_INT,0,0,"霧を泳ぐⅣ",
+	"近くの指定したグリッドへテレポートする。" },
+
+	{ 99,0,0,FALSE,FALSE,0,0,0,"dummy","" },
+};
+
+
+cptr do_cmd_class_power_aux_daiyousei(int num, bool only_info)
+{
+	int plev = p_ptr->lev;
+	int chr_adj = adj_general[p_ptr->stat_ind[A_CHR]];
+	int dir;
+
+	switch (num)
+	{
+	case 0:
+	{
+		int dam = 20 + plev * 3 + chr_adj * 5;
+		int rad = 2 + plev / 20;
+		if (only_info) return format("効果:～%d", dam / 2);
+
+		msg_print("あなたの周りの霧が濃くなった。");
+		project(0, rad, py, px, dam, GF_OLD_CONF, (PROJECT_KILL | PROJECT_JUMP), -1);
+	}
+	break;
+	case 1:
+	{
+		int dice = 6 + plev / 8;
+		int sides = 8;
+		int base = plev + chr_adj;
+
+		if (only_info) return format("損傷:%dd%d", dice, sides);
+		if (!get_aim_dir(&dir)) return NULL;
+		msg_print("火炎弾を放った。");
+		fire_bolt(GF_FIRE, dir, damroll(dice, sides));
+		break;
+	}
+
+	case 2: //視界内混乱
+	{
+
+		int power = 15 + plev / 2 + chr_adj * 2;
+
+		if (only_info) return format("効果:%d", power);
+
+		msg_print("部屋に霧が漂いはじめた...");
+		project_hack2(GF_OLD_CONF, 0, 0, power);
+
+	}
+	break;
+
+	case 3://ファイアボール
+	{
+		int base = 50 + plev * 2 + chr_adj * 3;
+
+		if (only_info) return format("損傷:%d", base);
+
+		if (!get_aim_dir(&dir)) return NULL;
+		msg_print("大きな火球を放った。");
+		fire_ball(GF_FIRE, dir, base , 2);
+
+		break;
+	}
+
+	case 4:
+	{
+		int power = p_ptr->lev * 3 + chr_adj * 3;
+		if (only_info) return format("効果:%d", power);
+
+		if (power < 100) power = 100;
+
+		if (!get_aim_dir(&dir)) return NULL;
+		if (dir != 5 || !target_okay())
+		{
+			msg_print("視界内のターゲットを明示的に指定しないといけない。");
+			return NULL;
+		}
+		msg_print("濃密な霧が標的を押し包んだ！");
+		fire_ball_jump(GF_OLD_CONF, dir, power, 0,"");
+		fire_ball_hide(GF_DEC_ATK, dir, power, 0);
+
+		break;
+	}
+
+	case 5:
+	{
+		int dice = plev / 2;
+		int sides = 8;
+		int base = plev + chr_adj * 3;
+
+		if (only_info) return format("損傷:%d+%dd%d", base, dice, sides);
+
+		if (!get_aim_dir(&dir)) return NULL;
+		msg_format("あなたはレーザーを放った！");
+		fire_beam(GF_LITE, dir, base + damroll(dice, sides));
+		break;
+	}
+
+	case 6:
+	{
+		int range = plev / 6;
+		if (only_info) return format("距離:%d", range);
+		if (!dimension_door(D_DOOR_MINI)) return NULL;
+	}
+	break;
+
+
+	default:
+		if (only_info) return format("未実装");
+		msg_format("ERROR:実装していない特技が呼ばれた num:%d", num);
+		return NULL;
+	}
+	return "";
+}
+
+
+
+
 
 //v2.0.19 養蜂家
 //p_ptr->magic_num1[0]に生成可能な蜂蜜数(*100)を記録
@@ -5854,7 +5994,7 @@ class_power_type class_power_sangetsu_2[] =
 	"一定時間、フロア全域のモンスターが魔法と一部の行動を使えなくなる。自分たちは制限を受けない。" },
 	{ 45,50,80,FALSE,TRUE,A_CHR,0,0,"パーフェクトフリーズ",
 	"視界内の全てに対し強力な極寒属性攻撃を放つ。" },
-	{ 48,72,80,FALSE,TRUE,A_CHR,0,0,"究極の必殺技",
+	{ 48,72,80,FALSE,TRUE,A_CHR,0,0,"収束レーザー",
 	"閃光属性の強力なレーザーを放つ。" },
 
 
@@ -21988,7 +22128,7 @@ cptr do_cmd_class_power_aux_yamame(int num, bool only_info)
 			int x = 0, y = 0;
 			int dam = 0;
 
-			if (num == 3)
+			if (num == 4)
 			{
 				range = plev / 2;
 				if (only_info) return format("範囲:%d", range);
@@ -22013,7 +22153,7 @@ cptr do_cmd_class_power_aux_yamame(int num, bool only_info)
 				return NULL;
 			}
 
-			if (num == 3)
+			if (num == 4)
 			{
 				if (cave[y][x].m_idx)
 				{
@@ -28176,6 +28316,10 @@ bool item_tester_hook_make_venom(object_type *o_ptr)
 	if(o_ptr->tval == TV_MATERIAL && (o_ptr->sval == SV_MATERIAL_ARSENIC || o_ptr->sval == SV_MATERIAL_MERCURY || o_ptr->sval == SV_MATERIAL_GELSEMIUM)) return TRUE;
 	if(o_ptr->tval == TV_KNIFE && o_ptr->sval == SV_WEAPON_DOKUBARI && !object_is_artifact(o_ptr)) return TRUE;
 	if(object_is_melee_weapon(o_ptr) && o_ptr->name2 == EGO_WEAPON_BRANDPOIS) return TRUE;
+
+	//v2.0.20 花追加
+	if (o_ptr->tval == TV_STICK && o_ptr->sval == SV_WEAPON_FLOWER && (o_ptr->name2 == EGO_WEAPON_FLOWER_AMARYLLIS || o_ptr->name2 == EGO_WEAPON_FLOWER_LILY || o_ptr->name2 == EGO_WEAPON_FLOWER_GHOST)) return TRUE;
+
 	return FALSE;
 }
 
@@ -37020,6 +37164,13 @@ void do_cmd_new_class_power(bool only_browse)
 		power_desc = "特技";
 		break;
 
+	case CLASS_DAIYOUSEI:
+		class_power_table = class_power_daiyousei;
+		class_power_aux = do_cmd_class_power_aux_daiyousei;
+		power_desc = "特技";
+		break;
+
+
 	default:
 		msg_print("あなたは職業による特技を持っていない。");
 		return;
@@ -38394,6 +38545,10 @@ const support_item_type support_item_list[] =
 	//v2.0.17 残無 無心純霊弾
 		{ 100, 60, 128,6,12,	MON_ZANMU,class_power_zanmu,do_cmd_class_power_aux_zanmu,5,
 		"真っ赤な髑髏","それは周囲のランダムな敵に分解属性のボールを連続で放つ。レベルが上がると威力、数、爆発半径が上昇する。" },
+
+	//v2.0.20 大妖精　単体混乱+攻撃低下
+		{ 50,1,50,3,5,	0,class_power_daiyousei,do_cmd_class_power_aux_daiyousei,4,
+		"名もなき花","それはモンスター一体を混乱、攻撃力低下状態にしようと試みる。" },
 
 
 	{0,0,0,0,0,0,NULL,NULL,0,"終端ダミー",""},

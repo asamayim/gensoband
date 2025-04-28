@@ -5531,9 +5531,9 @@ void calc_bonuses(void)
 			if(p_ptr->lev > 9) p_ptr->resist_elec = TRUE;
 			if(p_ptr->lev > 9) p_ptr->resist_acid = TRUE;
 			if(p_ptr->lev > 19) p_ptr->resist_pois = TRUE;
-			if(p_ptr->lev > 24) p_ptr->sustain_str = FALSE;
-			if(p_ptr->lev > 24) p_ptr->sustain_con = FALSE;
-			if(p_ptr->lev > 24) p_ptr->sustain_dex = FALSE;
+			if(p_ptr->lev > 24) p_ptr->sustain_str = TRUE;//v2.0.20 ”\—ÍˆÛŽ‚ªFALSE‚É‚È‚Á‚Ä‚¢‚½‚Ì‚ÅC³
+			if(p_ptr->lev > 24) p_ptr->sustain_con = TRUE;
+			if(p_ptr->lev > 24) p_ptr->sustain_dex = TRUE;
 			if(p_ptr->lev > 29) p_ptr->resist_lite = TRUE;
 			if(p_ptr->lev > 34) p_ptr->mighty_throw = TRUE;
 			if(p_ptr->lev > 34) p_ptr->speedster = TRUE;
@@ -6503,6 +6503,11 @@ void calc_bonuses(void)
 			p_ptr->skill_srh += 5 + plev / 2;
 			p_ptr->skill_stl -= 3;
 		}
+		break;
+
+	case CLASS_DAIYOUSEI:
+
+		if (plev > 24) p_ptr->resist_cold = TRUE;
 
 		break;
 
@@ -6990,6 +6995,7 @@ void calc_bonuses(void)
 			if (p_ptr->lev > 29) p_ptr->resist_sound = TRUE;
 			break;
 		case RACE_IMP:
+			p_ptr->slow_digest = TRUE; //v2.0.20
 			p_ptr->resist_dark = TRUE;
 			p_ptr->resist_insanity = TRUE;
 			if (p_ptr->lev > 19) p_ptr->resist_neth = TRUE;

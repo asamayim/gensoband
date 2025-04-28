@@ -791,7 +791,15 @@ bool screen_object(object_type *o_ptr, u32b mode)
 	#endif
 
 		}
+		if (o_ptr->name1 == ART_MENPO)
+		{
+#ifdef JP
+			info[i++] = "それを装備した者はニンジャになる。";
+#else
+			info[i++] = "It makes you turn into a vampire permanently.";
+#endif
 
+		}
 		if ((o_ptr->tval == TV_KNIFE) && (o_ptr->sval == SV_WEAPON_DOKUBARI))
 		{
 	#ifdef JP
@@ -800,6 +808,19 @@ bool screen_object(object_type *o_ptr, u32b mode)
 			info[i++] = "It will attempt to kill a monster instantly.";
 	#endif
 
+		}
+
+
+		//特殊処理
+		//v2.0.20 美天の棒についての記述を追加し場所移動
+		if (o_ptr->name1 == ART_EIKI)
+		{
+			info[i++] = "それは必ず命中する。";
+			info[i++] = "それは攻撃するときダイス数が(敵レベル/10)増える。";
+		}
+		else if (o_ptr->name1 == ART_BITEN)
+		{
+			info[i++] = "それは倒した敵を配下にすることがある。";
 		}
 
 		//v1.1.48 貧乏神エゴの服
@@ -1279,17 +1300,11 @@ bool screen_object(object_type *o_ptr, u32b mode)
 		}
 
 
-
-		//特殊処理
-		if (o_ptr->name1 == ART_EIKI)
-		{
-			info[i++] = "それは必ず命中する。";
-			info[i++] = "それは攻撃するときダイス数が(敵レベル/10)増える。";
-		}
-		else if (o_ptr->name1 == ART_KRONOS)
+		if (o_ptr->name1 == ART_KRONOS)
 		{
 			info[i++] = "それは全ての男の天敵である。";
 		}
+
 
 		if (have_flag(flgs, TR_KILL_DRAGON))
 		{

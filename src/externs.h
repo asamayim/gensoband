@@ -2792,3 +2792,6 @@ extern void	add_honey(void);
 extern bool object_is_eatable(object_type *o_ptr);
 extern bool object_is_magic_item(object_type *o_ptr);
 
+//v2.0.20
+extern bool detect_specific_objects(int range, int mode);
+//extern bool	hack_flag_biten_pet;

@@ -10566,6 +10566,14 @@ bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int typ, in
 				p_ptr->magic_num1[0] = 1;
 				p_ptr->update |= (PU_BONUS);
 			}
+			//v2.0.20 —•‚à…‚ğó‚¯‚½‚ç­‚µ“ª‚ªˆ«‚­‚È‚é
+			else if (p_ptr->chp >= dam && p_ptr->pclass == CLASS_RAN && !CHECK_MULTISHADOW() && (!p_ptr->resist_water || one_in_(3)) )
+			{
+				msg_print("…‚ğ”í‚Á‚Ä®‚Ì’²q‚ªˆ«‚­‚È‚Á‚½...");
+				do_dec_stat(A_INT);
+			}
+
+
 			else if(p_ptr->pclass == CLASS_HINA && p_ptr->magic_num1[0] > 0)
 			{
 				hina_gain_yaku(-(dam * 2));

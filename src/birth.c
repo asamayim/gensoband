@@ -3137,6 +3137,7 @@ outfit_type birth_outfit_class[] = {
 
 	{ CLASS_BITEN,2,0,TV_CLOTHES, SV_CLOTHES,1 },
 	{ CLASS_BITEN,2,ART_BITEN,0,0,1 },
+	{ CLASS_BITEN,2,0,TV_ALCOHOL, SV_ALCOHOL_NERIZAKE,1 },
 
 	{ CLASS_ENOKO,2,0,TV_CLOTHES, SV_CLOTHES,1 },
 	{ CLASS_ENOKO,2,ART_ENOKO,0,0,1 },
@@ -3151,6 +3152,8 @@ outfit_type birth_outfit_class[] = {
 	{ CLASS_BEEKEEPER,2,0,TV_SWEETS, SV_SWEETS_HONEY,10 },
 	{ CLASS_BEEKEEPER,2,0,TV_POTION, SV_POTION_CURE_POISON,3 },
 
+	{ CLASS_DAIYOUSEI,2,0,TV_CLOTHES, SV_CLOTHES,1 },
+	//{ CLASS_DAIYOUSEI,2,0,TV_STICK, SV_WEAPON_FLOWER,1 }, 個別処理で上質生成する
 
 	{-1,0,0,0,0,0} //終端dummy
 };
@@ -3260,7 +3263,20 @@ void player_outfit(void)
 		add_outfit(q_ptr);
 
 	}
+	//v2.0.20 大妖精の花
+	else if (p_ptr->pclass == CLASS_DAIYOUSEI)
+	{
+		object_prep(q_ptr, lookup_kind(TV_STICK, SV_WEAPON_FLOWER));
+		q_ptr->pval = 2;
+		q_ptr->to_d = 10;
+		q_ptr->to_h = 10;
 
+		object_aware(q_ptr);
+		object_known(q_ptr);
+		q_ptr->ident |= (IDENT_MENTAL);
+		add_outfit(q_ptr);
+
+	}
 
 
 	//v1.1.87 カード売人系の職業がEXTRAモードで開始したとき10連ボックスを追加で持っている
@@ -5894,7 +5910,7 @@ struct unique_player_type
 	cptr info;	//キャラメイク時に表示される説明文
 };
 
-#define UNIQUE_PLAYER_NUM 127
+#define UNIQUE_PLAYER_NUM 128
 #define CLASS_DUMMY 255
 #define RACE_DUMMY 255
 static unique_player_type unique_player_table[UNIQUE_PLAYER_NUM] =
@@ -5906,6 +5922,8 @@ static unique_player_type unique_player_table[UNIQUE_PLAYER_NUM] =
 
 	{TRUE,"ルーミア",CLASS_RUMIA,RACE_YOUKAI,ENTRY_KOUMA,SEX_FEMALE,
 	"あなたは幻想郷の空をあてもなく漂う妖怪です。闇を操る能力があり、暗黒攻撃に関するスキルと耐性を持ちます。身体能力は通常の人間よりは高めですが妖怪としてはごく平凡です。武器の扱いはやや苦手で魔法は使えません。成長すると暗黒攻撃を全く受け付けなくなります。"},
+	{TRUE,"大妖精",CLASS_DAIYOUSEI,RACE_FAIRY,ENTRY_KOUMA,SEX_FEMALE,
+	"あなたは妖精の中で比較的強い力を持つ大妖精の一人です。固有の名前は持っていません。普段は霧の湖で遊んで暮らしています。あなたは霧に関係する能力を持ち、霧に隠れたり人を霧で惑わせることができるようです。魔法を一領域習得することも出来ますが基本的に荒事は全く不得手です。あなたの冒険はかなりの苦労を強いられることになるでしょう。" },
 	{TRUE,"チルノ",CLASS_CIRNO,RACE_FAIRY,ENTRY_KOUMA,SEX_FEMALE,
 	"あなたは普段は霧の湖で遊んで暮らしている氷の妖精です。妖精としては規格外といえるほど強い力を持ちますが、それはあくまでも妖精の中での話です。氷の妖精なので冷気攻撃に強く、成長すると冷気攻撃を全く受け付けなくなります。しかし火炎はあなたの大敵です。冷気関係の特技が豊富ですが、魔法書などはまったく読めず魔道具の扱いも苦手です。探索や解除など細かい作業も苦手です。"},
 	{TRUE,"紅　美鈴",CLASS_MEIRIN,RACE_YOUKAI,ENTRY_KOUMA,SEX_FEMALE,
@@ -6108,7 +6126,7 @@ static unique_player_type unique_player_table[UNIQUE_PLAYER_NUM] =
 	{ TRUE,"玉造　魅須丸",CLASS_MISUMARU,RACE_DEITY,ENTRY_KOURYUU,SEX_FEMALE,
 		"あなたは勾玉制作職人です。鉱物などの素材から勾玉を制作し、これを専用スロットに装備して発動することで様々な能力を発揮することができます。使用する素材によって勾玉に発現する能力の種類や強さが変化します。またあなたは街の鍛冶宝飾ギルドで宝石や装飾品からエッセンスを抽出しそれを別の装飾品に付与することができます。さらに魔法を一領域習得することができますが、肉弾戦は全くの不得手です。また勾玉の繊細な力を使うため劣化攻撃が苦手です。" },
 	{ TRUE,"菅牧　典",CLASS_TSUKASA,RACE_YOUKO,ENTRY_KOURYUU,SEX_FEMALE,
-		"あなたは大天狗に仕える管狐です。人に囁きかけて唆し破滅と混乱をもたらすことをこよなく好みます。あなたは配下モンスターの背後に隠れて操る「寄生」という特殊な騎乗状態になることができます。通常騎乗可能なモンスター以外にも寄生ができ、他のモンスターからの攻撃は高確率で配下モンスターが受け、また配下モンスターが戦うことで得た経験値やアイテムは全てあなたが横取りします。あなたの肉弾戦能力は全く話になりませんが代わりに魔法を一領域習得することができます。配下モンスターを盾にしつつ後ろから魔法や特技で攻撃するのが基本的な戦い方になります。あなたは服が汚れるのが嫌いで、劣化や汚染の攻撃で通常より多くのダメージを受けてしまいます。" },
+		"あなたは大天狗に仕える管狐です。人に囁きかけて唆し破滅と混乱をもたらすことをこよなく好みます。あなたは配下モンスターの背後に隠れて操る「寄生」という特殊な騎乗状態になることができます。通常騎乗可能なモンスター以外にも寄生ができ、他のモンスターからの攻撃は高確率で配下モンスターが受け、また配下モンスターが戦うことで得た経験値やアイテムは全てあなたが横取りします。あなたの肉弾戦能力は全く話になりませんが代わりに魔法を一領域習得することができます。配下モンスターを盾にしつつ後ろから魔法や特技で攻撃するのが基本的な戦い方になります。変身はあまり得意ではないようです。あなたは服が汚れるのが嫌いで、劣化や汚染の攻撃で通常より多くのダメージを受けてしまいます。" },
 	{ TRUE,"飯綱丸　龍",CLASS_MEGUMU,RACE_KARASU_TENGU,ENTRY_KOURYUU,SEX_FEMALE,
 		"あなたは妖怪の山で鴉天狗たちを束ねる大天狗です。非常に動きが素早く機知に富み文武両道の強さです。さらに視界内すべてを攻撃する強力な特技を複数習得します。ただし長く生きてきたためレベルアップに必要な経験値は多くなります。また頭には頭襟しか装備できません。" },
 	{ TRUE,"天弓　千亦",CLASS_CHIMATA,RACE_DEITY,ENTRY_KOURYUU,SEX_FEMALE,
@@ -6328,7 +6346,7 @@ static bool get_unique_player(void)
 	int entry;
 	unique_player_type table[16];
 	int cnt_table;
-	char temp[80*9];
+	char temp[80*12];
 	cptr t;
 	char    buf[80], cur[80];
 	int mul_exp, mul_score;
@@ -6485,7 +6503,7 @@ static bool get_unique_player(void)
 
 		roff_to_buf(table[k].info, 74, temp, sizeof(temp));
 		t = temp;
-		for (i = 0; i< 9; i++)
+		for (i = 0; i< 12; i++)
 		{
 			if(t[0] == 0)
 				break; 
@@ -7919,7 +7937,6 @@ void gain_perma_mutation(void)
  * Note that we may be called with "junk" leftover in the various
  * fields, so we must be sure to clear them first.
  */
-/*:::キャラクターメイク*/
 void player_birth(void)
 {
 	int i, j;

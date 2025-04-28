@@ -2604,6 +2604,14 @@ static bool cmd_racial_power_aux(s32b command)
 
 			break;
 		}
+
+		case RACE_IMP:
+			msg_print("あなたは本の囁きに耳を澄ませた...");
+
+			(void)detect_specific_objects(255, 1);
+			break;
+
+
 		case RACE_STRAYGOD:
 			if(!deity_racial_power_aux(command)) return FALSE;
 			break;
@@ -4848,6 +4856,16 @@ strcpy(power_desc[num].name, "テレポート・バック");
 			power_desc[num].fail = 25;
 			power_desc[num].info = "離れた場所にいる敵を自分の近くへ引き寄せる。";
 			power_desc[num++].number = -2;
+			break;
+
+		case RACE_IMP:
+			strcpy(power_desc[num].name, "書物感知");
+			power_desc[num].level = 15;
+			power_desc[num].cost = 30;
+			power_desc[num].stat = A_INT;
+			power_desc[num].fail = 20;
+			power_desc[num].info = "フロアの床に落ちている本を感知する。";
+			power_desc[num++].number = -1;
 			break;
 
 		case RACE_STRAYGOD:

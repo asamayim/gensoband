@@ -4155,10 +4155,10 @@ D:天界の宝剣だ。剣自らが相手の気質を感じ取りその弱点を突くという。
 
 N:237:『楼観剣』
 E:'roukanken'
-I:25:4:0
+I:25:6:0
 W:30:30:60:80000
-P:0:5d4:10:15:0
-F:SHOW_MODS | RIDING | KILL_UNDEAD | VORPAL
+P:0:7d4:10:15:0
+F:SHOW_MODS | KILL_UNDEAD | VORPAL
 D:妖怪が鍛えた長大な太刀だ。斬れぬものなどあんまりない。
 D:一振りで幽霊十匹分の殺傷力を持つという。
 
@@ -5385,7 +5385,8 @@ P:0:1d9:12:12:6
 F:STR | CON | 
 F:SLAY_ANIMAL | SLAY_KWAI | ACTIVATE | QUESTITEM | THROW
 U:TRANSPORTATION_TRAP
-D:孫美天が持つ長い試験管のような透明な棒だ。中には何か煙のようなものが封じられているのが見える。
+D:孫美天が持つ長い試験管のような透明な棒だ。
+D:殴られた相手の魂の一部を封じ込めて従わせる力があるらしい。
 
 N:349:三頭慧ノ子の
 E:of Enoko
@@ -5410,4 +5411,13 @@ U:RESIST_ALL
 D:とんち話で有名な一休和尚の杖だ。
 D:彼は杖の先に頭蓋骨を据え付けて正月の街を歩き命の儚さを説いて回ったという。
 D:『有漏路より　無漏路へ帰る　一休み　雨降らば降れ　風吹かば吹け』
+
+N:351:湖の姫ニミュエの
+E:of Nimue
+I:47:53:4
+W:65:65:2:75000
+F:INSTA_ART | HIDE_TYPE
+F:INT | WIS | CHR | SAVING
+F:RES_INSANITY | RES_CONF | RES_CHAOS | RES_BLIND | SEE_INVIS
+D:湖の姫ニミュエが騎士ランスロットに授けた強力な退魔の指輪だ。
 

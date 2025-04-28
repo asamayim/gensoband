@@ -2043,6 +2043,9 @@ struct marisa_store_type marisa_wants_table[] =
 
 	{ TV_SWEETS,SV_SWEETS_HONEY ,30 },
 
+	{ TV_ALCOHOL,SV_ALCOHOL_NERIZAKE ,300 },
+
+
 	{0,0,0}//終端用ダミー
 };
 
@@ -5713,7 +5716,7 @@ bool check_quest_unique_text(void)
 			}
 
 		}
-		else if(pc == CLASS_SUNNY || pc == CLASS_LUNAR || pc == CLASS_STAR || pc == CLASS_3_FAIRIES)
+		else if(pc == CLASS_SUNNY || pc == CLASS_LUNAR || pc == CLASS_STAR || pc == CLASS_3_FAIRIES || pc == CLASS_DAIYOUSEI)
 		{
 			if(comp)
 			{
@@ -5723,14 +5726,14 @@ bool check_quest_unique_text(void)
 			else if(fail)
 			{
 				strcpy(quest_text[line++], "チルノ「うーん、何だったんだろ？");
-				strcpy(quest_text[line++], "悪かったってば！そんなに睨まないでよ！」");
+				strcpy(quest_text[line++], "いや悪かったってば！そんなに睨まないでよ！」");
 			}
 			else
 			{
 				strcpy(quest_text[line++], "チルノ「さっきはよくもやってくれたわね！");
 				strcpy(quest_text[line++], "ここで会ったが百年目！いざ尋常に死ねい！");
 				strcpy(quest_text[line++], "…え？何のことだかわからないって？");
-				strcpy(quest_text[line++], "あっちの洞窟の近くであたいに火の玉ぶつけたのはあんたたちじゃないの？」");
+				strcpy(quest_text[line++], "あっちの洞窟の近くであたいに火の玉ぶつけたのはあんたじゃないの？」");
 			}
 		}
 
