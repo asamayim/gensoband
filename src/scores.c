@@ -252,12 +252,12 @@ sprintf(tmp_val, "( %d ˆÊˆÈ‰º )", k + 1);
 			//test msg_format("pr:%d(%s) pc:%d(%s) pa:%d(%s)",pr,the_score.p_r,pc,the_score.p_c,pa,the_score.p_a);
 			if(pc > 999) pc = pc / 100;
 
-			if(pc > 255 || pc < 0)
+			if(pc >= MAX_CLASS || pc < 0)
 			{
 				msg_format("display_scores_aux()‚Åplayer_class’l‚ª‚¨‚©‚µ‚¢(%d)",pc);
 				return;
 			}
-			if(pr > 255 || pr < 0)
+			if(pr >= MAX_RACES || pr < 0)
 			{
 				msg_format("display_scores_aux()‚Åplayer_race’l‚ª‚¨‚©‚µ‚¢(%d)",pr);
 				return;

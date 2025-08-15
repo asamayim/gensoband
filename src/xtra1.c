@@ -542,6 +542,7 @@ static void prt_stat(int stat)
 #define BAR_TRANSPORTATION_TRAP	115 //v2.0.11 ˆÚ‘—‚Ìã©
 #define BAR_VOID				116 //v2.0.17 c–³‹•–³‘€ì
 #define BAR_BEES				117 //v2.0.19 —{–I‰Æ‚Ì–I
+#define BAR_HIDE				118 //v2.1.0  ö•š
 
 //‚±‚±‚Ì’l‚Í127‚ªŒ»İ‚ÌŒÀŠE‚Å‚ ‚éB(v1.1.46‚Å95‚©‚çŠg’£)
 
@@ -679,6 +680,7 @@ static struct {
 	{ TERM_WHITE, "‘—", "ˆÚ‘—‚Ìã©" },
 	{ TERM_L_DARK, "–³", "‹•–³‚Ì—Í" },
 	{ TERM_YELLOW, "–I", "–I‚ÌŒì‰q" },
+	{ TERM_L_DARK, "‰B", "ö•š" },
 
 
 	{0, NULL, NULL}
@@ -1104,6 +1106,9 @@ static void prt_status(void)
 
 	if (p_ptr->pclass == CLASS_BEEKEEPER && (p_ptr->tim_general[0]))
 		ADD_FLG(BAR_BEES);
+
+	if (p_ptr->pclass == CLASS_MIZUCHI && (p_ptr->tim_general[0]))
+		ADD_FLG(BAR_HIDE);
 
 
 	/* Hex spells */
@@ -3191,7 +3196,8 @@ static void calc_spells(void)
 	{
 		if (num_allowed>(150+bonus)) num_allowed = 150+bonus;
 	}
-	else if (p_ptr->realm2 == REALM_NONE)
+	//v2.1.0 —ì‚Í2—ÌˆæK“¾‚µ‚Ä‚¢‚é‚ªÀ¿ˆê—Ìˆæ‚È‚Ì‚ÅŒ¸‚ç‚·
+	else if (p_ptr->realm2 == REALM_NONE || p_ptr->pclass == CLASS_MIZUCHI)
 	{
 		num_allowed = (num_allowed+1)/2;
 		if (num_allowed>(32+bonus)) num_allowed = 32+bonus;
@@ -6506,11 +6512,20 @@ void calc_bonuses(void)
 		break;
 
 	case CLASS_DAIYOUSEI:
-
 		if (plev > 24) p_ptr->resist_cold = TRUE;
-
 		break;
 
+	case CLASS_MIZUCHI:
+		if (p_ptr->tim_general[0]) p_ptr->skill_stl += 8;
+
+		p_ptr->resist_fear = TRUE;
+		p_ptr->resist_neth = TRUE;
+		p_ptr->free_act = TRUE;
+
+		if(plev > 29) p_ptr->warning = TRUE;
+		if(plev > 39) p_ptr->resist_insanity = TRUE;
+
+		break;
 
 
 	default:
@@ -8113,6 +8128,24 @@ void calc_bonuses(void)
 		if (p_ptr->muta4  & MUT4_GHOST_HANGOKUOH)
 		{
 			p_ptr->resist_neth = TRUE;
+		}
+		//v2.1.0
+		if (p_ptr->muta4 & MUT4_GHOST_CHEERS)
+		{
+			p_ptr->ac += 25;
+			p_ptr->dis_ac += 25;
+			p_ptr->to_a += 25;
+			p_ptr->to_h[0] += 10;
+			p_ptr->to_h[1] += 10;
+			p_ptr->to_h_m += 10;
+			p_ptr->to_d[0] += 10;
+			p_ptr->to_d[1] += 10;
+			p_ptr->to_d_m += 10;
+			p_ptr->dis_to_h[0] += 10;
+			p_ptr->dis_to_h[1] += 10;
+			p_ptr->dis_to_d[0] += 10;
+			p_ptr->dis_to_d[1] += 10;
+
 		}
 
 
@@ -11218,6 +11251,7 @@ void calc_bonuses(void)
 			{
 				p_ptr->to_h[i] += (ref_skill_exp(inventory[INVEN_RARM + i].tval) - WEAPON_EXP_BEGINNER) / 200;
 				p_ptr->dis_to_h[i] += (ref_skill_exp(inventory[INVEN_RARM + i].tval) - WEAPON_EXP_BEGINNER) / 200;
+				//msg_format("testmsg:%d", inventory[INVEN_RARM + i].tval);
 			}
 
 			///sys item class Cs‘m‚â”EÒ‚Ìu‚Ó‚³‚í‚µ‚­‚È‚¢‘•”õv”»’è

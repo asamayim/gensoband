@@ -2624,6 +2624,7 @@ void compound_drug(void)
 			if(!max)
 			{
 				msg_print("材料の数が足りない。");
+				inkey();
 				continue;
 			}
 			else if(max > 1)
@@ -2643,6 +2644,7 @@ void compound_drug(void)
 			if(p_ptr->au < total_cost)
 			{
 				msg_print("所持金が施設使用料に足りないようだ。");
+				inkey();
 				continue;
 			}
 
@@ -3332,6 +3334,12 @@ void exbldg_search_around(void)
 		msg3 = "「それでは、探索頑張ってくださいね。」";
 		break;
 
+	case BLDG_EX_GHOSTS: //v2.1.0 怨霊の溜まり場
+		msg1 = "怨霊の群れが無言であなたを遠巻きに見ている...";
+		msg1_2 = "";
+		msg2 = "この場にとどまりますか？";
+		msg3 = "怨霊たちはあなたに構わず何やら盛り上がっている...";
+		break;
 
 
 
@@ -4134,6 +4142,41 @@ void exbldg_search_around(void)
 			show_building(&building[ex_bldg_num]);
 			break;
 		}
+
+
+		case BLDG_EX_GHOSTS: //v2.1.0 怨霊の溜まり場
+		{
+
+			clear_bldg(4, 18);
+			prt("怨霊たちがあなたに近寄ってくる...", 7, 20);
+			inkey();
+
+			if (p_ptr->chp <= p_ptr->mhp / 2)
+			{
+				prt("怨霊たちはあなたに向けて高らかにラッパを吹き鳴らした！", 12, 20);
+				hp_player(500);
+				set_cut(0);
+				set_stun(0);
+				gain_random_mutation(218);
+			}
+			else
+			{
+				c_put_str(TERM_RED, "怨霊たちはあなたに殺到して揉みくちゃにした！", 12, 20);
+
+				hack_ex_bldg_summon_mode = (PM_ALLOW_GROUP | PM_NO_PET);
+				if (randint1(dun_level) < 25) hack_ex_bldg_summon_idx = MON_ONRYOU;
+				else
+				{
+					hack_ex_bldg_summon_idx = MON_G_ONRYOU;
+					hack_ex_bldg_summon_num = 2 + dun_level / 16;
+				}
+
+			}
+			inkey();
+
+		}
+		break;
+
 		default:
 		msg_print("ERROR:exbldg_search_around()にこの建物の処理が登録されていない");
 	}
@@ -4360,6 +4403,13 @@ bool	nightmare_diary(void)
 	if (p_ptr->pclass == CLASS_CLOWNPIECE)
 	{
 		msg_print("あなたは本を見せてもらえなかった。");
+		return FALSE;
+	}
+
+	//瑞霊も参加不可。入るときに憑依効果が消滅して出られなくなるので
+	if (CHECK_MIZUCHI_GHOST)
+	{
+		msg_print("やめておこう。夢の支配者に心を開示したくない。");
 		return FALSE;
 	}
 
@@ -4830,15 +4880,19 @@ bool hatate_search_unique_monster(void)
 			return FALSE;
 		}
 		//自分　＠がはたてのときは一つ前に行くはず
-		if (monster_is_you(search_r_idx))
+		else if (monster_is_you(search_r_idx))
 		{
-			prt("　見つけたわ！私の目の前ね！」", 9, 20);
+			if(p_ptr->pclass == CLASS_MIZUCHI)
+				prt("　やっぱり駄目ね。あいつを念写すると画像が破損するの。ごめんね？」", 9, 20);
+			else
+				prt("　見つけたわ！私の目の前ね！」", 9, 20);
 			inkey();
 			return FALSE;
 		}
 
 		//打倒済み
-		if (r_ptr->r_akills)
+		//v2.1.0 レイマリ除く
+		if (r_ptr->r_akills && search_r_idx != MON_REIMU && search_r_idx != MON_MARISA)
 		{
 			if (hatate)
 				prt("　自分が格好良く倒したシーンが写っていた。", 9, 20);
@@ -5088,6 +5142,17 @@ bool hatate_search_unique_monster(void)
 			c_put_str(TERM_WHITE, format("見つけた!%sの%d階にいる！", (d_name + d_info[search_dungeon].name), search_floor), 9, 20);
 		else
 			c_put_str(TERM_WHITE, format("見つけたわ!%sの%d階よ！」", (d_name + d_info[search_dungeon].name), search_floor), 9, 20);
+
+		//v2.1.0 追加ジョークメッセージ
+		if (search_r_idx == MON_DIO)
+		{
+
+			if (hatate)
+				c_put_str(TERM_WHITE, format("...こちらを見て何か叫んでいるように見えるのは気のせいだろうか？"), 10, 20);
+			else
+					c_put_str(TERM_WHITE, format("(ひょっとしてこの人こっちに気づいてる？)"), 10, 20);
+
+		}
 
 		inkey();
 

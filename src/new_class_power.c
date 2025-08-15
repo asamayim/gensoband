@@ -13,6 +13,259 @@ static bool use_itemcard = FALSE;
 	tips
 */
 
+
+
+
+//v2.1.0 瑞霊
+//人間系種族に種族変容したときmagic_num2[0]にフラグが立って一部の設定が変わる
+
+class_power_type class_power_mizuchi[] =
+{
+	{ 1,20,20,FALSE,TRUE,A_INT,0,0,"憑依",
+	"モンスターに憑依して操る。装備品はほとんど無効化される。ユニークモンスターには成功しにくく、眠っているモンスターや弱っているモンスターには成功しやすい。憑依したモンスターは打倒済み扱いになる。憑依に時間制限はなく魔力消去でも解除されない。憑依中に倒されるとHPが半減した状態で憑依が解除される。Uコマンドから自発的に憑依解除したり憑依中のモンスターの特技を使用したりできる。" },
+
+	{ 8,15,30,FALSE,FALSE,A_INT,0,0,"周辺探査",
+	"周囲のモンスターとトラップを感知する。さらにレベル20でアイテム、レベル30で地形を感知する。" },
+
+	{ 15,30,40,FALSE,FALSE,A_DEX,0,0,"潜伏",
+	"一時的に隠密能力が上昇しモンスターの感知から逃れる。ただし視界に入ったモンスターには感知される。" },
+
+	{ 25,30,30,FALSE,FALSE,A_DEX,0,0,"瞬間移動",
+		"一行動で数グリッドを移動する。視界外にも移動できるがドアを通過するとき移動可能距離が短くなる。" },
+
+	{ 30,10,10,FALSE,FALSE,A_WIS,0,0,"エナジードレイン",
+		"敵に触ってHPとMPを奪う。回避されることもある。生命を持たない敵には無効。" },
+
+	{ 40,60,75,FALSE,FALSE,A_WIS,0,0,"地獄の嵐",
+		"強力な地獄属性のボールを放つ。" },
+
+
+
+	{ 99,0,0,FALSE,FALSE,0,0,0,"dummy","" },
+};
+
+cptr do_cmd_class_power_aux_mizuchi(int num, bool only_info)
+{
+	int dir, dice, sides, base, damage, i;
+	int plev = p_ptr->lev;
+	int chr_adj = adj_general[p_ptr->stat_ind[A_CHR]];
+
+	switch (num)
+	{
+
+	case 0:
+
+	{
+		int x, y;
+		int dist = 1;
+		monster_type* m_ptr;
+		char m_name[80];
+
+		//地獄の首輪を装備しているときのみ遠隔可能
+		if (check_equip_specific_fixed_art(ART_HARNESS_HELL, TRUE)) dist += 7;
+
+		if (only_info) return format("射程:%d", dist);
+		project_length = dist;
+		if (!get_aim_dir(&dir)) return NULL;
+
+		x = target_col;
+		y = target_row;
+
+		if (dir != 5 || !target_okay() || !projectable(y, x, py, px))
+		{
+			msg_print("視界内のターゲットを明示的に指定しないといけない。");
+			return NULL;
+		}
+		project_length = 0;
+
+		m_ptr = &m_list[cave[y][x].m_idx];
+
+		if (!m_ptr->r_idx || !m_ptr->ml)
+		{
+			msg_print("そこには何もいない。");
+			return NULL;
+		}
+		else if (m_ptr->r_idx == MON_REIMU)
+		{
+			msg_print("博麗の巫女に取り憑くつもりはない。あくまで恐怖を与えなければ。");
+			return NULL;
+		}
+		else
+		{
+			int r_idx = m_ptr->r_idx;
+			int chance;
+			monster_race* r_ptr = &r_info[m_ptr->r_idx];
+			monster_desc(m_name, m_ptr, 0);
+
+
+			chance = MAX(plev,5) * 100 / MAX(r_ptr->level, 1);
+
+			//モンスターのHPが低下していると成功率上昇
+			chance += 50 * (m_ptr->max_maxhp - m_ptr->hp) / m_ptr->max_maxhp;
+
+			if (MON_CSLEEP(m_ptr)) chance = chance * 2;
+			if (r_ptr->flags1 & RF1_UNIQUE || r_ptr->flags7 & RF7_UNIQUE2) chance /= 2;
+
+			if (p_ptr->wizard) chance = 100;
+			if (chance > 100) chance = 100;
+			if (r_ptr->flags1 & RF1_QUESTOR) chance = 0;
+			if (r_ptr->flagsr & RFR_RES_ALL) chance = 0;
+
+			if (!get_check_strict(format("取り憑きますか？(成功率:%d%%)", chance), CHECK_DEFAULT_Y)) return NULL;
+			//成功するとモンスターを削除しそのモンスターに変身
+			if (randint0(100) < chance)
+			{
+				int mon_old_hp = m_ptr->hp;
+
+				if (check_equip_specific_fixed_art(ART_HARNESS_HELL, TRUE))
+					msg_format("%sに首輪がかかった！",m_name);
+				else
+					msg_format("あなたは%sに飛びかかった！",m_name);
+
+
+				check_quest_completion(m_ptr);
+				delete_monster_idx(cave[y][x].m_idx);
+				move_player_effect(y, x, MPE_DONT_PICKUP);
+				metamorphose_to_monster(r_idx, -1);
+
+				if (p_ptr->chp < mon_old_hp)
+				{
+					p_ptr->chp = MIN(p_ptr->mhp, mon_old_hp);
+					p_ptr->redraw |= PR_HP;
+					redraw_stuff();
+				}
+
+				//憑依成功したら打倒済みにする
+				if (r_ptr->r_akills < MAX_SHORT) r_ptr->r_akills++;
+				if (r_ptr->r_pkills < MAX_SHORT) r_ptr->r_pkills++;
+				if (r_ptr->flags1 & RF1_UNIQUE) r_ptr->max_num = 0;
+
+
+				gain_exp(r_ptr->mexp);
+
+			}
+			else
+			{
+				msg_print("憑依に失敗した！");
+				//起こす
+				set_monster_csleep(cave[y][x].m_idx, 0);
+				if (is_friendly(m_ptr))
+				{
+					msg_format("%sは怒った!", m_name);
+					set_hostile(m_ptr);
+				}
+
+			}
+		}
+	}
+	break;
+
+	case 1://
+	{
+		int rad = 11 + plev / 3;
+		if (only_info) return format("範囲:%d", rad);
+
+		msg_print("あなたは周囲の状況の把握に集中した。");
+
+		detect_monsters_normal(rad);
+		detect_monsters_invis(rad);
+		detect_traps(rad, TRUE);
+		if (plev > 19)
+		{
+			detect_objects_gold(rad);
+			detect_objects_normal(rad);
+		}
+		if (plev > 29)
+		{
+			map_area(rad);
+		}
+		break;
+	}
+
+	case 2://潜伏
+	{
+		int base = 25 + plev * 2;
+		int time;
+
+		if (only_info) return format("期間:%d", base);
+		time = base;
+		set_tim_general(time, FALSE, 0, 0);
+	}
+	break;
+
+	case 3: //瞬間移動　フランの蝙蝠移動と同じ
+	{
+		int x, y;
+		int cost;
+		int dist = 1 + plev / 12;
+
+		if (CHECK_MIZUCHI_GHOST && !p_ptr->mimic_form) dist *= 2;
+
+		if (only_info) return format("移動コスト:%d", dist - 1);
+		if (!tgt_pt(&x, &y)) return NULL;
+
+		if (!player_can_enter(cave[y][x].feat, 0) || !(cave[y][x].info & CAVE_KNOWN))
+		{
+			msg_print("そこには行けない。");
+			return NULL;
+		}
+		forget_travel_flow();
+		travel_flow(y, x);
+		if (dist < travel.cost[py][px])
+		{
+			if (travel.cost[py][px] >= 9999)
+				msg_print("そこには道が通っていない。");
+			else
+				msg_print("そこは遠すぎる。");
+			return NULL;
+		}
+
+		if (CHECK_MIZUCHI_GHOST && !p_ptr->mimic_form)
+			msg_print("あなたは黒い霧状になって瞬時に移動した。");
+		else
+			msg_print("あなたは素早い身のこなしを見せた。");
+
+		teleport_player_to(y, x, TELEPORT_NONMAGICAL);
+
+		//高速移動がある時移動と同じように消費行動力が減少する
+		if (p_ptr->speedster)
+			new_class_power_change_energy_need = (75 - p_ptr->lev / 2);
+
+		break;
+	}
+	case 4:
+	{
+		if (only_info) return format("");
+
+		if (!energy_drain()) return NULL;
+
+	}
+	break;
+
+	case 5: //地獄球
+	{
+
+		int dam = plev * 14 + chr_adj * 10;
+		int rad = 4;
+
+		if (only_info) return format("損傷:%d", dam);
+		if (!get_aim_dir(&dir)) return NULL;
+
+		msg_format("怨念のエネルギーを叩き付けた！");
+		fire_ball(GF_NETHER, dir, dam, rad);
+
+	}
+	break;
+
+	default:
+		if (only_info) return format("未実装");
+		msg_format("ERROR:実装していない特技が呼ばれた num:%d", num);
+		return NULL;
+	}
+	return "";
+}
+
+
 //v2.0.20 大妖精
 class_power_type class_power_daiyousei[] =
 {
@@ -7576,7 +7829,7 @@ cptr do_cmd_class_power_aux_sumireko_d(int num, bool only_info)
 class_power_type class_power_shion[] =
 {
 	{ 1,0,0,FALSE,TRUE,A_INT,0,0,"強制完全憑依",
-	"モンスターに憑依して操る。ユニークモンスターには成功しにくく、眠っているモンスターには成功しやすい。憑依されたモンスターは打倒済み扱いになる。憑依に時間制限はなく魔力消去でも解除されない。" },
+	"モンスターに憑依して操る。ユニークモンスターには成功しにくく、眠っているモンスターには成功しやすい。憑依されたモンスターは打倒済み扱いになる。憑依に時間制限はなく魔力消去でも解除されないが憑依中に倒されるとゲームオーバーになる" },
 
 	{ 1,0,0,FALSE,FALSE,A_CHR,0,0,"物乞い",
 	"モンスターから食物や物資を得ようと試みる。成功したらアイテムをくれたモンスターはフロアから去る。クエストダンジョンでは使えない。" },
@@ -22003,6 +22256,10 @@ class_power_type class_power_yamame[] =
 
 	{1,5,0,TRUE,FALSE,A_DEX,0,0,"巣を張る",
 		"地形「蜘蛛の巣」を作る。巣の上にいるとACにボーナスを得られる。レベル30以降はさらに高速移動能力を得られ、また巣の上にいるモンスターを感知する。"},
+
+	{7,5,20,FALSE,FALSE,A_DEX,0,0,"アイテム引き寄せ",
+		"離れた場所のアイテムひとつを足元に引き寄せる。"},
+
 	{12,10,35,FALSE,TRUE,A_STR,0,4,"キャプチャーウェブ",
 		"周囲に蜘蛛の巣を張り巡らせる。レベル25以上になるとさらに周囲の敵にダメージを与え減速させようとする。"},
 	{16,22,40,FALSE,FALSE,A_CON,0,0,"原因不明の熱病",
@@ -22060,12 +22317,18 @@ cptr do_cmd_class_power_aux_yamame(int num, bool only_info)
 			else
 				msg_print("ここには巣を張れない。");
 
-
-
+	case 1:
+	{
+		int weight = p_ptr->lev * 10;
+		if (only_info) return format("重量:%d", weight);
+		if (!get_aim_dir(&dir)) return NULL;
+		fetch(dir, weight, FALSE);
+		break;
+	}
 
 			break;
 		}
-	case 1: //キャプチャーウェブ
+	case 2: //キャプチャーウェブ
 		{
 			int rad =  1 + (plev-10) / 15;
 			if(plev < 25)
@@ -22088,7 +22351,7 @@ cptr do_cmd_class_power_aux_yamame(int num, bool only_info)
 			break;
 		}
 
-	case 2: //原因不明の熱病
+	case 3: //原因不明の熱病
 		{
 			int power = plev * 3;
 			if(power < 50) power = 50;
@@ -22104,7 +22367,7 @@ cptr do_cmd_class_power_aux_yamame(int num, bool only_info)
 		}
 
 	//v2.0.19 ガスのブレス
-	case 3:
+	case 4:
 	{
 		int dam = p_ptr->chp / 4;
 		if (dam<1) dam = 1;
@@ -22121,14 +22384,14 @@ cptr do_cmd_class_power_aux_yamame(int num, bool only_info)
 
 
 
-	case 4: //カンダタロープ
-	case 8: //v1.1.91 ヴェノムウェブ
+	case 5: //カンダタロープ
+	case 9: //v1.1.91 ヴェノムウェブ
 		{
 			int range;
 			int x = 0, y = 0;
 			int dam = 0;
 
-			if (num == 4)
+			if (num == 5)
 			{
 				range = plev / 2;
 				if (only_info) return format("範囲:%d", range);
@@ -22153,7 +22416,7 @@ cptr do_cmd_class_power_aux_yamame(int num, bool only_info)
 				return NULL;
 			}
 
-			if (num == 4)
+			if (num == 5)
 			{
 				if (cave[y][x].m_idx)
 				{
@@ -22192,7 +22455,7 @@ cptr do_cmd_class_power_aux_yamame(int num, bool only_info)
 		}
 
 
-	case 5: //フィルドミアズマ
+	case 6: //フィルドミアズマ
 		{
 			int dam = plev * 3 + chr_adj * 3;
 			if(only_info) return format("損傷:%d",dam);
@@ -22202,7 +22465,7 @@ cptr do_cmd_class_power_aux_yamame(int num, bool only_info)
 			break;
 		}
 
-	case 6: //樺黄小町
+	case 7: //樺黄小町
 		{
 			int y, x;
 			monster_type *m_ptr;
@@ -22263,7 +22526,7 @@ cptr do_cmd_class_power_aux_yamame(int num, bool only_info)
 			break;
 		}	
 
-	case 7: //階段生成
+	case 8: //階段生成
 	{
 		if (only_info) return format("");
 
@@ -22275,7 +22538,7 @@ cptr do_cmd_class_power_aux_yamame(int num, bool only_info)
 
 
 
-	case 9: //石窟の蜘蛛の巣
+	case 10: //石窟の蜘蛛の巣
 		{
 			if(only_info) return format("");
 			msg_print("周囲が光る網に埋め尽くされた！");
@@ -35280,6 +35543,10 @@ bool check_class_skill_usable(char *errmsg,int skillnum, class_power_type *class
 		{
 			//影狼は変身中にも特技が使える
 		}
+		else if (p_ptr->pclass == CLASS_MIZUCHI)
+		{
+			//瑞霊も変身/憑依中に特技が使える
+		}
 		else
 		{
 			my_strcpy(errmsg, "この姿ではその技は使えない。", 150);
@@ -36212,6 +36479,15 @@ bool check_class_skill_usable(char *errmsg,int skillnum, class_power_type *class
 
 		}
 	}
+	else if (p_ptr->pclass == CLASS_MIZUCHI)
+	{
+		if (!(CHECK_MIZUCHI_GHOST) && skillnum == 0)
+		{
+			my_strcpy(errmsg, "幽霊でないとこの特技は使えない。", 150);
+			return FALSE;
+		}
+	}
+
 
 
 
@@ -37170,6 +37446,13 @@ void do_cmd_new_class_power(bool only_browse)
 		power_desc = "特技";
 		break;
 
+	case CLASS_MIZUCHI:
+		class_power_table = class_power_mizuchi;
+		class_power_aux = do_cmd_class_power_aux_mizuchi;
+		power_desc = "特技";
+		break;
+
+
 
 	default:
 		msg_print("あなたは職業による特技を持っていない。");
@@ -37488,10 +37771,10 @@ void do_cmd_new_class_power(bool only_browse)
 	if(only_browse)
 	{
 		int j, line;
-		char temp[62*5];
+		char temp[62*7];
 		screen_save();
 
-		for(j=16;j<23;j++)	Term_erase(12, j, 255);
+		for(j=16;j<24;j++)	Term_erase(12, j, 255);
 
 		roff_to_buf(spell->tips, 62, temp, sizeof(temp));
 		for(j=0, line = 17;temp[j];j+=(1+strlen(&temp[j])))
@@ -37605,8 +37888,18 @@ void do_cmd_new_class_power(bool only_browse)
 	/*:::特技成功処理*/
 	else
 	{
+		//v2.1.0 変異「怨霊の応援」があるとき特技の属性が暗黒に変化する特殊フラグを立てる
+		if(p_ptr->muta4 & MUT4_GHOST_CHEERS)
+			hack_flag_darkness_power = TRUE;
+
 		/*:::成功判定後にターゲット選択でキャンセルしたときなどにはcptrにNULLが返り、そのまま行動順消費せず終了する*/
-		if(!(*class_power_aux)(num,FALSE)) return;
+		if (!(*class_power_aux)(num, FALSE))
+		{
+			hack_flag_darkness_power = FALSE;
+			return;
+		}
+		hack_flag_darkness_power = FALSE;
+
 	}
 
 	/*:::ターンやコスト消費など*/
@@ -38152,10 +38445,10 @@ const support_item_type support_item_list[] =
 	"人工太陽","それは極めて強力な核熱属性のレーザーを放つ。"},
 
 	//原因不明の熱病
-	{60,10, 50,3,7,	MON_YAMAME,class_power_yamame,do_cmd_class_power_aux_yamame,2,
+	{60,10, 50,3,7,	MON_YAMAME,class_power_yamame,do_cmd_class_power_aux_yamame,3,
 	"子蜘蛛の群れ","それは視界内の敵を混乱、朦朧させる。"},
 	//樺黄小町
-	{60,30, 80,6,5,	MON_YAMAME,class_power_yamame,do_cmd_class_power_aux_yamame,6,
+	{60,30, 80,6,5,	MON_YAMAME,class_power_yamame,do_cmd_class_power_aux_yamame,7,
 	"土蜘蛛の牙","それは隣接した敵にダメージを与える。毒耐性を持たない敵には三倍のダメージを与え、攻撃力を低下させ、低確率で一撃で倒す。"},
 
 	//諏訪清水
@@ -38550,6 +38843,11 @@ const support_item_type support_item_list[] =
 		{ 50,1,50,3,5,	0,class_power_daiyousei,do_cmd_class_power_aux_daiyousei,4,
 		"名もなき花","それはモンスター一体を混乱、攻撃力低下状態にしようと試みる。" },
 
+		//v2.1.0 瑞霊　エナジードレイン
+		{ 80,40,100,8,5,	0,class_power_mizuchi,do_cmd_class_power_aux_mizuchi,4,
+		"大怨霊の手袋","それは隣接したモンスターからHPとMPを奪う。回避されることもある。生命を持たない敵には無効。" },
+
+		
 
 	{0,0,0,0,0,0,NULL,NULL,0,"終端ダミー",""},
 };

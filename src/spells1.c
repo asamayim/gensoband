@@ -1271,7 +1271,11 @@ bool project_f(int who, int r, int y, int x, int dam, int typ)
 				/* Message */
 				if (known && (c_ptr->info & (CAVE_MARK)))
 				{
-					msg_format("%sが宝石に変わった！", f_name + f_info[get_feat_mimic(c_ptr)].name);
+					if (p_ptr->inside_arena)
+						msg_format("%sが宝石に変わった...がすぐ消えてしまった。", f_name + f_info[get_feat_mimic(c_ptr)].name);
+					else 
+						msg_format("%sが宝石に変わった！", f_name + f_info[get_feat_mimic(c_ptr)].name);
+
 					obvious = TRUE;
 				}
 
@@ -1280,6 +1284,10 @@ bool project_f(int who, int r, int y, int x, int dam, int typ)
 
 				if (!cave_naked_bold(y, x)) break;
 				if (player_bold(y, x)) break;
+
+				//v2.1.0 夢日記では宝塔レーザーの宝石変化を無効化する
+				if (p_ptr->inside_arena) break;
+
 				if (!make_gold(q_ptr)) break;
 
 				(void)drop_near(q_ptr, -1, y, x);
@@ -10316,6 +10324,12 @@ bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int typ, in
 					msg_print("破邪攻撃で厄が少し消えてしまった！");
 			}
 
+			//v2.1.0 怨霊の応援は破邪系攻撃を受けると消える
+			if (!CHECK_MULTISHADOW() && (p_ptr->muta4 & MUT4_GHOST_CHEERS))
+			{
+				lose_mutation(218);
+			}
+
 			/*
 			if (p_ptr->align > 10)
 				dam /= 2;
@@ -12115,6 +12129,12 @@ bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int typ, in
 		case GF_PUNISH_4:
 		{
 
+			//v2.1.0 怨霊の応援は破邪系攻撃を受けると消える
+			if (!CHECK_MULTISHADOW() && (p_ptr->muta4 & MUT4_GHOST_CHEERS) && (randint0(100 + rlev / 2) >= p_ptr->skill_sav))
+			{
+				lose_mutation(218);
+			}
+
 			if(  is_hurt_holy() <= 0 )
 			{
 #ifdef JP
@@ -12984,6 +13004,15 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg, int mons
 		else typ++;
 
 		if (typ >= MAX_GF) typ = GF_ELEC;//念のため
+	}
+	//v2.0.1 変異「怨霊の応援」があるとき特技の属性が変質するフラグ
+	else if (hack_flag_darkness_power)
+	{
+		msg_print("攻撃の属性が変質した！");
+		typ = GF_DARK;
+		dam = dam * 6 / 5;
+		if (dam < 5) dam = 5;
+		if (dam > 1600) dam = 1600;
 	}
 
 	//v1.1.86 アビリティカード「はじける赤蛙」効果

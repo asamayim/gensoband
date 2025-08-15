@@ -2384,6 +2384,7 @@ extern int calc_itemcard_slot_size(void);
 
 extern int hack_ex_bldg_summon_idx;
 extern int hack_ex_bldg_summon_type;
+extern int hack_ex_bldg_summon_num;
 extern u32b hack_ex_bldg_summon_mode;
 
 extern s16b monspell_yamabiko;
@@ -2794,3 +2795,6 @@ extern bool object_is_magic_item(object_type *o_ptr);
 
 //v2.0.20
 extern bool detect_specific_objects(int range, int mode);
+
+//v2.1.0
+extern bool	hack_flag_darkness_power;

@@ -6090,28 +6090,28 @@ const player_class class_info[MAX_CLASS] =
 	},
 
 	{
-		"爪弾きにされた反獄の怨霊",
-		"爪弾きにされた反獄の怨霊",
+		"大結界の犠牲者",
+		"大結界の犠牲者",
 		"Mizuchi",
 
-		{ -3, 2, 1, 0, -2, 2 },
-		20, 36, 35, 4, 16, 20, 35, 40,
-		12, 12, 12, 0,  3,  5, 12, 15,
-		2, 30, 40
+		{ 5, 3, 5, 3, 5, -5 },
+		24, 45, 50, 5, 20, 30, 65, 55,
+		16, 16, 18, 2,  3,  5, 24, 18,
+		6, 30, 30
 
 		//追加値暫定
-				,{ 1,5,5,5,5,0,0,0,0,5,5,5,5,0,0,5 }
-				,A_INT
-				,3,2,100,
+		,{ 3,0,0,0,0,5,5,5,5,5,5,5,5,0,0,0 }
+		,A_INT
+		,5,3,80,
 
-				{ 2,2,1,1,2,0,0,0,0,0
-				,3,2,2,2,2,2,2,2,2,2
-				,1 }
-				,80,1,2,4,
-				FALSE,FALSE,TRUE
-				,FALSE
-				,4
-				,MON_TSUKASA
+		{ 4,2,1,2,3,0,0,0,0,0
+		,4,3,4,4,5,3,3,3,2,2
+		,1 }
+		,40,5,4,4,
+		TRUE,FALSE,TRUE
+		,FALSE
+		,4
+		,MON_MIZUCHI
 	},
 
 	{
@@ -11119,6 +11119,18 @@ const martial_arts_new ma_blows_new[] =
 	{ "蜂たちが%sに次々に毒針を突き立てた！",	MELEE_MODE_BEES,35, 25, 7, 8, MELEE_POIS ,6 },
 	{ "妖怪蜂の大群が%sを呑み込んだ！",			MELEE_MODE_BEES,43, 35, 10,10, MELEE_DEC_ATK ,8 },
 
+	//v2.1.0 瑞霊
+	{ "%sを殴りつけた。",             			MELEE_MODE_MIZUCHI, 1,  0,  1, 8, 0 ,3 },
+	{ "%sを殴り倒した。",  	               		MELEE_MODE_MIZUCHI, 7,  0,  2, 8, 0 ,4 },
+	{ "%sに触って力を吸い取った。",    			MELEE_MODE_MIZUCHI, 15, 0,  3, 7, MELEE_DEC_ATK ,4 },
+	{ "%sを殴り飛ばした。",            	     	MELEE_MODE_MIZUCHI, 20, 0,  4, 8, 0,8 },
+	{ "%sに目にもとまらぬ拳打を見舞った。",     MELEE_MODE_MIZUCHI, 25, 10, 6, 8, MELEE_STUN  ,6 },
+	{ "%sを掴んで魔力を吸い取った。",    		MELEE_MODE_MIZUCHI, 30, 15, 7, 7, MELEE_DEC_MAG ,4 },
+	{ "%sに怨みのエネルギーを叩きつけた！",		MELEE_MODE_MIZUCHI, 35, 20, 8, 8, MELEE_DELAY ,8 },
+	{ "%sに怒りの鉄拳制裁を食らわせた！",		MELEE_MODE_MIZUCHI, 40, 30, 10, 10, MELEE_STUN2 ,10 },
+	{ "強大な憎悪のパワーが%sを吹き飛ばした！",	MELEE_MODE_MIZUCHI, 45, 40, 12, 12, MELEE_DELAY ,12 },
+
+
 	{ "終端用dummy",0,0,0,1,1,0}
 };
 
@@ -12217,10 +12229,11 @@ const activation_type activation_info[] =
 		{ "BLAST_MISSILES", ACT_BLAST_MISSILES, 50, 5000,{ 10, 20 },
 		  _("マジックミサイル連射", "missiles") },
 
-
 		  { "TRANSPORTATION_TRAP", ACT_TRANSPORTATION_TRAP, 40, 5000,{ 0, 0 },
 		  _("移送の罠", "transportation trap") },
 
+		  { "MUGENSYUKU", ACT_MUGENSYUKU, 80, 30000,{ 50, 0 },
+		  _("無間縮結界", "Mugenshukukekkai") },
 
 
 	{ NULL, 0, 0, 0, {0, 0},

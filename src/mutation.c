@@ -174,6 +174,10 @@ bool gain_random_mutation(int choose_mut)
 	//v1.1.32 建物内では装備品に影響の出る変異を受けないようにしておく
 	if (character_icky) no_wield_change = TRUE;
 
+	//v2.1.0 装備品が制限される系の変異は2つ以上つかないことにする。突然変異の薬で連続でつくと装備外れのアイテム溢れ欄がバグる可能性がある
+	if ((p_ptr->muta3 & MUT3_PEGASUS) || (p_ptr->muta3 & MUT3_FISH_TAIL) || (p_ptr->muta2 & MUT2_BIGHORN)) no_wield_change = TRUE;
+
+
 	//蓬莱人は変異無効 箱によるオーラ除く
 	//v1.1.98 瑞霊の憑依も受ける
 	if(p_ptr->prace == RACE_HOURAI && choose_mut != 193 && choose_mut != 217)
@@ -192,7 +196,7 @@ bool gain_random_mutation(int choose_mut)
 	{
 		//性格狂気も発動型変異を得られるようにする。まあいいか
 		//switch (choose_mut ? choose_mut : (p_ptr->pseikaku == SEIKAKU_BERSERK ? 74+randint1(119) : randint1(193)))
-		switch (choose_mut ? choose_mut : randint1(216))
+		switch (choose_mut ? choose_mut : randint1(218))
 		{
 		case 1: case 2: case 3: 
 			muta_class = &(p_ptr->muta1);
@@ -1349,6 +1353,22 @@ muta_desc = "慈悲深い白いオーラがあなたをとりまいた...";
 			muta_desc = "あなたは大怨霊に体を乗っ取られてしまった！";
 			break;
 
+		case 218://v2.1.0 怨霊たちの応援
+			//ヘカとプリズムリバーは弾く。mut4を扱えないため
+			if (p_ptr->pclass == CLASS_HECATIA || p_ptr->pclass == CLASS_ZANMU || p_ptr->pclass == CLASS_SATORI || p_ptr->pclass == CLASS_EIKI)
+			{
+				msg_print("怨霊たちが寄ってきたがあなたを見て逃げていった。");
+				break;
+			}
+			if (CLASS_IS_PRISM_SISTERS)
+			{
+				msg_print("怨霊たちが寄ってきたが姉妹たちが頑張って追い払った。");
+				break;
+			}
+			muta_class = &(p_ptr->muta4);
+			muta_which = MUT4_GHOST_CHEERS;
+			muta_desc = "怨霊たちの怨みの力があなたに流れ込んできた！";
+			break;
 
 
 
@@ -1528,6 +1548,7 @@ msg_print("突然変異した！");
 
 
 		///mod140319 特定の変異を得たとき装備が外れる。落とすのはコード面倒だしちょっと酷いことになるかもしれないのでやめておく。ザックが一杯ならどうせ落ちるが。
+		//v2.1.0 これらの変異の一つをすでに持っている場合他の変異はつかないことにした
 		if (muta_class == &(p_ptr->muta3) && muta_which == MUT3_FISH_TAIL)
 		{
 			if(inventory[INVEN_FEET].k_idx)
@@ -2810,8 +2831,14 @@ muta_desc = "白いオーラは輝いて消えた。";
 
 			muta_class = &(p_ptr->muta4);
 			muta_which = MUT4_GHOST_HANGOKUOH;
-		//	muta_desc = "ここはどこだ？確か自分はあの酒を飲んで……";
 			muta_desc = "ここはどこだ？記憶が飛んでいる気がする…";
+			break;
+
+		case 218:
+
+			muta_class = &(p_ptr->muta4);
+			muta_which = MUT4_GHOST_CHEERS;
+			muta_desc = "怨霊たちの力が消え去った！";
 			break;
 
 
@@ -3783,6 +3810,10 @@ fprintf(OutFile, " あなたはよくつまづいて物を落とす。\n");
 		if (p_ptr->muta4 & MUT4_GHOST_HANGOKUOH)
 		{
 			fprintf(OutFile, " あなたは大怨霊に乗っ取られている...(地獄耐性/破邪弱点/発動エナジードレイン)\n");
+		}
+		if (p_ptr->muta4 & MUT4_GHOST_CHEERS)
+		{
+			fprintf(OutFile, " あなたは怨霊たちに応援されている。(近接能力上昇/一部特技の属性変更/破邪属性を受けると解除)\n");
 		}
 
 

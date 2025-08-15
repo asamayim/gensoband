@@ -516,6 +516,8 @@ bool set_mimic(int v, int p, bool do_dec)
 	bool notice = FALSE;
 	bool check_nue = FALSE;
 
+	bool flag_full_hp = FALSE; //変身が解けたときHPを最大にする
+
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
@@ -606,7 +608,15 @@ bool set_mimic(int v, int p, bool do_dec)
 				(p_ptr->special_flags & SPF_IGNORE_METAMOR_TIME) && p_ptr->pclass == CLASS_SHION)
 			{
 				msg_print("あなたは完全憑依を完了させ主導権を奪った！");
+				flag_full_hp = TRUE;
 			}
+			else if (p >= MIMIC_METAMORPHOSE_NORMAL && p <= MIMIC_METAMORPHOSE_GIGANTIC &&
+				(p_ptr->special_flags & SPF_IGNORE_METAMOR_TIME) && p_ptr->pclass == CLASS_MIZUCHI)
+			{
+				msg_print("あなたは敵に憑依して操った！");
+				flag_full_hp = TRUE;
+			}
+
 			else
 				msg_print("自分の体が変わってゆくのを感じた。");
 #else
@@ -666,7 +676,14 @@ bool set_mimic(int v, int p, bool do_dec)
 			else if (p_ptr->mimic_form >= MIMIC_METAMORPHOSE_NORMAL && p_ptr->mimic_form <= MIMIC_METAMORPHOSE_GIGANTIC && p_ptr->pclass == CLASS_SHION)
 			{
 				msg_print("あなたは憑依を解いた。");
+				flag_full_hp = TRUE;
 			}
+			else if (p_ptr->mimic_form >= MIMIC_METAMORPHOSE_NORMAL && p_ptr->mimic_form <= MIMIC_METAMORPHOSE_GIGANTIC && p_ptr->pclass == CLASS_MIZUCHI)
+			{
+				msg_print("あなたはこの体から抜け出した。");
+				flag_full_hp = TRUE;
+			}
+
 			else
 				msg_print("変身が解けた。");
 #else
@@ -705,6 +722,15 @@ bool set_mimic(int v, int p, bool do_dec)
 	p_ptr->window |= (PW_EQUIP | PW_SPELL | PW_PLAYER | PW_INVEN);
 
 	handle_stuff();
+
+	if (flag_full_hp)
+	{
+		p_ptr->chp = p_ptr->mhp;
+		if (CHECK_MIZUCHI_GHOST) p_ptr->csp = p_ptr->msp; //瑞霊はMPも回復する
+		p_ptr->redraw |= PR_HP | PR_MANA;
+		redraw_stuff();
+
+	}
 
 	/*::: -Hack- ぬえが[正体不明]以外からの変身解除のとき、[正体不明]に変身可能かチェックして可能なら変身処理
 	 *::: check_nue_undefined()から再びset_mimic()が呼ばれる*/
@@ -6512,6 +6538,28 @@ void change_race(int new_race, cptr effect_msg)
 		}
 	}
 
+	//v2.1.0 瑞霊は人間側の種族に変化したとき再び仙術魔法などが使えるようにしてしまう
+	if (p_ptr->pclass == CLASS_MIZUCHI && !(CHECK_MIZUCHI_RESURRECT))
+	{
+		if (new_race == RACE_HUMAN || new_race == RACE_SENNIN || new_race == RACE_TENNIN || new_race == RACE_DEMIGOD)
+		{
+			p_ptr->magic_num2[0] = 1;
+
+			if (inventory[INVEN_NECK].name1 == ART_HARNESS_HELL)
+			{
+				inventory[INVEN_NECK].curse_flags = 0L;
+				msg_print("首輪の呪いが解けた！");
+			}
+
+			p_ptr->spell_learned1 = 0xFFFFFFFF;
+			for (i = 0; i < 31; i++)
+			{
+				p_ptr->spell_exp[i] = SPELL_EXP_SKILLED;
+			}
+			msg_print("かつて学んだ術が再び使えるようになった！");
+
+		}
+	}
 
 	p_ptr->redraw |= (PR_BASIC);
 
@@ -7095,13 +7143,22 @@ int take_hit(int damage_type, int damage, cptr hit_from, int monspell)
 				msg_print("何てこと！体力の限界だ！");
 		}
 
+		//v2.1.0 憑依中の瑞霊はやられるとHP半減で憑依解除して復活
+		if (p_ptr->pclass == CLASS_MIZUCHI && p_ptr->mimic_form && (p_ptr->special_flags & SPF_IGNORE_METAMOR_TIME))
+		{
+			//妹紅の復活と似た処理を行うので同じフラグを使いまわす
+			flag_mokou_resurrection = TRUE;
+			return damage;
+		}
+
 		if(p_ptr->pclass == CLASS_CLOWNPIECE)
 		{
 			msg_print("もう力が残っていない…");
 		}
 
 
-#ifdef JP       /* 死んだ時に強制終了して死を回避できなくしてみた by Habu */
+#ifdef JP       
+		/* 死んだ時に強制終了して死を回避できなくしてみた by Habu */
 		/*:::死亡時真っ先に強制セーブ*/
 		if (!cheat_save)
 			if(!save_player()) msg_print("セーブ失敗！");
@@ -8792,7 +8849,10 @@ bool set_tim_general(int v, bool do_dec, int ind, int num)
 			{
 				msg_format("あなたは大量の蜂に護衛と警戒を命じた。");
 			}
-
+			else if (p_ptr->pclass == CLASS_MIZUCHI)
+			{
+				msg_format("あなたは気配を消した...");
+			}
 			else
 			{
 				msg_format("ERROR:tim_general[%d]が定義されていない呼ばれ方をした、もしくはメッセージが未定義",ind);
@@ -8975,7 +9035,10 @@ bool set_tim_general(int v, bool do_dec, int ind, int num)
 			{
 				msg_format("あなたの身を守る蜂がいなくなった。");
 			}
-
+			else if (p_ptr->pclass == CLASS_MIZUCHI)
+			{
+				msg_format("潜伏をやめた。");
+			}
 			else
 			{
 				msg_format("ERROR:tim_general[%d]が定義されていない呼ばれ方をした、もしくはメッセージが未定義",ind);
