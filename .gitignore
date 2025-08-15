@@ -1,0 +1,65 @@
+﻿################################################################################
+# この .gitignore ファイルは Microsoft(R) Visual Studio によって自動的に作成されました。
+################################################################################
+
+/.vs
+/gensoband
+/lib/apex/scores.raw
+/lib/data/a_info_j.raw
+/lib/data/d_info_j.raw
+/lib/data/e_info_j.raw
+/lib/data/f_info_j.raw
+/lib/data/k_info_j.raw
+/lib/data/r_info_j.raw
+/lib/data/v_info_j.raw
+/lib/data/z_info_j.raw
+/lib/save/test
+/lib/save/test_aunn
+/lib/save/test_hatate
+/lib/save/test_keiki
+/lib/save/test_marisa
+/lib/save/test_medic
+/lib/save/test_mizuchi
+/lib/save/test_mizuchi2
+/lib/save/test_mizuchi3
+/lib/save/test_mizuchi4
+/lib/save/test_mizuchiex
+/lib/save/test_reimu
+/lib/save/test_yamame
+/lib/save/大妖精
+/lib/save/寅丸　星
+/lib/user/autodump_test.txt
+/lib/user/autodump_博麗　霊夢.txt
+/lib/user/autodump_大妖精.txt
+/lib/user/autodump_宮出口　瑞霊.txt
+/lib/user/autodump_寅丸　星.txt
+/lib/user/autodump_綿月　豊姫.txt
+/lib/user/autodump_霧雨　魔理沙.txt
+/lib/user/autodump_高麗野 あうん.txt
+/lib/user/http_post_result(旧テストサーバー成功時).log
+/lib/user/http_post_result.htm
+/lib/user/http_post_result.log
+/lib/user/playrecord-test.txt
+/lib/user/playrecord-test_aunn.txt
+/lib/user/playrecord-test_hatate.txt
+/lib/user/playrecord-test_keiki.txt
+/lib/user/playrecord-test_marisa.txt
+/lib/user/playrecord-test_medic.txt
+/lib/user/playrecord-test_mizuchi.txt
+/lib/user/playrecord-test_mizuchi2.txt
+/lib/user/playrecord-test_mizuchi3.txt
+/lib/user/playrecord-test_mizuchi4.txt
+/lib/user/playrecord-test_mizuchiex.txt
+/lib/user/playrecord-test_reimu.txt
+/lib/user/playrecord-test_yamame.txt
+/lib/user/playrecord-大妖精.txt
+/lib/user/playrecord-寅丸　星.txt
+/gensoband.INI
+/gensoband.pdb
+/gensoband.sln
+/gensoband.vcxproj
+/gensoband.vcxproj.filters
+/gensoband.vcxproj.user
+/lib/xtra/music/music.cfg
+/lib/xtra/sound/sound.cfg
+/Release
