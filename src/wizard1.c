@@ -254,6 +254,7 @@ static grouper group_item[] =
 	{ TV_BOOK_HISSATSU,      "剣術秘伝書" },
 	{ TV_BOOK_MEDICINE,      "調剤秘伝書" },
 	{ TV_BOOK_OCCULT,      "オカルト本" },
+	{ TV_STONE_INCIDENT,      "異変石" },
 
 #endif
 #ifdef JP

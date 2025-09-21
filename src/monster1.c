@@ -635,8 +635,14 @@ static void roff_aux(int r_idx, int mode)
 #endif
 	}
 
+
+	if (flags7 & RF7_ONLY_RIDING)
+	{
+		hooked_roff("Ç™ÅAé©ÇÁçsìÆÇ∑ÇÈÇ±Ç∆ÇÕÇ»Ç¢");
+	}
+
 	/* The code above includes "attack speed" */
-	if (flags1 & RF1_NEVER_MOVE)
+	else if (flags1 & RF1_NEVER_MOVE)
 	{
 		/* Introduce */
 		if (old)

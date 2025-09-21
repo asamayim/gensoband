@@ -253,7 +253,7 @@ static cptr class_jouhou[MAX_CLASS] =
   
 "あなたは宝物を求めて怪物の棲家や遺跡を探検する、いわゆるトレジャーハンターです。隠密や解錠や投擲など様々な技能に優れ、探索に向いた便利な特技を持ちます。職業柄しばしば怪物や遺跡の番人と戦闘になるため白兵戦もそこそここなせますが、純戦士ほどの腕っ節の強さはありません。魔法を一領域習得可能ですがその学習は遅く、あまり強力な魔法は使えません。短剣の扱いが得意で短剣を装備していると攻撃回数が上昇します。短剣のほかにはクロスボウの扱いも得意です。それ以外の大きな武器の扱いは苦手です。",
   
-"あなたは森の奥深くで獣のように狩りをして暮らしています。過酷な環境で育ったあなたは白兵戦と射撃の両方に秀でています。また先達から伝えられた自然の力を使う秘術を修めており自然か変容の魔法を行使可能です。成長すると麻痺や毒の耐性を得て、さらにモンスターの詳細な情報を調査する特技を使えるようになります。隠密行動は得意ですが小手先の繊細な技術についてはやや不得手です。",
+"あなたは森の奥深くで獣のように狩りをして暮らしています。過酷な環境で育ったあなたは白兵戦と射撃の両方に秀でています。また先達から伝えられた自然の力を借りる技術を修めており自然か変容の魔法を行使可能です。成長すると麻痺や毒の耐性を得て、さらにモンスターの詳細な情報を調査する特技を使えるようになります。隠密行動は得意ですが小手先の繊細な技術についてはやや不得手です。",
   
 "あなたは聖域を守るために戦う高潔な戦士です。高い白兵能力を持ち、特に剣と槍の扱いを得意とします。魔法は使えませんが外敵から身を守るためのいくつかの技を習得できます。祝福された武器を装備すると攻撃力が増加しますが、呪われた武器を装備すると攻撃力が大幅に低下します。騎乗技能の適性もありますが混沌の勢力の魔獣を操ることは大の苦手です。レベルが上昇すると恐怖と破邪攻撃に対する耐性を得ます。",
   
@@ -469,6 +469,9 @@ static cptr seikaku_special_jouhou[MAX_SEIKAKU_SPECIAL] =
 	"あなたはアビリティカードの闇市場の調査を始めました。この性格では通常の特技の代わりに職業「カード売人」と同じ特技を使用できます。スカートの隠しポケットにはいつもの自作の魔法の代わりにアビリティカードを8種類まで格納できます。魔法書を使った通常の魔法はこれまで通りに習得できます。",
 	//龍「通貨発行者」
 	"あなたはアビリティカードブームの仕掛け人で、カード交換用の通貨を発行して巨万の富を手にしました。このセーブデータで過去のプレイヤーがカード販売所に支払った総額の1/4を持ってゲームがスタートします。ただしこの資金は天狗社会の維持発展のために使われなければなりません。そのため街で一部の施設が使用不可能になります。ゲームのスコアも通常の1/4になります。",
+	//慧ノ子「取り外せた」
+	"あなたの両手のトラバサミは取り外すことができました。トラバサミを取り外すと両手の装備制限が無くなりますが、代わりに一部の特技と専用の強力な格闘攻撃が使えなくなります。この性格を選択するとスコアが25%上昇します。",
+
 
 };
 
@@ -500,6 +503,7 @@ static int get_special_seikaku_index(int class_idx)
 	if (class_idx == CLASS_JYOON)		return SEIKAKU_SPECIAL_JYOON;
 	if (class_idx == CLASS_MARISA)		return SEIKAKU_SPECIAL_MARISA;
 	if (class_idx == CLASS_MEGUMU)		return SEIKAKU_SPECIAL_MEGUMU;
+	if (class_idx == CLASS_ENOKO)		return SEIKAKU_SPECIAL_ENOKO;
 
 
 	return SEIKAKU_SPECIAL_NONE;
@@ -512,7 +516,7 @@ static int get_special_seikaku_index(int class_idx)
 /*:::魔法（と剣術）の領域説明文　添字はTV_BOOK_????に対応*/
 static cptr realm_jouhou[TV_BOOK_END + 1] = {
 	"",//ダミー
-	"万物を構成する地水火風などの元素を操る領域です。最も多彩な攻撃魔法があり、加えて若干の防御・補助魔法が含まれます。属性の偏った敵に対して有効な打撃を与えられます。",
+	"万物を構成するエレメントを操る領域です。酸・電撃・火炎・冷気の攻撃魔法が多く、加えて若干の防御・補助魔法が含まれます。属性の偏った敵に対して有効な打撃を与えられます。",
 	"隠された物、知りえないはずの事を知覚する領域です。感知手段がほぼ完璧に揃い、敵の精神に攻撃する魔法もあります。強力な補助や回復もありますが、極めて高難度です。",
 	"物体や自分の体に対し魔力を込めて特別な効果を与える領域です。防御と補助に極めて優れ、ある程度の戦闘手段もあります。いくつかの魔法はMPのほかに触媒が必要となります。",
 	"何もないところに門を開き様々なものを呼び出す領域です。召喚とテレポート系に極めて優れますが、それ以外は不得手です。召喚の種類によってははMPのほかに代償が必要となることがあります。また、召喚魔法に失敗した時は召還しようとしたものが襲いかかってくることがあります。",
@@ -520,13 +524,14 @@ static cptr realm_jouhou[TV_BOOK_END + 1] = {
 	"生命のエネルギーを操る領域です。回復に最も優れ、防御や補助も強力です。攻撃魔法もありますがアンデッドにのみ有効です。",
 	"邪悪なるものを打ち倒す領域です。妖怪、悪魔、アンデッドに対して有効な攻撃魔法が揃い、補助魔法も充実しています。最上位の魔法書には強力な神降ろしの魔法がありますが、これらは二つ以上同時に効果を発揮することができません。",
 	"自然の力を借りる領域です。多彩な魔法がバランス良く揃い、特に感知と防御に優れます。ただし攻撃魔法の威力はやや低めです。",
-	"自らの体や周囲の地形を変化させる領域です。強力かつ多様な術が揃いますが、種族ごとの適性が難易度に大きく影響します(予定)。また変身魔法の多くは防具が効果を発揮しなくなったり巻物が使えなくなるなど独特のリスクを伴います。",
+	"自らの体や周囲の地形を変化させる領域です。強力かつ多様な魔法が揃いますが詠唱に要するコストはやや高めです。また変身魔法の多くは防具が効果を発揮しなくなったり巻物が使えなくなるなど独特の制約を伴います。",
 	"邪悪な力を操る領域です。毒や暗黒属性を中心とした攻撃魔法、極めて攻撃的な補助魔法、そして悪魔の使役や悪魔への変身といった呪文があります。しかし防御や感知はあまり得意ではありません。この領域の魔法を習得すると破邪攻撃に弱くなります。",
 	"悪霊を使役したり呪いで攻撃する領域です。補助や召喚を中心に多彩な呪文が揃いますが、呪いによる攻撃は悪魔やアンデッドや無生物にはほぼ無力です。この領域の魔法を習得すると破邪攻撃に弱くなります。",
 	"原初の無秩序なエネルギーを我が物とする領域です。相手を選ばない強力な攻撃魔法が揃います。いくつか補助魔法もありますが、それらも無秩序かつ破壊的なものです。この領域の全ての魔法の使用にはリスクが伴います。",
 	"必殺剣とは剣術家たちの間で語り継がれ磨かれた剣の技です。武器での攻撃に独特の効果を上乗せするような技がほとんどです。必殺剣は一度習得すれば秘伝書を持っていなくても使用できます。ただし一部の技は特定の種類の武器を装備していないと使用できません。",
-	"",
+	"(調剤　現時点ではここで選択することはない)",
 	"幻想郷で様々な噂や都市伝説が具現化するようになりました。時流に敏い一部の者達は外界から流れてきた書物を研究し、これら「オカルト」を魔法のように習得して使いこなします。オカルトは攻撃を中心に強力で多彩なものが揃いますが、特定の条件を満たしたり代償を支払わないと使えない癖の強いものがほとんどです。",
+	"何者かの妖気が凝縮された「異変石」と呼ばれる魔石が発見されました。この石を研究することでこの地で起こった数々の異変を象徴する力を行使できます。石は8種類存在し一種類ごとに4つの魔法を習得可能で、攻撃を中心とした強力な魔法がバランス良く揃います。ただし序盤に欲しい石を狙って入手するのは難しく、また持ち物が異変石で一杯になりがちです。",
 };
 
 
@@ -680,18 +685,21 @@ void print_realm_aptitude(int realm, bool second)
 {
 
 	char buf[80];
-	cptr category[3] ={"魔術","仙術","妖術"};
+	cptr category[4] ={"魔術","仙術","妖術"};
 
-	if(realm < MIN_MAGIC || realm > MAX_MAGIC && realm != TV_BOOK_OCCULT) return;
+	//if(realm < MIN_MAGIC || realm > MAX_BASIC_MAGIC_REALM && realm != TV_BOOK_OCCULT) return;
+	if(realm < MIN_MAGIC || realm > TV_BOOK_END) return;
 
 	put_str("                                   ", 3, 40);
 	put_str("                                   ", 4, 40);
 	put_str("                                   ", 5, 40);
 	put_str("                                   ", 6, 40);
-	if(realm == TV_BOOK_OCCULT)
-		sprintf(buf, "秘術");
+
+	if(realm <= MAX_BASIC_MAGIC_REALM)
+		sprintf(buf, "%sの%s", realm_names[realm], category[(realm - 1) / 4]);
 	else
-		sprintf(buf, "%sの%s", realm_names[realm], category[(realm-1)/4]);
+		sprintf(buf, "%sの秘術", realm_names[realm]);
+
 	c_put_str(TERM_L_BLUE, buf, 3, 40);
 	sprintf(buf, "職業適性：%c", 'G' - cp_ptr->realm_aptitude[realm]);
 	c_put_str(TERM_WHITE, buf, 4, 40);
@@ -1213,7 +1221,8 @@ static bool get_player_realms(void)
 		else if(p_ptr->realm1 == TV_BOOK_DARKNESS) strcpy(player_class_name, "デビルサマナー");
 		else if(p_ptr->realm1 == TV_BOOK_NECROMANCY) strcpy(player_class_name, "ネクロマンサー");
 		else if(p_ptr->realm1 == TV_BOOK_CHAOS) strcpy(player_class_name, "ログルスマスター");
-		else  strcpy(player_class_name, "オカルティスト");
+		else if (p_ptr->realm1 == TV_BOOK_OCCULT) strcpy(player_class_name, "オカルティスト");
+		else strcpy(player_class_name, "ジェモロジスト");
 
 	}
 		c_put_str(TERM_WHITE, "                 ", 5, 15);
@@ -3172,6 +3181,7 @@ outfit_type birth_outfit_class[] = {
 	{ CLASS_MIZUCHI,2,0,TV_CLOTHES, SV_CLOTHES,1 },
 	{ CLASS_MIZUCHI,2,ART_HARNESS_HELL,0, 0,1 },
 
+	{ CLASS_UBAME,2,0,TV_CLOTHES, SV_CLOTHES,1 },
 
 	{-1,0,0,0,0,0} //終端dummy
 };
@@ -3498,6 +3508,33 @@ void player_outfit(void)
 		if(EXTRA_MODE) q_ptr->number += randint1(2);
 		add_outfit(q_ptr);
 	}
+	//v2.1.1 もし異変領域を選択した場合は初期所持以外のsval1～7の石をランダムに追加取得
+	//ハイメイジは3つ追加取得
+	if (p_ptr->realm1 == TV_STONE_INCIDENT || p_ptr->realm2 == TV_STONE_INCIDENT)
+	{
+		int tmp_sv[3];
+		int num = (p_ptr->pclass == CLASS_HIGH_MAGE) ? 3 : 1;
+
+		for (i = 0; i < num; i++)
+		{
+			//石の種類が重複しないよう雑に処理
+			while (TRUE)
+			{
+				tmp_sv[i] = randint1(SV_INCIDENT_STONE_MAX);
+				if (i == 0) break;
+				if (i == 1 && tmp_sv[1] != tmp_sv[0]) break;
+				if (i == 2 && tmp_sv[2] != tmp_sv[0] && tmp_sv[2] != tmp_sv[1]) break;
+			}
+
+			object_prep(q_ptr, lookup_kind(TV_STONE_INCIDENT, tmp_sv[i]));
+			q_ptr->number = 1;
+			if (EXTRA_MODE) q_ptr->number += randint1(2);
+			add_outfit(q_ptr);
+
+		}
+
+	}
+
 	//v1.1.44 うどんげ特殊性格
 	if (is_special_seikaku(SEIKAKU_SPECIAL_UDONGE))
 	{
@@ -3521,7 +3558,7 @@ void player_outfit(void)
 		{
 			bool flag_ok = FALSE;
 			//v1.1.32 パチュリー特殊性格「書痴」追加
-			if (is_special_seikaku(SEIKAKU_SPECIAL_PATCHOULI) && i <= MAX_MAGIC)
+			if (is_special_seikaku(SEIKAKU_SPECIAL_PATCHOULI) && i <= MAX_BASIC_MAGIC_REALM)
 				flag_ok = TRUE;
 			if (cp_ptr->realm_aptitude[i] && rp_ptr->realm_aptitude[i])
 				flag_ok = TRUE;
@@ -3737,7 +3774,7 @@ void player_outfit(void)
 	}
 	else if (p_ptr->pclass == CLASS_SORCERER)
 	{
-		for (i = TV_LIFE_BOOK; i <= TV_LIFE_BOOK+MAX_MAGIC-1; i++)
+		for (i = TV_LIFE_BOOK; i <= TV_LIFE_BOOK+MAX_BASIC_MAGIC_REALM-1; i++)
 		{
 			/* Hack -- Give the player some arrows */
 			object_prep(q_ptr, lookup_kind(i, 0));
@@ -5889,11 +5926,12 @@ static void edit_history(void)
 #define ENTRY_KIKEI		12
 #define ENTRY_KOURYUU	13
 #define ENTRY_JUUOUEN	14
-#define ENTRY_TASOGARE	15
-#define ENTRY_OTHER		16
+#define ENTRY_KINJYOU	15
+#define ENTRY_TASOGARE	16
+#define ENTRY_OTHER		17
 
 
-#define ENTRY_MAX 17 //↑+1
+#define ENTRY_MAX 18 //↑+1
 
 
 const	cptr select_unique_entry[ENTRY_MAX] = {
@@ -5912,8 +5950,9 @@ const	cptr select_unique_entry[ENTRY_MAX] = {
 		"m)鬼形獣",
 		"n)虹龍洞",
 		"o)獣王園",
-		"p)黄昏弾幕アクション",
-		"q)その他の作品",
+		"p)錦上京",
+		"q)黄昏弾幕アクション",
+		"r)その他の作品",
 	};
 
 typedef struct unique_player_type unique_player_type;
@@ -5928,7 +5967,7 @@ struct unique_player_type
 	cptr info;	//キャラメイク時に表示される説明文
 };
 
-#define UNIQUE_PLAYER_NUM 128
+#define UNIQUE_PLAYER_NUM 134
 #define CLASS_DUMMY 255
 #define RACE_DUMMY 255
 static unique_player_type unique_player_table[UNIQUE_PLAYER_NUM] =
@@ -6195,8 +6234,6 @@ static unique_player_type unique_player_table[UNIQUE_PLAYER_NUM] =
 	"あなたは動物達を導くことを使命とする新米の仙人です。動物を使役し乗りこなす能力に長けています。新米仙人の割になぜか異様に身体能力が高く、なぜかヘルメットを装備できず、なぜか破邪攻撃が弱点です。常に包帯を巻いている右手はいくつかの秘められた力を持っています。"},
 	{TRUE,"姫海棠　はたて",CLASS_HATATE,RACE_KARASU_TENGU,ENTRY_OTHER,SEX_FEMALE,
 	"あなたは鴉天狗の新聞記者で、射命丸文とはライバル関係です。鴉天狗の割にはやや敏捷性に欠けますが念写の能力を持っており感知や探索に優れます。接近戦よりは射撃に適性を持ち、生命・暗黒・予見のいずれかの領域の魔法をある程度習得可能です。"},
-	{TRUE,"綿月　豊姫",CLASS_TOYOHIME,RACE_LUNARIAN,ENTRY_OTHER,SEX_FEMALE,
-	"あなたは月の名家の姫で、依姫の姉です。海と山を繋ぐ力を持ち、大規模な召喚や空間操作を好き放題に行います。荒事は苦手ですが月の最新兵器を所有しており、並みの敵ならまとめて吹き飛ばすことができます。	あなたは穢れを嫌う月の民であり、様々な邪悪な攻撃で大ダメージを受けてしまいます。"},
 	{TRUE,"綿月　依姫",CLASS_YORIHIME,RACE_LUNARIAN,ENTRY_OTHER,SEX_FEMALE,
 	"あなたは月の名家の姫で、豊姫の妹です。八百万の神をその身に降ろす力を持ち、あらゆる神様の力を片端から行使します。月の防衛隊の指揮官兼教官でもあり、接近戦の技能も卓越しています。あなたは穢れを嫌う月の民であり、様々な邪悪な攻撃で大ダメージを受けてしまいます。"},
 	{TRUE,"レイセン",CLASS_REISEN2,RACE_GYOKUTO,ENTRY_OTHER,SEX_FEMALE,
@@ -6212,6 +6249,23 @@ static unique_player_type unique_player_table[UNIQUE_PLAYER_NUM] =
 	{ TRUE,"宮出口　瑞霊",CLASS_MIZUCHI,RACE_SPECTRE,ENTRY_OTHER,SEX_FEMALE,
 		"あなたは博麗の家に強い怨みをもつ強力な怨霊です。他者に取り憑いて乗っ取る特技を持っており、あなた自身も高い戦闘力を持っています。現在あなたは幻想郷の地上から警戒されており、誰かに憑依しないと地上の建物や店を利用することができません。怨霊であり密かな呪具コレクターでもあるあなたは装備品の呪いの影響を防ぐことができます。しかしあなたは下半身の具現化が不完全なため靴を履くことができず、また首の地獄の首輪を外すことができません。あなたはかつて巫女として様々な術を学んでいましたが、怨霊となったときにほぼ失われています。" },
 
+
+	{ TRUE,"塵塚　ウバメ",CLASS_UBAME,RACE_YOUKAI,ENTRY_KINJYOU,SEX_FEMALE,
+		"あなたは山姥で、聖域に住むほかの山姥たちのリーダー格です。普段は聖域を守るために尽力していますが必要とあれば他者が作った聖域を破壊することもできます。あなたは身体能力が高く肉弾戦を得意としますが魔法を習得することはできません。" },
+	{ FALSE,"封獣　チミ",CLASS_CHIMI,RACE_YOUKAI,ENTRY_KINJYOU,SEX_FEMALE,
+		"" },
+	{ FALSE,"道神　馴子",CLASS_NAREKO,RACE_DEITY,ENTRY_KINJYOU,SEX_FEMALE,
+		"" },
+	{ FALSE,"ユイマン・浅間",CLASS_YUIMAN,RACE_DEITY,ENTRY_KINJYOU,SEX_FEMALE,
+		"" },
+	//その他からこっちに持って来た
+	{ TRUE,"綿月　豊姫",CLASS_TOYOHIME,RACE_LUNARIAN,ENTRY_KINJYOU,SEX_FEMALE,
+	"あなたは月の名家の姫で、依姫の姉です。海と山を繋ぐ力を持ち、大規模な召喚や空間操作を好き放題に行います。荒事は苦手ですが月の最新兵器を所有しており、並みの敵ならまとめて吹き飛ばすことができます。	あなたは穢れを嫌う月の民であり、様々な邪悪な攻撃で大ダメージを受けてしまいます。" },
+
+	{ FALSE,"磐永　阿梨夜",CLASS_ARIYA,RACE_DEITY,ENTRY_KINJYOU,SEX_FEMALE,
+		"" },
+	{ FALSE,"渡里　ニナ",CLASS_NINA,RACE_YOUKAI,ENTRY_KINJYOU,SEX_FEMALE,
+		"" },
 
 
 };
@@ -6383,8 +6437,10 @@ static bool get_unique_player(void)
 		{
 			for(n=0;n<ENTRY_MAX;n++)
 			{
-				if(n == cs) c_put_str(TERM_YELLOW, select_unique_entry[n], 12 + n, 10);
-				else put_str(select_unique_entry[n], 12 + n, 10);
+			//	if(n == cs) c_put_str(TERM_YELLOW, select_unique_entry[n], 12 + n, 10);
+			//	else put_str(select_unique_entry[n], 12 + n, 10);
+				if(n == cs) c_put_str(TERM_YELLOW, select_unique_entry[n], 12 + n % 16, 10 + (n / 16 * 20));
+				else put_str(select_unique_entry[n], 12 + n % 16, 10 + (n / 16 * 20));
 			}
 			c = inkey();
 			if (c == 'Q') birth_quit();

@@ -13,6 +13,188 @@ static bool use_itemcard = FALSE;
 	tips
 */
 
+//v2.1.1 ウバメ
+
+class_power_type class_power_ubame[] =
+{
+
+	{7,5,20,FALSE,FALSE,A_INT,0,0,"殺気感知",
+		"周囲の精神を持つモンスターを感知する。"},
+
+	{16,16,30,TRUE,FALSE,A_STR,0,10,"コズミックダスト",
+		"指定方向の隣接グリッドに分解属性のボールを発生させる。ダメージは素手攻撃力によって決まる。素手でないと使えない。"},
+
+	{23,25,40,FALSE,TRUE,A_STR,0,0,"唐櫃返し",
+		"一直線のモンスターにダメージを与えて吹き飛ばし、さらにトラップを解除する。ダメージは素手攻撃力によって決まる。素手でないと使えない。" },
+
+	{30,25,50,FALSE,FALSE,A_WIS,0,0,"塵のすみか",
+		"隣接したモンスター全てに魔力消去を行い、また魔法力を低下させようと試みる。"},
+
+	{36,60,70,FALSE,TRUE,A_STR,0,0,"唐櫃大返し",
+	"ダンジョン内で地震を起こす。この地震は永久壁を破壊する。クエストダンジョン内でも使用可能。" },
+
+	{44,80,80,FALSE,FALSE,A_CHR,0,0,"宇宙塵",
+		"自分の周囲のランダムな地点に隕石属性のボールを連続で発生させる。ダメージは素手攻撃力によって決まる。素手でないと使えない。"},
+
+	{99,0,0,FALSE,FALSE,0,0,0,"dummy",""},
+};
+
+
+
+cptr do_cmd_class_power_aux_ubame(int num, bool only_info)
+{
+	int plev = p_ptr->lev;
+	int chr_adj = adj_general[p_ptr->stat_ind[A_CHR]];
+
+	int dir;
+
+	int barehand_dam;
+
+	if (inventory[INVEN_RARM].k_idx || inventory[INVEN_LARM].k_idx)
+		barehand_dam = 0;
+	else
+		barehand_dam = plev + MAX(p_ptr->to_d[0], p_ptr->to_d[1]);
+
+
+	switch (num)
+	{
+	case 0:
+	{
+		int rad = DETECT_RAD_DEFAULT;
+		if (only_info) return format("範囲:%d", rad);
+		detect_monsters_mind(rad);
+	}
+	break;
+
+
+	case 1://コズミックダスト
+	{
+		int dam = barehand_dam * 3;
+		int y, x;
+		int rad = 1 + plev / 24;
+		if (only_info) return format("損傷:%d", dam);
+
+		if (!barehand_dam)
+		{
+			msg_print("手が塞がっていて使えない。");
+			return NULL;
+		}
+
+		if (!get_rep_dir2(&dir)) return NULL;
+		if (dir == 5) return NULL;
+
+		y = py + ddy[dir];
+		x = px + ddx[dir];
+
+		msg_print("気合いと共に拳を突き出した！");
+		project(0, rad, y, x, dam, GF_DISINTEGRATE, (PROJECT_KILL | PROJECT_ITEM | PROJECT_JUMP | PROJECT_GRID), -1);
+	}
+	break;
+
+	case 2://唐櫃返し
+	{
+		int dam = barehand_dam;
+		if (only_info) return format("損傷:%d", dam);
+
+		if (!barehand_dam)
+		{
+			msg_print("手が塞がっていて使えない。");
+			return NULL;
+		}
+
+		if (!get_aim_dir(&dir)) return NULL;
+		msg_format("すくい上げるようなアッパーを放った！");
+
+		//透明のトラップ破壊ビームを追加
+		project_hook(GF_KILL_TRAP, dir, 0, (PROJECT_BEAM | PROJECT_GRID | PROJECT_HIDE));
+		fire_beam(GF_TORNADO, dir, dam);
+	}
+	break;
+
+	case 3:
+	{
+
+		int m_idx, dir, y, x;
+		int power = 100 + plev * 4;
+
+		if (only_info) return format("効力:%d", power / 2);
+
+		msg_print("周囲の魔力が塵となって消えていく。");
+		for (dir = 0; dir < 8; dir++)
+		{
+			y = py + ddy_ddd[dir];
+			x = px + ddx_ddd[dir];
+
+			if (cave[y][x].m_idx) dispel_monster_status(cave[y][x].m_idx);
+		}
+
+		(void)project(0, 1, py, px, power, GF_DEC_MAG, (PROJECT_KILL | PROJECT_HIDE), -1);
+
+	}
+	break;
+
+	case 4:
+	{
+		int x, y;
+		int rad = 1 + plev / 10;
+		cave_type* c_ptr;
+		feature_type* f_ptr;
+		if (only_info) return format("半径:%d", rad+2);
+
+		if (!dun_level)
+		{
+			msg_print("こんなところでこの技を使ってはいけない。");
+			return NULL;
+		}
+
+		msg_print("あなたは渾身の力を込めて地面をぶん殴った！");
+		for (y = py - rad; y <= py + rad; y++)
+		{
+			for (x = px - rad; x <= px + rad; x++)
+			{
+				c_ptr = &cave[y][x];
+				f_ptr = &f_info[c_ptr->feat];
+				if (!in_bounds(y, x)) continue;
+				if (distance(py, px, y, x) > rad) continue;
+
+				if (!have_flag(f_ptr->flags, FF_WALL)) continue;
+				if (!have_flag(f_ptr->flags, FF_PERMANENT)) continue;
+				cave_set_feat(y, x, feat_dirt);
+			}
+		}
+		earthquake_aux(py, px, rad+2,0,1);
+
+	}
+	break;
+
+	case 5:
+	{
+		int dam = barehand_dam * 3 / 2;
+		if (only_info) return format("損傷:%d*不定", dam);
+
+		if (!barehand_dam)
+		{
+			msg_print("手が塞がっていて使えない。");
+			return NULL;
+		}
+
+		msg_print("あなたは天に向けて拳を突き上げた！");
+		cast_meteor(dam, 2, GF_METEOR);
+
+
+	}
+	break;
+
+	default:
+		if (only_info) return format("未実装");
+		msg_format("ERROR:実装していない特技が呼ばれた num:%d", num);
+		return NULL;
+	}
+	return "";
+}
+
+
+
 
 
 
@@ -12116,11 +12298,13 @@ class_power_type class_power_toyohime[] =
 		"中距離のランダムテレポートを行う。"},
 	{9,8,25,FALSE,FALSE,A_INT,0,0,"穢身感知",
 		"周囲の広範囲の生物を感知する。"},
-	{15,25,40,FALSE,FALSE,A_CHR,0,5,"月の軍勢召喚",
+	{15,25,40,FALSE,TRUE,A_CHR,0,5,"月の軍勢召喚",
 		"月面勢力のモンスターを配下として多数召喚する。"},
-	{20,18,50,FALSE,FALSE,A_DEX,0,0,"テレポート・レベル",
+	{18,18,50,FALSE,TRUE,A_DEX,0,0,"テレポート・レベル",
 		"別のフロアへテレポートする。"},
-	{25,25,60,FALSE,TRUE,A_INT,0,0,"次元の扉",
+	{23,32,50,FALSE,TRUE,A_CHR,0,5,"潮盈珠", //v2.1.1追加
+		"自分の周囲に水属性攻撃を行い地形を水にする。同名のアーティファクトを所持していると威力が強化される。"},
+	{27,25,60,FALSE,TRUE,A_INT,0,0,"次元の扉",
 		"指定したグリッドへテレポートする。距離が遠すぎると失敗することがある。"},
 	{30,30,55,FALSE,TRUE,A_WIS,0,0,"*追放*",
 		"指定した敵一体を高確率で現在のフロアから追い払う。レベル40以降は周囲の全ての敵が対象になる。クエストダンジョンでは使えず、ユニークモンスターには効果がない。"},
@@ -12202,7 +12386,29 @@ cptr do_cmd_class_power_aux_toyohime(int num, bool only_info)
 			teleport_level(0);
 		}
 		break;
+
+
 	case 4:
+	{
+		int dam = 100 + plev * 5 + chr_adj * 5;
+		int rad = 1 + plev / 12;
+
+		if (check_equip_specific_fixed_art(ART_SHIOMITSUTAMA, FALSE))
+		{
+			dam *= 2;
+			rad += 2;
+		}
+		if (only_info) return format("損傷:～%d ", dam / 2);
+
+		msg_print("あなたは大渦を巻き起こした！");
+
+		project(0, rad, py, px, rad, GF_WATER_FLOW, PROJECT_GRID, -1);
+		project(0, rad, py, px, dam, GF_WATER, (PROJECT_KILL | PROJECT_GRID | PROJECT_ITEM), -1);
+
+		break;
+	}
+
+	case 5:
 		{
 			int range = plev;
 			if(only_info) return format("距離:%d",range);
@@ -12210,7 +12416,7 @@ cptr do_cmd_class_power_aux_toyohime(int num, bool only_info)
 		}
 		break;
 
-	case 5: //追放
+	case 6: //追放
 		{
 			int power = 100 + plev * 3;
 
@@ -12233,7 +12439,7 @@ cptr do_cmd_class_power_aux_toyohime(int num, bool only_info)
 
 		}
 		break;
-	case 6: //次元の扉Ⅱ
+	case 7: //次元の扉Ⅱ
 		{
 			int x, y;
 			monster_type *m_ptr;
@@ -12288,7 +12494,7 @@ cptr do_cmd_class_power_aux_toyohime(int num, bool only_info)
 		break;
 
 
-	case 7:
+	case 8:
 		{
 			int tx,ty,i;
 			bool flag = FALSE;
@@ -12314,7 +12520,7 @@ cptr do_cmd_class_power_aux_toyohime(int num, bool only_info)
 
 		}
 		break;
-	case 8: //公転周期の罠
+	case 9: //公転周期の罠
 		{
 			if(only_info) return format("");
 
@@ -33562,6 +33768,7 @@ class_power_type class_power_mage[] =
 	{25,1,70,FALSE,TRUE,A_INT,0,0,"魔力食い",
 		"杖・魔法棒・ロッドから魔力を吸い取りMPを回復する。魔道具が壊れることがある。"},
 
+
 	{99,0,0,FALSE,FALSE,0,0,0,"dummy",	""},
 };
 cptr do_cmd_class_power_aux_mage(int num, bool only_info)
@@ -33584,7 +33791,6 @@ cptr do_cmd_class_power_aux_mage(int num, bool only_info)
 	}
 	return "";
 }
-
 
 
 /*:::華扇専用技*/
@@ -36488,7 +36694,16 @@ bool check_class_skill_usable(char *errmsg,int skillnum, class_power_type *class
 		}
 	}
 
+	else if (p_ptr->pclass == CLASS_ENOKO)
+	{
+		if(is_special_seikaku(SEIKAKU_SPECIAL_ENOKO) && skillnum == 6)
+		{
+			my_strcpy(errmsg, "両手のトラバサミがないのでこの特技は使えない。", 150);
+			return FALSE;
 
+		}
+
+	}
 
 
 
@@ -37452,6 +37667,11 @@ void do_cmd_new_class_power(bool only_browse)
 		power_desc = "特技";
 		break;
 
+	case CLASS_UBAME:
+		class_power_table = class_power_ubame;
+		class_power_aux = do_cmd_class_power_aux_ubame;
+		power_desc = "特技";
+		break;
 
 
 	default:
@@ -38652,10 +38872,10 @@ const support_item_type support_item_list[] =
 	"フェムトファイバーの組紐","それはモンスター一体を縛り上げて移動を妨害し、中確率で行動も妨害する。素早い敵・力強い敵・巨大な敵・ユニークモンスターには効きづらい。"},
 
 	//次元の扉Ⅱ
-	{60,20, 80,7,5,MON_REISEN2,class_power_toyohime,do_cmd_class_power_aux_toyohime,6,
+	{60,20, 80,7,5,MON_REISEN2,class_power_toyohime,do_cmd_class_power_aux_toyohime,7,
 	"愚者の封書","それは視界内のモンスター一体を指定した場所にテレポートさせる。テレポート耐性をもつ敵対的なモンスターには効果がない。"},
 	//月の公転周期の罠
-	{255,110, 127,1,100,MON_TOYOHIME,class_power_toyohime,do_cmd_class_power_aux_toyohime,8,
+	{255,110, 127,1,100,MON_TOYOHIME,class_power_toyohime,do_cmd_class_power_aux_toyohime,9,
 	"賢者の封書","それを発動すると以後モンスターがテレポートしたときフロアから消滅し、さらにモンスターによる召喚魔法が阻害されるようになる。"},
 
 	//神降ろし「金山彦命」
@@ -38843,9 +39063,13 @@ const support_item_type support_item_list[] =
 		{ 50,1,50,3,5,	0,class_power_daiyousei,do_cmd_class_power_aux_daiyousei,4,
 		"名もなき花","それはモンスター一体を混乱、攻撃力低下状態にしようと試みる。" },
 
-		//v2.1.0 瑞霊　エナジードレイン
-		{ 80,40,100,8,5,	0,class_power_mizuchi,do_cmd_class_power_aux_mizuchi,4,
-		"大怨霊の手袋","それは隣接したモンスターからHPとMPを奪う。回避されることもある。生命を持たない敵には無効。" },
+	//v2.1.0 瑞霊　エナジードレイン
+	{ 80,40,100,8,5,	0,class_power_mizuchi,do_cmd_class_power_aux_mizuchi,4,
+	"大怨霊の手袋","それは隣接したモンスターからHPとMPを奪う。回避されることもある。生命を持たない敵には無効。" },
+
+	//v2.1.1 
+	{ 90,20,80,1,25,	MON_UBAME,class_power_ubame,do_cmd_class_power_aux_ubame,4,
+	"怪王の冠","それは地震を起こす。この地震は永久壁を破壊する。" },
 
 		
 

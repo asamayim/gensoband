@@ -21274,30 +21274,7 @@ static cptr do_new_spell_darkness(int spell, int mode)
 			}
 		}
 		break;
-		/*
-	case 13:
-		{
-			int dam = plev * 4;
-
-			if (cp_ptr->magicmaster)
-				dam = plev * 6;
-
-			if (name) return "硝子の盾";
-			if (desc) return "接触型の隣接攻撃を防ぐ盾を作り出す。一度攻撃を防ぐと盾は破壊され、そのとき強力な破片属性の反撃を行う。";
-
-			if (info) return info_damage(0, 0, dam);
-
-			if (cast)
-			{
-				msg_print("透き通った巨大な盾が現れた。");
-				p_ptr->special_defense |= (SD_GLASS_SHIELD);
-				p_ptr->redraw |= (PR_STATUS);
-			}
-
-		}
-		break;
-
-		*/
+		
 
 		/*
 	case 13:
@@ -23597,7 +23574,7 @@ static cptr do_new_spell_mystic(int spell, int mode)
 	case 28:
 #ifdef JP
 		if (name) return "矢返し";
-		if (desc) return "一定時間、敵が放った矢やボルト系魔法を高確率で跳ね返せるようになる。";
+		if (desc) return "一定時間、敵が放ったボルト系魔法を高確率で跳ね返せるようになる。射撃は反射できない。";
 #else
 		if (name) return "Walk through Wall";
 		if (desc) return "Gives ability to pass walls for a while.";
@@ -24181,7 +24158,7 @@ static cptr do_new_spell_punish(int spell, int mode)
 
 			if (cast)
 			{
-				set_protevil(randint1(sides) + sides, FALSE);
+				set_protevil(randint1(sides) + base, FALSE);
 			}
 		}
 		break;
@@ -26127,11 +26104,726 @@ static cptr do_new_spell_occult(int spell, int mode)
 
 
 
+/*:::新領域　異変石*/
+static cptr do_new_spell_incident_stone(int spell, int mode)
+{
+	bool name = (mode == SPELL_NAME) ? TRUE : FALSE;
+	bool desc = (mode == SPELL_DESC) ? TRUE : FALSE;
+	bool info = (mode == SPELL_INFO) ? TRUE : FALSE;
+	bool cast = (mode == SPELL_CAST) ? TRUE : FALSE;
+	bool fail = (mode == SPELL_FAIL) ? TRUE : FALSE;
+
+	int dir;
+	int plev = p_ptr->lev;
+
+	bool flag_boost = FALSE;
+
+	if (p_ptr->special_defense & (SD_AMPLIFY_STONE)) flag_boost = TRUE;
+
+	//if (p_ptr->pclass == CLASS_YATSUHASHI && music_singing(MUSIC_NEW_TSUKUMO_ECHO)) plev = plev * 3 / 2;
+	if (p_ptr->pseikaku == SEIKAKU_BERSERK) plev *= 2;
+
+	switch (spell)
+	{
+
+		//スカーレットデビル
+	case 0:
+		if (name) return "針弾";
+		if (desc) return "射撃属性の反射されないボルトを放つ。";
+		{
+			int dice = 3 + ((plev - 1) / 4);
+			int sides = 4;
+
+			if (flag_boost) dice = dice * 3 / 2;
+
+			if (info) return info_damage(dice, sides, 0);
+
+			if (cast)
+			{
+				if (!get_aim_dir(&dir)) return NULL;
+
+				fire_bolt(GF_ARROW, dir, damroll(dice, sides));
+			}
+		}
+		break;
+
+	case 1:
+		if (name) return "レーザー";
+		if (desc) return "閃光属性のビームを放つ。";
+
+		{
+
+			int dice = 10 + plev / 5;
+			int sides = 6;
+
+			if (flag_boost) dice = dice * 3 / 2;
+
+			if (info) return info_damage(dice, sides, 0);
+
+			if (cast)
+			{
+				if (!get_aim_dir(&dir)) return NULL;
+
+				fire_beam(GF_LITE, dir, damroll(dice, sides));
+			}
+		}
+		break;
+
+
+
+	case 2:
+		if (name) return "腕力強化";
+		if (desc) return "一定時間腕力を増加させる。魔法専門職が使うと通常の限界値を超える。";
+
+		{
+			int base = 20;
+
+			if (info) return info_duration(base, base);
+
+			if (cast)
+			{
+				int val = 3 + plev / 10;
+				if (cp_ptr->magicmaster) val += 100;
+
+				if (flag_boost) val = 110;
+
+				msg_format("吸血鬼の剛腕があなたに宿った気がする。");
+				set_tim_addstat(A_STR, val, base + randint1(base), FALSE);
+
+			}
+		}
+		break;
+
+
+	case 3:
+		if (name) return "真紅の槍";
+		if (desc) return "光の剣属性のビームを放つ。あらゆる敵に効果があり、敵の無敵化を貫通する。";
+
+		{
+			int base = 150 + plev * 3;
+
+			if (flag_boost) base = base * 3 / 2;
+
+			if (info) return info_damage(1, base, base);
+
+			if (cast)
+			{
+				if (!get_aim_dir(&dir)) return NULL;
+				fire_beam(GF_GUNGNIR, dir, base + randint1(base));
+			}
+		}
+		break;
+
+		//クリーチャーレッド
+	case 4:
+		if (name) return "呪いの御札弾";
+		if (desc) return "敵一体を呪いで攻撃する。抵抗されると無効。命を持たない敵には効果がない。魔法専門職が使うと威力が少し上昇する。";
+
+		{
+			int dice = 8, sides = 8;
+
+			if (flag_boost) dice = dice * 3 / 2;
+
+			if (cp_ptr->magicmaster) sides = 12;
+
+			if (info) return info_damage(dice, sides, 0);
+
+			if (cast)
+			{
+				if (!get_aim_dir(&dir)) return NULL;
+				fire_ball(GF_CAUSE_2, dir, damroll(dice, sides), 0);
+			}
+
+		}
+		break;
+
+	case 5:
+		if (name) return "加速";
+		if (desc) return "一定時間、すべての行動の速度が上昇する。";
+		{
+			int base = 5 + plev / 2;
+			if (flag_boost) base = base * 3 / 2;
+
+			if (info) return info_duration(base, base);
+
+			if (cast)
+			{
+				set_fast(randint1(base) + base, FALSE);
+			}
+		}
+		break;
+
+
+	case 6:
+		if (name) return "炎熱ロケット弾";
+		if (desc) return "モンスターや障害物に当たると爆発するプラズマ属性のロケットを発射する。";
+		{
+			int dam = 100 + plev * 5;
+			int rad = 2;
+
+			if (flag_boost) dam = dam * 3 / 2;
+
+			if (info) return info_damage(0, 0, dam);
+
+			if (cast)
+			{
+				if (!get_aim_dir(&dir)) return NULL;
+
+				fire_rocket(GF_PLASMA, dir, dam, rad);
+			}
+
+		}
+		break;
+
+
+	case 7:
+		if (name) return "スカベンジング";
+		if (desc) return "一定時間、モンスターを打倒したときにMPが回復するようになる。";
+
+		{
+			int base = plev / 2;
+			if (flag_boost) base = base * 3 / 2;
+			if (info) return info_duration(base, base);
+
+			if (cast)
+			{
+				int time = randint1(base) + base;
+
+				set_rob_mana(time);
+
+			}
+
+		}
+		break;
+
+		//スノーブロッサム
+	case 8:
+		if (name) return "モンスター感知";
+		if (desc) return "近くの全てのモンスターを感知する。";
+		{
+			int rad = DETECT_RAD_DEFAULT;
+			if (flag_boost) rad = rad * 2;
+			if (info) return info_radius(rad);
+
+			if (cast)
+			{
+				detect_monsters_normal(rad);
+				detect_monsters_invis(rad);
+			}
+		}
+		break;
+
+
+	case 9:
+		if (name) return "亡霊弾";
+		if (desc) return "周囲のランダムなモンスターの位置に地獄属性のボールを放つ。";
+
+		{
+			bool flag = FALSE;
+			int dam = plev * 3 + 50;
+			int i;
+			if (flag_boost) dam = dam * 3 / 2;
+			if (info) return format("損傷:%d", dam);
+			if (cast)
+			{
+				if (fire_random_target(GF_NETHER, dam, 3, 2, 0))flag = TRUE;
+				if (!flag)
+				{
+					msg_format("しかし敵が見当たらなかった。");
+				}
+				break;
+
+			}
+
+		}
+		break;
+	case 10:
+		if (name) return "氷雪弾";
+		if (desc) return "現在HPの1/5の威力の極寒属性ブレスを放つ。魔法専門職が使うと現在HPの1/3の威力になる。";
+
+		{
+			int dam = p_ptr->chp / 5;
+			if (cp_ptr->magicmaster)
+				dam = p_ptr->chp / 3;
+
+			if (flag_boost) dam = dam * 3 / 2;
+
+			if (dam < 1) dam = 1;
+
+			if (info) return info_damage(0, 0, dam);
+
+			if (cast)
+			{
+
+				if (!get_aim_dir(&dir)) return NULL;
+
+				fire_ball(GF_ICE, dir, dam, -1);
+
+			}
+		}
+		break;
+
+
+
+	case 11:
+		if (name) return "破滅の御札弾";
+
+		if (desc) return "モンスター一体のHPを半減させ全能力を低下させる凶悪な御札を放つ。抵抗されると無効。";
+		{
+			int power = plev * 2 + 20;
+			if (flag_boost) power = power * 3 / 2;
+			if (info) return format("効力:%d", power);
+			if (cast)
+			{
+				if (!get_aim_dir(&dir)) return NULL;
+				fire_ball(GF_HAND_DOOM, dir, power, 0);
+				fire_ball_hide(GF_DEC_ALL, dir, power, 0);
+
+			}
+		}
+		break;
+
+
+	case 12:
+		if (name) return "アイテム感知";
+		if (desc) return "近くの全てのアイテムを感知する。";
+		{
+			int rad = DETECT_RAD_DEFAULT;
+			if (flag_boost) rad = rad * 2;
+			if (info) return info_radius(rad);
+
+			if (cast)
+			{
+				detect_objects_normal(rad);
+			}
+		}
+		break;
+
+	case 13:
+
+		if (name) return "サーチ弾幕";
+		if (desc) return "距離5以内で一番自分の近くにいるモンスターに対して無属性のボルトを連射する。";
+
+		{
+			int i;
+			int num = 5;
+			int dice = 4 + plev / 8;
+			int sides = 8;
+			bool flag_done = FALSE;
+			if (flag_boost) dice = dice * 3 / 2;
+			if (info) return format("損傷:(%dd%d)*%d", dice, sides, num);
+
+			if (cast)
+			{
+
+				for (i = 0; i < num; i++)
+				{
+					//ボルトを反射されたときにもFALSEが返ってループから出る
+					if (fire_random_target(GF_MISSILE, damroll(dice,sides), 7, 0, 5))flag_done = TRUE;
+					else 
+					{
+						if(!flag_done)msg_format("有効なターゲットがいない。");
+						break;
+					}
+				}
+
+			}
+		}
+		break;
+
+	case 14:
+
+		if (name) return "元素耐性";
+		if (desc) return "一定時間、酸、電撃、炎、冷気に対する耐性を得る。装備による耐性に累積する。魔法専門職が使うと毒耐性も得る。";
+
+		{
+			int base = 25;
+			if (flag_boost) base = base * 3 / 2;
+			if (info) return info_duration(base, base);
+
+			if (cast)
+			{
+				int time = randint1(base) + base;
+				set_oppose_acid(time, FALSE);
+				set_oppose_elec(time, FALSE);
+				set_oppose_fire(time, FALSE);
+				set_oppose_cold(time, FALSE);
+				if (cp_ptr->magicmaster) set_oppose_pois(time, FALSE);
+			}
+		}
+		break;
+
+	case 15:
+		if (name) return "爆風防御";
+		if (desc) return "一定時間、半径1以上のボールとロケットに分類される攻撃のダメージを軽減する。ブレスやボルトやレーザーは軽減されない。";
+
+		{
+			int base = plev / 4;
+			if (flag_boost) base = base * 3 / 2;
+
+			if (info) return info_duration(base, base);
+
+			if (cast)
+			{
+				int time = randint1(base) + base;
+
+				set_res_blast(time);
+
+			}
+		}
+		break;
 
 
 
 
+	case 16:
+		if (name) return "精神攻撃弾";
+		if (desc) return "モンスター一体の精神を攻撃しさらに混乱させる。抵抗されると無効。通常の精神を持たないモンスターには無効。魔法専門職が使うと少し強化される。";
 
+		{
+			int dice = 7 + plev / 6;
+			int sides = 7 + plev / 6;
+			if (flag_boost) dice = dice * 3 / 2;
+			if (cp_ptr->magicmaster) sides += 2;
+
+			if (info) return info_damage(dice, sides, 0);
+
+			if (cast)
+			{
+				int typ = GF_MIND_BLAST;
+				if (cp_ptr->magicmaster) typ = GF_REDEYE;
+				if (!get_aim_dir(&dir)) return NULL;
+				fire_ball_hide(typ, dir, damroll(dice, sides), 0);
+			}
+		}
+		break;
+
+	case 17:
+		if (name) return "テレパシー";
+		if (desc) return "一定時間、テレパシー能力を得る。";
+
+		{
+			int base = 20 + plev / 5;
+			if (flag_boost) base = base * 3 / 2;
+			if (info) return info_duration(base, base);
+
+			if (cast)
+			{
+				set_tim_esp(randint1(base) + base, FALSE);
+			}
+		}
+		break;
+
+	case 18:
+		if (name) return "攻撃回避";
+		if (desc) return "一定時間、ACを上昇させる。";
+
+		{
+			int base = plev / 2;
+			if (flag_boost) base = base * 3 / 2;
+
+			if (info) return info_duration(base, base);
+
+			if (cast)
+			{
+				set_shield(randint1(base) + base, FALSE);
+			}
+		}
+		break;
+
+
+
+	case 19:
+		if (name) return "精神防壁";
+		if (desc) return "一定時間、恐怖と狂気への耐性、魔法防御上昇を得る。";
+		{
+
+			{
+				int base = 15 + plev / 5;
+				if (flag_boost) base = base * 3 / 2;
+
+				if (info) return info_duration(base, base);
+
+				if (cast)
+				{
+					int time = randint1(base) + base;
+					set_afraid(0);
+					set_stun(0);
+					set_hero(time, FALSE);
+					set_resist_magic(time, FALSE);
+					set_tim_res_insanity(time, FALSE);
+
+				}
+			}
+			break;
+
+
+	case 20:
+		if (name) return "浄化の矢";
+		if (desc) return "分解属性のボルトを放つ。魔法専門職が使うと少し威力が上がる。";
+		{
+			int dice = 4 + plev / 6;
+			int sides = 12;
+
+			if (cp_ptr->magicmaster) sides = 16;
+			if (flag_boost) dice = dice * 3 / 2;
+
+			if (info) return info_damage(dice, sides, 0);
+
+			if (cast)
+			{
+				if (!get_aim_dir(&dir)) return NULL;
+
+				fire_bolt(GF_DISINTEGRATE, dir, damroll(dice, sides));
+			}
+		}
+		break;
+	case 21:
+		if (name) return "反射";
+		if (desc) return "一定時間、敵が放ったボルト系魔法を高確率で跳ね返せるようになる。射撃は反射できない。";
+		{
+
+			{
+				int base = 10 + plev / 5;
+				if (flag_boost) base = base * 3 / 2;
+
+				if (info) return info_duration(base, base);
+
+				if (cast)
+				{
+					set_tim_reflect(randint1(base) + base, FALSE);
+				}
+			}
+			break;
+
+
+		}
+		break;
+
+	case 22:
+		if (name) return "対邪悪結界";
+		if (desc) return "混沌の勢力のモンスターの攻撃を防ぐバリアを張る。";
+
+		{
+			int base = 25 + plev / 2;
+			if (flag_boost) base = base * 3 / 2;
+
+			if (info) return info_duration(base, base);
+
+			if (cast)
+			{
+				set_protevil(randint1(base) + base, FALSE);
+			}
+		}
+		break;
+
+
+
+	case 23:
+		if (name) return "浄化の光";
+		if (desc) return "視界内の全てに強力な分解属性攻撃を行う。";
+
+		{
+			int dam = 300 + plev * 6;
+			if (flag_boost) dam = dam * 3 / 2;
+
+			if (info) return format("損傷：%d", dam);
+
+			if (cast)
+			{
+				project_hack2(GF_DISINTEGRATE, 0, 0, dam);
+			}
+		}
+		break;
+
+
+	case 24:
+		if (name) return "回復力強化";
+		if (desc) return "一定時間、回復力が増強される。";
+
+		{
+			int base = MIN(25, plev);
+			if (flag_boost) base = base * 3 / 2;
+
+			if (info) return info_duration(base, base);
+
+			if (cast)
+			{
+				set_tim_regen(base + randint1(base), FALSE);
+			}
+		}
+		break;
+
+
+	case 25:
+
+		if (name) return "猛禽弾";
+		if (desc) return "強力な破片属性のボルトを放つ。魔法専門職が使うと少し威力が上がる。";
+		{
+			int dice = 10 + plev / 4;
+			int sides = 9;
+			if (flag_boost) dice = dice * 3 / 2;
+
+			if (cp_ptr->magicmaster) sides = 12;
+
+			if (info) return info_damage(dice, sides, 0);
+
+			if (cast)
+			{
+				if (!get_aim_dir(&dir)) return NULL;
+				fire_bolt(GF_SHARDS, dir, damroll(dice, sides));
+			}
+
+		}
+		break;
+
+	case 26:
+		if (name) return "群狼弾";
+		if (desc) return "射程がやや短いが強力な劣化属性のボールを放つ。";
+		{
+			int range = 2 + plev / 5;
+			int rad = plev / 12;
+			int dam = 100 + plev * 4;
+			if (flag_boost) dam = dam * 3 / 2;
+
+			if (info) return info_damage(0, 0, dam);
+
+			if (cast)
+			{
+				project_length = range;
+				if (!get_aim_dir(&dir)) return NULL;
+
+				fire_ball(GF_DISENCHANT, dir, dam, rad);
+			}
+
+		}
+		break;
+
+	case 27:
+		if (name) return "金剛の牙";
+		if (desc) return "装備中の武器に一時的に「切れ味」を付加する。すでに切れ味のある武器は「*切れ味*」になる。刃のある武器を装備していないと使えない。装備を変更すると効果が消える。";
+		{
+			int base = 4 + plev / 4;
+			if (flag_boost) base = base * 3 / 2;
+			if (info) return info_duration(base, base);
+
+
+			if (!object_has_a_blade(&inventory[INVEN_RARM]) && !object_has_a_blade(&inventory[INVEN_LARM]))
+			{
+				msg_print("刃物を持っていないと使えない。");
+				return NULL;
+			}
+
+			set_ele_attack(ATTACK_VORPAL, base + randint1(base));
+
+
+		}
+		break;
+
+
+	case 28:
+		if (name) return "蛇弾";
+		if (desc) return "毒属性のビームを放つ。";
+
+		{
+
+			int dice = 10 + plev / 4;
+			int sides = 7;
+			if (flag_boost) dice = dice * 3 / 2;
+			if (info) return info_damage(dice, sides, 0);
+
+			if (cast)
+			{
+				if (!get_aim_dir(&dir)) return NULL;
+
+				fire_beam(GF_POIS, dir, damroll(dice, sides));
+			}
+		}
+		break;
+
+	case 29:
+
+		if (name) return "蛙弾";
+		if (desc) return "射程が短いカオス属性のボールを放つ。魔法専門職が使うと射程が伸びる。";
+		{
+			int i;
+			int range = 1 + plev / 10;
+			int rad = 1;
+			int dice = 15;
+			int sides = 4 + plev / 3;
+			if (flag_boost) dice = dice * 3 / 2;
+			if (cp_ptr->magicmaster) range += plev / 12;
+
+			if (info) return info_damage(dice, sides, 0);
+
+			if (cast)
+			{
+				project_length = range;
+				if (!get_aim_dir(&dir)) return NULL;
+
+				fire_ball(GF_CHAOS, dir, damroll(dice, sides), rad);
+
+			}
+
+		}
+		break;
+
+
+
+	case 30:
+		if (name) return "カマイタチ";
+		if (desc) return "全方向に向かって隣接攻撃を行う。オーラダメージを受けない。";
+
+		{
+			if (info) return "";
+
+			if (cast)
+			{
+				whirlwind_attack(HISSATSU_NO_AURA);
+				if (flag_boost) 
+					whirlwind_attack(HISSATSU_NO_AURA);
+			}
+
+		}
+		break;
+
+	case 31:
+		if (name) return "異変石増幅";
+		if (desc) return "次に異変石の魔法を使うときの効果を強化する。";
+
+		{
+			if (info) return "";
+
+			if (cast)
+			{
+				if (flag_boost)
+				{
+					msg_print("すでに使っている。");
+					return NULL;
+				}
+
+				msg_print("異変石の輝きが強まった。");
+				p_ptr->special_defense |= (SD_AMPLIFY_STONE);
+				p_ptr->redraw |= (PR_STATUS);
+			}
+
+		}
+		break;
+
+	default:
+		msg_format("ERROR:num(%d)が未実装", spell);
+		return NULL;
+
+		}
+
+	}
+
+	//「異変石増幅」を使った直後を除いてこの効果を消去
+	if((p_ptr->special_defense & SD_AMPLIFY_STONE) && spell != 31) p_ptr->special_defense &= ~(SD_AMPLIFY_STONE);
+
+	return "";
+
+}
 
 
 
@@ -26199,6 +26891,9 @@ cptr do_spell(int realm, int spell, int mode)
 		return do_hissatsu_spell(spell, mode);
 	case TV_BOOK_OCCULT:
 		return do_new_spell_occult(spell,mode);
+	case TV_STONE_INCIDENT:
+		return do_new_spell_incident_stone(spell, mode);
+
 
 	default:
 		msg_print("この領域は未実装だ。");

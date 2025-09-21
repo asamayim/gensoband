@@ -178,6 +178,11 @@ const	battle_mon_special_team_type	battle_mon_special_team_list[BATTLE_MON_SPECI
 	{ 70,"『月虹市場』",
 		{ MON_CHIMATA, MON_MEGUMU, MON_MOMOYO, MON_TSUKASA, 0, 0, 0, 0 } },
 
+	{ 60,"『取り外せたんだ？』",//久侘歌やフランや小傘も入るかと思ったが解釈的に微妙なのでパス
+		{MON_ENOKO, MON_UTSUHO,0 , 0, 0, 0, 0, 0} },
+	{ 25,"『聖域の守護者』",
+		{MON_NEMUNO, MON_UBAME, MON_BITEN, MON_NAREKO, 0, 0, 0, 0} },
+
 
 };
 
@@ -1582,7 +1587,7 @@ void battle_mon_gambling(void)
 			else if(battle_mon_list[i].r_idx == MON_MARISA) apply_mon_race_marisa();
 			else if(IS_RANDOM_UNIQUE_IDX(battle_mon_list[i].r_idx)) apply_random_unique(battle_mon_list[i].r_idx);
 		}
-		if(cheat_xtra) msg_format("");
+
 		//ここから全チームの戦力評価と勝率計算をし、倍率を設定する
 		//各チームの敵全てのHPを合計する
 		for(i=0;i<4;i++)
@@ -1898,9 +1903,9 @@ static bool item_tester_hook_marisa_good_book(object_type *o_ptr)
 //魔理沙専用 魔法書tvalとsvalからmagic_num[]添字を返す
 static int marisa_book_to_magic_num(int tval, int sval)
 {
-	if(tval > MAX_MAGIC || tval < MIN_MAGIC || sval < 2)
+	if(tval > MAX_BASIC_MAGIC_REALM || tval < MIN_MAGIC || sval < 2)
 	{
-		msg_format("ERROR:marisa_book_to_magic()に3,4冊目魔法書以外の物が渡された");
+		msg_print("ERROR:marisa_book_to_magic()に3,4冊目魔法書以外の物が渡された");
 		return -1;
 	}
 
@@ -2043,15 +2048,15 @@ int choose_marisa_magic(int mode)
 	int carry_num = 0;
 	bool flag_repeat = FALSE;
 
-	for(i=0;i<MARISA_MAX_MAGIC_KIND;i++) if(p_ptr->magic_num2[i]) break;
-	if(i == MARISA_MAX_MAGIC_KIND)
+	for(i=0;i<MARISA_MAGIC_KIND_MAX;i++) if(p_ptr->magic_num2[i]) break;
+	if(i == MARISA_MAGIC_KIND_MAX)
 	{
 		msg_print("まだ一つも魔法のアイデアがない。");
 		return -1;
 	}
 	if(mode == CMM_MODE_CARRY)
 	{
-		for(i=0;i<MARISA_MAX_MAGIC_KIND;i++) carry_num += p_ptr->magic_num1[i+MARISA_HOME_CARRY_SHIFT];
+		for(i=0;i<MARISA_MAGIC_KIND_MAX;i++) carry_num += p_ptr->magic_num1[i+MARISA_HOME_CARRY_SHIFT];
 	}
 
 	screen_save();
@@ -2074,7 +2079,7 @@ int choose_marisa_magic(int mode)
 	else				
 		prt("「どの魔法を使おう？」(ESC:キャンセル)",4,18);
 
-	for(i=0;i<MARISA_MAX_MAGIC_KIND;i++)
+	for(i=0;i<MARISA_MAGIC_KIND_MAX;i++)
 	{
 		char magic_desc[80];
 		char sym = (i < 26)?('a'+i):('A'+i-26);
@@ -2332,7 +2337,7 @@ bool carry_marisa_magic(void)
 		if(spell_num < 0) return TRUE;
 		if(spell_num == 99)//選択画面でスペースを押した時所持魔法を全部家に戻して選択しなおし
 		{
-			for(i=0;i<MARISA_MAX_MAGIC_KIND;i++)
+			for(i=0;i<MARISA_MAGIC_KIND_MAX;i++)
 			{
 				p_ptr->magic_num1[i] += p_ptr->magic_num1[i+MARISA_HOME_CARRY_SHIFT];
 				p_ptr->magic_num1[i+MARISA_HOME_CARRY_SHIFT] = 0;
@@ -2439,7 +2444,7 @@ void hina_at_work(void)
 		p_ptr->au += gain;
 		p_ptr->magic_num1[1] -= gain;
 		building_prt_gold();
-		if(gain == 100000) msg_format("あなたは新たな在庫を取り出した。");
+		if(gain == 100000) msg_print("あなたは新たな在庫を取り出した。");
 		else msg_print("あなたは在庫を補充した。");
 
 	}
@@ -2752,7 +2757,7 @@ void compound_drug(void)
 			c_put_str(TERM_WHITE,format("成功率:%d%%", MIN(chance,100)),17,10);
 
 			if(!flag_have_recipe && !flag_exp)
-				msg_format("何か作ったことのないものが出来そうだ！");
+				msg_print("何か作ったことのないものが出来そうだ！");
 			else if(!compound_result_num)//炭
 				msg_format("これでは%sにしかならない。",o_name);
 			else if(flag_have_recipe && flag_exp)
@@ -3305,6 +3310,12 @@ void exbldg_search_around(void)
 		msg3 = "造形神は気分良さげに別のものを作り始めている。";
 		break;
 
+	case BLDG_EX_KEIKI2: 
+		msg1 = "埴安神袿姫が一心不乱に何かを捏ね上げている...";
+		msg1_2 = "";
+		msg2 = "見届けますか？";
+		msg3 = "造形神は妙に伸びた埴輪を焼いている。";
+		break;
 
 	case BLDG_EX_ZASHIKI: //座敷わらしのテレワーク
 
@@ -3528,7 +3539,7 @@ void exbldg_search_around(void)
 			}
 			else
 			{
-				msg_format("キノコの妖精に睨まれた。やめておこう。");
+				msg_print("キノコの妖精に睨まれた。やめておこう。");
 			}
 
 		}
@@ -3553,7 +3564,7 @@ void exbldg_search_around(void)
 		}
 		else
 		{
-			msg_format("キノコの妖精に睨まれた。やめておこう。");
+			msg_print("キノコの妖精に睨まれた。やめておこう。");
 		}
 
 	}
@@ -3566,7 +3577,7 @@ void exbldg_search_around(void)
 			{
 				object_prep(o_ptr, (int)lookup_kind(TV_SWORD, SV_WEAPON_BLADE_OF_CHAOS));
 				apply_magic(o_ptr,dun_level,(AM_GOOD|AM_GREAT|AM_NO_FIXED_ART));
-				msg_format("剣は宙を舞い、あなたの手に納まった。");
+				msg_print("剣は宙を舞い、あなたの手に納まった。");
 				inven_carry(o_ptr);
 
 			}
@@ -3732,14 +3743,14 @@ void exbldg_search_around(void)
 				int book_tv = 1;
 				int book_sv;
 
-				if(one_in_(2)) book_tv = randint1(MAX_MAGIC);
+				if(one_in_(2)) book_tv = randint1(MAX_BASIC_MAGIC_REALM);
 				else if(cp_ptr->realm_aptitude[0] == 1 && p_ptr->realm1 != TV_BOOK_HISSATSU
 					 || cp_ptr->realm_aptitude[0] == 3) book_tv = p_ptr->realm1;
 				else if(p_ptr->pclass == CLASS_CHEMIST) book_tv = TV_BOOK_MEDICINE;
 				else if(cp_ptr->realm_aptitude[0] == 2)
 				{
 					int j,cnt=0;
-					for(j=1;j<=MAX_MAGIC;j++)
+					for(j=1;j<=MAX_BASIC_MAGIC_REALM;j++)
 					{
 						if(cp_ptr->realm_aptitude[j] >1 && rp_ptr->realm_aptitude[j])
 						{
@@ -3748,7 +3759,7 @@ void exbldg_search_around(void)
 						}
 					}
 				}
-				else book_tv = randint1(MAX_MAGIC);
+				else book_tv = randint1(MAX_BASIC_MAGIC_REALM);
 				book_sv = (MIN(dun_level,100)/2 + randint0(100)) / 50+1;
 
 				object_prep(o_ptr, lookup_kind(book_tv,book_sv));
@@ -4078,7 +4089,7 @@ void exbldg_search_around(void)
 			for (i = 0; repair_weapon_power_table[i].tval; i++)
 				if (repair_weapon_power_table[i].tval == tmp_o_ptr->tval && repair_weapon_power_table[i].sval == tmp_o_ptr->sval)
 					power = repair_weapon_power_table[i].type;
-			if (power == -1) { msg_format("ERROR:武器修復でこの修復素材のsv_powerが登録されていない"); return ; }
+			if (power == -1) { msg_print("ERROR:武器修復でこの修復素材のsv_powerが登録されていない"); return ; }
 
 			//素材を減らす
 			inven_item_increase(item, -1);
@@ -4128,6 +4139,54 @@ void exbldg_search_around(void)
 			inkey();
 
 			inven_carry(o_ptr);
+
+		}
+		break;
+
+
+		case BLDG_EX_KEIKI2:
+		{
+			int chance;
+			char o_name[MAX_NLEN];
+
+			clear_bldg(4, 18);
+
+			if (flag_max_inven)
+			{
+				prt("「ちょっと待ってて...", 8, 21);
+				prt("　あとで良い物をあげるから出直してきなさい？」", 9, 21);
+				return;
+			}
+
+			prt("「できた！", 8, 21);
+			prt("　なるほどこうやって結晶化するのね。", 9, 21);
+			prt("　さて、確認は済んだからこれは貴方にあげる。」", 10, 21);
+
+			//異変石を生成(手持ちと被らないように多少配慮する)
+			for (chance = 5; chance>0; chance--)
+			{
+				int j;
+				bool flag_ok = TRUE;
+				object_prep(o_ptr, (int)lookup_kind(TV_STONE_INCIDENT, randint0(SV_INCIDENT_STONE_MAX + 1)));
+
+				for (j = 0; j < INVEN_PACK; j++)
+				{
+					if (!object_similar(o_ptr, &inventory[j])) continue;
+				
+					flag_ok = FALSE;
+					break;
+				}
+
+				if (flag_ok) break;
+			}
+
+			object_desc(o_name, o_ptr, 0L);
+
+			prt(format("%sを受け取った！",o_name), 12, 21);
+
+			inkey();
+			inven_carry(o_ptr);
+			break;
 
 		}
 		break;
@@ -4376,6 +4435,15 @@ static bool monster_hook_nightmare_diary(int r_idx)
 
 	//v1.1.91 剛欲異聞
 	if (r_idx == MON_YUMA) return TRUE;
+
+	//v2.1.1 獣王園(忘れてた)
+	if (r_idx >= MON_ENOKO && r_idx <= MON_ZANMU) return TRUE;
+
+	//v2.1.1 錦上京
+	if (r_idx >= MON_UBAME && r_idx <= MON_NINA) return TRUE;
+
+
+
 
 	return FALSE;
 }

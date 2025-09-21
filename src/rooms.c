@@ -6826,6 +6826,15 @@ byte calc_ex_dun_bldg_prob(int ex_bldg_idx)
 		else if (lev < 75) return 10;
 		else return 20;
 
+	case BLDG_EX_KEIKI2:
+		if (p_ptr->realm1 == TV_STONE_INCIDENT || p_ptr->realm2 == TV_STONE_INCIDENT)
+		{
+			return 30;
+		}
+		else
+		{
+			return 5;
+		}
 
 	default:
 		msg_format("WARNING:建物idx(%d)の出現確率が設定されていない",ex_bldg_idx);
@@ -7405,6 +7414,16 @@ void	init_extra_dungeon_buildings(void)
 			building[i].actions[0] = BACT_EX_SEARCH_AROUND;
 		}
 		break;
+		case BLDG_EX_KEIKI2:
+		{
+			sprintf(building[i].name, "奇妙な場所");
+			sprintf(building[i].owner_name, "埴安神 袿姫");
+
+			sprintf(building[i].act_names[0], "話しかける");
+			building[i].letters[0] = 'a';
+			building[i].actions[0] = BACT_EX_SEARCH_AROUND;
+		}
+		break;
 
 		case BLDG_EX_CHIMATA:
 		{
@@ -7572,7 +7591,7 @@ static byte build_type_ex(void)
 	building_ex_idx[0] = get_extra_dungeon_building_idx();
 
 	//テスト用
-	if(p_ptr->wizard) building_ex_idx[0] = BLDG_EX_GHOSTS;
+	if(p_ptr->wizard) building_ex_idx[0] = BLDG_EX_KEIKI2;
 
 	/* Find and reserve some space in the dungeon.  Get center of room. */
 	if (!find_space(&yval, &xval, ysize, xsize)) return 0;

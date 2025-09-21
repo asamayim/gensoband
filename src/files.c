@@ -4053,6 +4053,10 @@ static void player_flags(u32b flgs[TR_FLAG_SIZE])
 		if(plev > 39)add_flag(flgs, TR_RES_INSANITY);
 		break;
 
+	case CLASS_UBAME:
+		add_flag(flgs, TR_RES_FEAR);
+		if (plev > 29)add_flag(flgs, TR_WARNING);
+		break;
 
 
 	default:
@@ -8802,7 +8806,7 @@ static void dump_aux_realm_history(FILE *fff)
 		int i;
 
 		fputc('\n', fff);
-		for (i = 0; i < MAX_MAGIC; i++)
+		for (i = 0; i < MAX_BASIC_MAGIC_REALM; i++)
 		{
 			if (!(p_ptr->old_realm & 1L << i)) continue;
 #ifdef JP
@@ -8816,7 +8820,10 @@ static void dump_aux_realm_history(FILE *fff)
 		}
 
 		if (p_ptr->old_realm & 1L << (TV_BOOK_OCCULT-1))
-				fprintf(fff, "\n あなたはかつて秘術を使えた。");
+				fprintf(fff, "\n あなたはかつて怪異魔法を使えた。");
+
+		if (p_ptr->old_realm & 1L << (TV_STONE_INCIDENT - 1))
+			fprintf(fff, "\n あなたはかつて異変魔法を使えた。");
 
 		fputc('\n', fff);
 	}
@@ -12863,6 +12870,12 @@ int	calc_player_score_mult(void)
 		if (is_special_seikaku(SEIKAKU_SPECIAL_MEGUMU))
 			mult /= 4;
 		break;
+		//慧ノ子専用性格はスコア+25%
+	case CLASS_ENOKO:
+		if (is_special_seikaku(SEIKAKU_SPECIAL_ENOKO))
+			mult = mult * 5 / 4;
+		break;
+
 
 
 	}

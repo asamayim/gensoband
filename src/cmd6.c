@@ -901,13 +901,20 @@ bool do_cmd_eat_food_aux(int item)
 					ident = TRUE;
 				}
 				break;
-
-
-
-
-
-
 			}
+
+			//さざれ石　魔法の鎧
+			case SV_MATERIAL_SAZAREISHI:
+			{
+				base = 25;
+				msg_print("不変の加護を感じる...");
+				set_magicdef(randint1(base) + base, FALSE);
+			}
+			break;
+
+
+
+
 			case SV_MATERIAL_COAL:
 				msg_print("苦っ！");
 				break;
@@ -1552,6 +1559,8 @@ bool object_is_eatable(object_type *o_ptr)
 			|| o_ptr->sval == SV_MATERIAL_IZANAGIOBJECT
 			|| o_ptr->sval == SV_MATERIAL_ISHIZAKURA
 			|| o_ptr->sval == SV_MATERIAL_RYUUZYU
+			|| o_ptr->sval == SV_MATERIAL_SAZAREISHI
+
 			)) return TRUE;
 
 	}
@@ -3641,7 +3650,7 @@ static void sagume_read_scroll_aux(int item, bool known)
 			else
 			{
 				msg_print("突如、ダンジョンの天井が崩落した！");
-				earthquake_aux(py,px,12,0);
+				earthquake_aux(py,px,12,0,0);
 			}
 			ident = TRUE;
 			break;

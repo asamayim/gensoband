@@ -1659,7 +1659,7 @@ static int select_price_factor_idx(object_type *o_ptr)
 	int idx;
 
 	//司書と小鈴は本の売買が得意。魅力と知力+10の高い方を使える
-	if ((p_ptr->pclass == CLASS_LIBRARIAN || p_ptr->pclass == CLASS_KOSUZU) && o_ptr->tval <= TV_BOOK_END)
+	if ((p_ptr->pclass == CLASS_LIBRARIAN || p_ptr->pclass == CLASS_KOSUZU) && o_ptr->tval <= TV_BOOK_END && o_ptr->tval != TV_STONE_INCIDENT)
 		idx = MAX(p_ptr->stat_ind[A_INT] + 10, p_ptr->stat_ind[A_CHR]);
 	//古道具屋は知力と魅力の高い方を使える
 	else if (p_ptr->pclass == CLASS_SH_DEALER)
@@ -4130,7 +4130,7 @@ static bool purchase_haggle(object_type *o_ptr, s32b *price)
 
 			//msg_print(NULL);
 			if((p_ptr->pclass == CLASS_LIBRARIAN  || p_ptr->pclass == CLASS_KOSUZU)
-				&& o_ptr->tval <= TV_BOOK_END)
+				&& o_ptr->tval <= TV_BOOK_END && o_ptr->tval != TV_STONE_INCIDENT)
 			{
 				msg_print("あなたは的確に本の価格を交渉した。");
 				msg_print(NULL);
@@ -4407,7 +4407,7 @@ static bool sell_haggle(object_type *o_ptr, s32b *price)
 			msg_print("You quickly agree upon the price.");
 #endif
 			if((p_ptr->pclass == CLASS_LIBRARIAN  || p_ptr->pclass == CLASS_KOSUZU)
-				&& o_ptr->tval <= TV_BOOK_END)
+				&& o_ptr->tval <= TV_BOOK_END && o_ptr->tval != TV_STONE_INCIDENT)
 			{
 				msg_print("あなたは的確に売値を交渉した。");
 				msg_print(NULL);

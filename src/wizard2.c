@@ -1620,6 +1620,7 @@ static tval_desc tvals[] =
 	{ TV_ITEMCARD	,	"EX_Itemcard"	},
 	{ TV_BOOK_OCCULT	,	"Occult_books"	},
 	{ TV_ABILITY_CARD	,	"Ability_card" },
+	{ TV_STONE_INCIDENT	,	"Incident Stone" },
 
 
 	{ 0,                    NULL                   }

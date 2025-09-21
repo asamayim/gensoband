@@ -72,7 +72,7 @@ static bool is_member(building_type *bldg)
 	{
 		int i;
 		bool OK = FALSE;
-		for (i = 0; i < MAX_MAGIC; i++)
+		for (i = 0; i < MAX_BASIC_MAGIC_REALM; i++)
 		{
 			if (bldg->member_realm[i+1]) OK = TRUE;
 		}
@@ -1955,6 +1955,15 @@ struct marisa_store_type marisa_wants_table[] =
 	{TV_BOOK_CHAOS,3,300},
 	{TV_BOOK_OCCULT,2,10},
 	{TV_BOOK_OCCULT,3,300},
+	
+	{TV_STONE_INCIDENT,0,50},
+	{TV_STONE_INCIDENT,1,50},
+	{TV_STONE_INCIDENT,2,50},
+	{TV_STONE_INCIDENT,3,50},
+	{TV_STONE_INCIDENT,4,50},
+	{TV_STONE_INCIDENT,5,50},
+	{TV_STONE_INCIDENT,6,50},
+	{TV_STONE_INCIDENT,7,50},
 
 	{TV_MATERIAL,SV_MATERIAL_HIKARIGOKE ,35 },
 	{TV_MATERIAL,SV_MATERIAL_STONE  ,1 },
@@ -1990,6 +1999,7 @@ struct marisa_store_type marisa_wants_table[] =
 	{TV_MATERIAL,SV_MATERIAL_IZANAGIOBJECT ,1250 },
 	{TV_MATERIAL,SV_MATERIAL_ISHIZAKURA ,75 },
 	{ TV_MATERIAL,SV_MATERIAL_RYUUZYU ,500 },
+	{TV_MATERIAL,SV_MATERIAL_SAZAREISHI ,1000 },
 
 	{TV_MATERIAL,SV_MATERIAL_BROKEN_NEEDLE ,150 },
 	{TV_MATERIAL,SV_MATERIAL_SKULL ,30 },	//v1.1.65
@@ -2088,7 +2098,7 @@ struct marisa_store_type marisa_present_table[] =
 bool marisa_will_buy(object_type *o_ptr)
 {
 	int i;
-	if(p_ptr->pclass == CLASS_MARISA && o_ptr->tval < TV_BOOK_END) return FALSE;
+	if(p_ptr->pclass == CLASS_MARISA && o_ptr->tval <= TV_BOOK_END) return FALSE;
 
 	for(i=0;marisa_wants_table[i].tval;i++)
 	{
@@ -2350,6 +2360,7 @@ struct marisa_store_type korin_wants_table[] =
 	{TV_MATERIAL,SV_MATERIAL_IZANAGIOBJECT,120000},
 
 	{ TV_MATERIAL,SV_MATERIAL_RYUUZYU,50000 },
+	{ TV_MATERIAL,SV_MATERIAL_SAZAREISHI,100000 },
 
 	//	{TV_SOFTDRINK,SV_SOFTDRINK_COLA,500},
 
@@ -3915,7 +3926,7 @@ static void get_questinfo(int questnum, bool do_init)
 {
 	int     i;
 	int     old_quest;
-	char    tmp_str[80];
+	char    tmp_str[128];
 
 
 	/* Clear the text */
@@ -3986,6 +3997,16 @@ static bool item_tester_hook_eel(object_type *o_ptr)
 	else
 		return (FALSE);
 }
+
+/*:::巌となったさざれ石　クエスト用*/
+static bool item_tester_hook_sazareishi(object_type* o_ptr)
+{
+	if (o_ptr->tval == TV_MATERIAL && o_ptr->sval == SV_MATERIAL_SAZAREISHI)
+		return (TRUE);
+	else
+		return (FALSE);
+}
+
 
 /*:::特別性の羽衣　クエスト用*/
 static bool item_tester_hook_special_hagoromo(object_type *o_ptr)
@@ -4068,6 +4089,10 @@ bool check_quest_deliver_item(int q_index)
 	else if (q_index == QUEST_HANGOKU1)
 	{
 		item_tester_hook = item_tester_hook_hangoku;
+	}
+	else if (q_index == QUEST_DELIVER_SAZARE)
+	{
+		item_tester_hook = item_tester_hook_sazareishi;
 	}
 
 	else
@@ -6822,7 +6847,7 @@ bool check_quest_unique_text(void)
 		{
 			if(comp)
 			{
-				strcpy(quest_text[line++], "見事修行を完遂した。ご褒美として高価そうな巻物を賜った。");
+				strcpy(quest_text[line++], "見事修行を完遂し、ご褒美として高価そうな巻物を賜った。");
 				strcpy(quest_text[line++], "やはり例の企画の賞品のようだが、信仰心を発揮して黙っていることにした。");//一行40字まで
 			}
 			else if(fail)
@@ -7797,7 +7822,7 @@ bool check_quest_unique_text(void)
 				strcpy(quest_text[line++], "千亦「どうにも参加者の集まりが悪いわね。こんなに非日常の空間なのに。」");
 				strcpy(quest_text[line++], "神奈子「ふうむ、丸太落としは非日常というには少し人為的すぎたのかも。");
 				strcpy(quest_text[line++], "　次は間欠泉地下センターの溶岩エリアで開催するというのはどうかしら？」");
-				strcpy(quest_text[line++], "千亦「それよ！やっぱりあなたは市場を分かっているわね！」」");
+				strcpy(quest_text[line++], "千亦「それよ！やっぱりあなたは市場を分かっているわね！」");
 			}
 		}
 		else if (pc == CLASS_KANAKO || pc == CLASS_SUWAKO)
@@ -8296,12 +8321,89 @@ bool check_quest_unique_text(void)
 				strcpy(quest_text[line++], "報酬を受け取るのを忘れるなよ。」");
 			}
 		}
+		break;
 
+		//不変の加護を求めて
+	case QUEST_DELIVER_SAZARE:
+		if (pc == CLASS_KOSUZU)
+		{
 
+			if (accept)
+			{
+				strcpy(quest_text[line++], "妖怪の山の聖域の地下にはピラミッドがあってその奥には磐長姫の神社があるらしい。");//60文字くらいまでいけるようにした。多分
+				strcpy(quest_text[line++], "そんな胡乱な噂を耳にし、稗田邸の庭で阿求と花見をしたときのことを思い出した。");
+				strcpy(quest_text[line++], "彼女は今も磐長姫の不変の加護を求めているのだろうか。");
+
+			}
+			else if (comp)
+			{
+				strcpy(quest_text[line++], "磐長姫の力の籠もった岩を阿求に届けると心配しながらも凄く喜んでくれた。");
+				strcpy(quest_text[line++], "しかし改めてピラミッドでの冒険行を思い返すと自分のしたことが信じられない。");
+				strcpy(quest_text[line++], "自分はかつて焦がれたあっち側にいつの間にか到達していたのか。");
+			}
+			else
+			{
+				strcpy(quest_text[line++], "磐長姫のことは忘れることにした。");
+				strcpy(quest_text[line++], "何が真実なのか、誰を信じるべきなのか、答えはまだ見えてこない。");
+			}
+		}
+		break;
+
+	case QUEST_NINA:
+		if (pc == CLASS_SANAE)
+		{
+
+			if (accept)
+			{
+				strcpy(quest_text[line++], "神奈子様が言うには聖地ヤマンバの地下には何とピラミッドがあるそうだ。");//60文字くらいまでいけるようにした。多分
+				strcpy(quest_text[line++], "そこには神奈子様の旧友の神様がおられるらしく確認とお使いを頼まれた。");
+				strcpy(quest_text[line++], "それにしても聖域の地下ピラミッドとは、まるで昔読んだオカルト雑誌みたいな話だ。");
+			}
+			else if (comp)
+			{
+				strcpy(quest_text[line++], "途中でちょっと予想しないトラブルがあったが、");
+				strcpy(quest_text[line++], "無事にご友人との連絡を取り持つことに成功した。");
+				strcpy(quest_text[line++], "ご友人である維縵国のお姫様もたいそう喜ばれてお礼の品を頂いた。");
+			}
+			else
+			{
+				strcpy(quest_text[line++], "神奈子様のご友人の存在は確認できたが、");
+				strcpy(quest_text[line++], "乱入してきた恐ろしい妖怪を前に撤退せざるを得なかった。");
+				strcpy(quest_text[line++], "あとから来た霊夢さん達にお任せするしかなさそうだ。");
+				strcpy(quest_text[line++], "これでは神奈子様に申し訳が立たない。");
+			}
+		}
+		else if(pc == CLASS_KANAKO)
+		{
+
+			if (accept)
+			{
+				strcpy(quest_text[line++], "霊夢と魔理沙の働きで聖域の地下の扉が開かれたが、");//60文字くらいまでいけるようにした。多分
+				strcpy(quest_text[line++], "そこには結縵国の姫が囚われていたらしい。");
+				strcpy(quest_text[line++], "早速早苗を使いに出したが、帰ってくるなり寝込んでしまった。");
+				strcpy(quest_text[line++], "一体何が起こったというのか？");
+			}
+			else if (comp)
+			{
+				strcpy(quest_text[line++], "途中で暴走状態の若い妖怪に襲われたが難なく退け、");
+				strcpy(quest_text[line++], "古い友人との久方ぶりの再会を果たした。");
+				strcpy(quest_text[line++], "いずれ落ち着いたら鹿狩りに出たいものだ。");
+			}
+			else
+			{
+				strcpy(quest_text[line++], "途中で暴走状態の若い妖怪に襲われ、");
+				strcpy(quest_text[line++], "旧友と共に化石の森から逃げ出す始末となった。");
+				strcpy(quest_text[line++], "肥大化する情報の奔流が妖怪にあれほどの力を与えるとは。");
+				strcpy(quest_text[line++], "あの場所は妖怪にも神にもあまりにも危険だ。何とか策を講じねば。");
+			}
+		}
+		break;
 
 
 
 		break;
+
+
 
 
 	default:
@@ -9026,6 +9128,7 @@ bool item_tester_hook_repair_material(object_type *o_ptr)
 		case SV_MATERIAL_ISHIZAKURA:
 		case SV_MATERIAL_BROKEN_NEEDLE:
 		case SV_MATERIAL_RYUUZYU:
+		case SV_MATERIAL_SAZAREISHI:
 
 			return TRUE;
 		}
@@ -9151,7 +9254,8 @@ const struct guild_arts_type repair_weapon_power_table[] =
 	{TV_MATERIAL,SV_MATERIAL_IZANAGIOBJECT,17,-1," "},
 	{TV_MATERIAL,SV_MATERIAL_ISHIZAKURA,5,-1," "},
 	{TV_MATERIAL,SV_MATERIAL_BROKEN_NEEDLE,8,-1," "},
-	{ TV_MATERIAL,SV_MATERIAL_RYUUZYU,12,-1," " },
+	{TV_MATERIAL,SV_MATERIAL_RYUUZYU,12,-1," " },
+	{TV_MATERIAL,SV_MATERIAL_SAZAREISHI,15,-1," " },
 
 	{TV_SOUVENIR,SV_SOUVENIR_ILMENITE,13,-1," "},
 	{TV_SOUVENIR,SV_SOUVENIR_PHOENIX_FEATHER,20,-1," "},
@@ -9747,6 +9851,27 @@ static int repair_broken_weapon_aux(int bcost)
 		dd_bonus++;
 
 	}
+	//v2.1.1さざれ石 耐久、AC、追加耐性
+	else if (mo_ptr->tval == TV_MATERIAL && mo_ptr->sval == SV_MATERIAL_SAZAREISHI)
+	{
+
+		o_ptr->to_d += 5 + randint1(5);
+		o_ptr->to_h += 3 + randint1(3);
+
+		add_flag(o_ptr->art_flags, TR_CON);
+		if (!o_ptr->pval) o_ptr->pval = 3 + randint0(2);
+
+		if (o_ptr->to_a < 10) 
+			o_ptr->to_a = 10;
+		else 
+			o_ptr->to_a += 5 + randint1(5);
+
+		one_resistance(o_ptr);
+		if (one_in_(2))one_resistance(o_ptr);
+		if (one_in_(3))one_resistance(o_ptr);
+
+	}
+
 
 	//銀の鍵 /Xデ神 r時 魔法難度減少 ダイスブースト
 	else if (mo_ptr->tval == TV_SOUVENIR && mo_ptr->sval == SV_SOUVENIR_SHILVER_KEY)
