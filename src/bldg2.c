@@ -3696,7 +3696,7 @@ void exbldg_search_around(void)
 					{
 
 						prt("星神として、行く手の闇を払ってやろう！",7,21);	
-						mass_genocide_3(0, FALSE, TRUE);
+						mass_genocide_3(0, FALSE, TRUE,0);
 						wiz_lite(FALSE);
 
 						flag_done = TRUE;

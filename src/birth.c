@@ -3182,6 +3182,7 @@ outfit_type birth_outfit_class[] = {
 	{ CLASS_MIZUCHI,2,ART_HARNESS_HELL,0, 0,1 },
 
 	{ CLASS_UBAME,2,0,TV_CLOTHES, SV_CLOTHES,1 },
+	{ CLASS_CHIMI,2,0,TV_CLOTHES, SV_CLOTHES,1 },
 
 	{-1,0,0,0,0,0} //終端dummy
 };
@@ -6160,7 +6161,7 @@ static unique_player_type unique_player_table[UNIQUE_PLAYER_NUM] =
 		"あなたは長きにわたり闇の奥に秘されてきた謎めいた神様です。不思議な後戸の力でこれまで幻想郷を裏から支えてきました。あなたはあちこちのモンスターの背中の扉を通じて力を吸収し続けており、レベルアップに伴いモンスター達の特技を我が物とします。またあなたは後戸の神様の他にも様々な神様の顔を持っていて、やや雑多ながらも強力ないくつかの特技を習得します。あなたは闇の奥を真昼のように見通し、閉じた扉のある地形をまるで扉などないかのように歩むことができます。"},
 
 	{ TRUE,"戎 瓔花",CLASS_EIKA,RACE_STRAYGOD,ENTRY_KIKEI,SEX_FEMALE,
-		"あなたは神格化しつつある水子霊で、賽の河原で子供達の霊と一緒に石を積んで暮らしています。あなたの得技は石積みです。あなたが祈りを込めて積んだ石は神聖な力を発揮します。しかしあなた自身は戦う力をほとんど持っていません。あなたの冒険はまさに石積みのような苦行となることでしょう。あなたは経験を積むことで神格として成熟し能力が大きく変わります。" },
+		"あなたは神格化しつつある水子霊で、賽の河原で子供達の霊と一緒に石を積んで暮らしています。あなたの特技は石積みです。あなたが祈りを込めて積んだ石は神聖な力を発揮します。しかしあなた自身は戦う力をほとんど持っていません。あなたの冒険はまさに石積みのような苦行となることでしょう。あなたは経験を積むことで神格として成熟し能力が大きく変わります。" },
 	{ TRUE,"牛崎 潤美",CLASS_URUMI,RACE_YOUKAI,ENTRY_KIKEI,SEX_FEMALE,
 		"あなたは三途の河で古代魚を捕って暮らす牛鬼です。あなたには身近な物の重さを変える能力があり、得意技は石の赤子を押し付けて超重量にすることでモンスターを水に沈めることです。あなたは水辺でないと本領を発揮することができませんが、どのような場所でも高い身体能力を活かしてそれなりに戦うことができるでしょう。" },
 	{ TRUE,"庭渡 久侘歌",CLASS_KUTAKA,RACE_DEITY,ENTRY_KIKEI,SEX_FEMALE,
@@ -6252,8 +6253,8 @@ static unique_player_type unique_player_table[UNIQUE_PLAYER_NUM] =
 
 	{ TRUE,"塵塚　ウバメ",CLASS_UBAME,RACE_YOUKAI,ENTRY_KINJYOU,SEX_FEMALE,
 		"あなたは山姥で、聖域に住むほかの山姥たちのリーダー格です。普段は聖域を守るために尽力していますが必要とあれば他者が作った聖域を破壊することもできます。あなたは身体能力が高く肉弾戦を得意としますが魔法を習得することはできません。" },
-	{ FALSE,"封獣　チミ",CLASS_CHIMI,RACE_YOUKAI,ENTRY_KINJYOU,SEX_FEMALE,
-		"" },
+	{ TRUE,"封獣　チミ",CLASS_CHIMI,RACE_DAIYOUKAI,ENTRY_KINJYOU,SEX_FEMALE,
+		"あなたは魑魅(ちみ)と呼ばれる古い物の怪で、自然の力を操って様々な不思議な現象を起こすことができます。しかしあなたは自然のない場所では力を振るうことができず、街や建物など人の手が入った場所では大幅に弱体化してしまいます。とくにクエストダンジョンの攻略は非常に困難になるので十分に力をつけてから挑みましょう。あなたは魔法を一領域習得可能ですが接近戦の適性は低めです。" },
 	{ FALSE,"道神　馴子",CLASS_NAREKO,RACE_DEITY,ENTRY_KINJYOU,SEX_FEMALE,
 		"" },
 	{ FALSE,"ユイマン・浅間",CLASS_YUIMAN,RACE_DEITY,ENTRY_KINJYOU,SEX_FEMALE,
@@ -6398,6 +6399,10 @@ void extra_mode_score_mult(int *mult, int class_idx)
 
 	case CLASS_CHIMATA:
 		mod = 200;
+		break;
+
+	case CLASS_CHIMI:
+		mod = 175;
 		break;
 
 	default:

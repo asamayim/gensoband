@@ -1944,6 +1944,7 @@ static bool terrain_dam(int feat_flag)
 	if (IS_INVULN()) return FALSE;
 	if (p_ptr->pclass == CLASS_SUWAKO) return FALSE;
 	if (p_ptr->pclass == CLASS_YUMA) return FALSE;
+	if (p_ptr->pclass == CLASS_CHIMI) return FALSE; //v2.1.2
 	if (p_ptr->pclass == CLASS_FUTO && p_ptr->lev > 29) return FALSE;
 	if (SAKUYA_WORLD) return FALSE;
 	if (p_ptr->pclass == CLASS_HIGH_MAGE && p_ptr->realm1 == TV_BOOK_NATURE) return FALSE;
@@ -5438,8 +5439,13 @@ void update_dungeon_feeling(bool flag_feel_now)
 	if (p_ptr->inside_battle) return;
 
 	/* Extract delay time */
-	delay = MAX(10, 150 - p_ptr->skill_fos) * (150 - dun_level) * TURNS_PER_TICK / 100;
-	if(p_ptr->pclass == CLASS_IKU) delay = 10 * 30 * TURNS_PER_TICK / 100;//特殊処理で最速感知
+	//v2.1.2 参照するパラメータを「知覚(fos)」から「探索(srh)」に変更
+	if (p_ptr->pclass == CLASS_IKU) //衣玖は最速で感知
+		delay = 10 * 30 * TURNS_PER_TICK / 100;
+	else if (p_ptr->pclass == CLASS_CHIMI) //チミも感知が早め
+		delay = MAX(10, 120 - p_ptr->skill_srh) * (150 - dun_level) * TURNS_PER_TICK / 100;
+	else
+		delay = MAX(10, 150 - p_ptr->skill_srh) * (150 - dun_level) * TURNS_PER_TICK / 100;
 
  	/* Not yet felt anything */
 	//if (turn < p_ptr->feeling_turn + delay && !cheat_xtra) return;
@@ -8191,6 +8197,12 @@ static void process_player(void)
 		//v2.0.14 ちやりの血液の初期所持
 		if (p_ptr->pclass == CLASS_CHIYARI) p_ptr->magic_num1[0] = 100;
 
+		//v2.1.2 チミの弱体メッセージはゲーム開始時には出ないようなので説明がてら出しておく
+		if (p_ptr->pclass == CLASS_CHIMI)
+		{
+			msg_print("ここは人里だ。自然が切り開かれた場所では思うように力を発揮できない！");
+		}
+
 		//v1.1.52 菫子新性格
 		if (is_special_seikaku(SEIKAKU_SPECIAL_SUMIREKO))
 		{
@@ -8655,7 +8667,11 @@ msg_print("中断しました。");
 		flag_nue_check_undefined = FALSE;
 
 	}
-
+	//v2.1.2 チミ　フロアの自然地形をカウント
+	else if (p_ptr->pclass == CLASS_CHIMI && flag_chimi_need_count_feat)
+	{
+		chimi_count_feat(TRUE);
+	}
 
 
 	/*** Handle actual user input ***/
@@ -9749,6 +9765,13 @@ static void dungeon(bool load_game)
 			p_ptr->magic_num1[4] = 0;
 			p_ptr->magic_num2[4] = 0;
 		}
+
+		//v2.1.2 チミ　フロアの自然地形をカウントするフラグをON
+		if (p_ptr->pclass == CLASS_CHIMI)
+		{
+			flag_chimi_need_count_feat = TRUE;
+		}
+
 
 		//v1.1.77 お燐(専用性格)の追跡対象モンスターをクリア
 		/* v2.0.15 追跡対象をMFLAG_SPECIALで管理することにしたのでクリアする必要がなくなった

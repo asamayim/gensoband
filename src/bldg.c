@@ -6696,8 +6696,8 @@ bool check_quest_unique_text(void)
 			}
 			else
 			{
-				strcpy(quest_text[line++], "山童の娘「む、天狗様・・");
-				strcpy(quest_text[line++], "・・実はこの近くに山を荒らす余所者のアジトがあるのです。");
+				strcpy(quest_text[line++], "山童の娘「む、天狗様ではありませんか。");
+				strcpy(quest_text[line++], "実はこの近くに山を荒らす余所者のアジトがあるのです。");
 				strcpy(quest_text[line++], "何とかして下さいませんか。」");
 			}
 		}

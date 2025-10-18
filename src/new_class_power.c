@@ -2,6 +2,8 @@
 
 //アイテムカード使用時にTRUE
 static bool use_itemcard = FALSE;
+//特技使用コストを無視するときTRUE
+static bool flag_ignore_cost = FALSE;
 
 /*:::職業ごとの技はmコマンドで使うのとUコマンドで使うのを統合してJコマンドで使うようにする。*/
 /*:::class_power_type型の配列で失敗率などの情報を記述し職業ごとに独自の関数で実行処理する。*/
@@ -13,8 +15,406 @@ static bool use_itemcard = FALSE;
 	tips
 */
 
-//v2.1.1 ウバメ
+//v2.1.2 チミ
+class_power_type class_power_chimi[] =
+{
 
+	{ 5,5,10,FALSE,FALSE,A_INT,0,0,"モンスター感知",
+		"周囲のモンスターを感知する。自然の多いフロアでは範囲が広がる。"},
+
+	{ 10,10,20,FALSE,TRUE,A_INT,0,0,"山河の気",
+	"自分のいる場所の地形によって変化する行動をする。自然の多いフロアでは効果が上がる。また自然の力があまりに少ないフロアではこの特技以降の自然の力を使う特技を使用できない。" },
+
+	{ 15,20,30,FALSE,TRUE,A_DEX,0,0,"まつろわぬ沢の気",
+	"指定した水地形へテレポートする。自分のいる場所が水地形でないと使えず、フロアの水地形の数によって有効距離が変化する。" },
+
+	{ 20,25,35,FALSE,TRUE,A_CHR,0,0,"うなされる森の気",
+	"視界内のモンスターを混乱・朦朧状態にしようと試みる。自分のいる場所が森地形でないと使えず、フロアの森地形の数によって効力が変化する。" },
+
+	{ 25,30,40,FALSE,TRUE,A_CHR,0,0,"荒ぶる山の気",
+	"強力な火炎属性のボールを放つ。自分のいる場所が溶岩地形でないと使えず、フロアの溶岩地形の数によって威力が変化する。" },
+
+	{ 30,30,45,FALSE,FALSE,A_DEX,0,0,"道祖神の設置",
+	"自分のいる場所に守りのルーンを設置する。守りのルーンはフロアの自然度をやや改善することがある。所持している「石塊」をひとつ消費する。" },
+
+	{ 35,40,55,FALSE,TRUE,A_CHR,0,0,"荒くれる沢の気",
+	"自分のいる場所を中心に強力な水属性ボールを発生させ、さらに周囲の地形を水にする。自分のいる場所が水地形でないと使えず、フロアの水地形の数によって威力が変化する。" },
+
+	{ 40,50,65,FALSE,TRUE,A_DEX,0,0,"息苦しい森の気",
+	"森地形の近くにいるモンスターをフロアから消失させる。ユニークモンスターはテレポート耐性を無視してフロアのどこかにテレポートさせる。フロアの森地形の数によって効果範囲が変化する。自分のいる場所が森地形でないと使えず、クエストダンジョンでは使えない。" },
+
+	{ 45,90,75,FALSE,TRUE,A_CHR,0,0,"怒れる山の気",
+	"指定したグリッド周辺に強力な隕石属性のボールを連続で発生させ、さらに地形を溶岩にする。自分のいる場所が溶岩地形でないと使えず、フロアの溶岩地形の数によって威力が変化する。" },
+
+	{ 99,0,0,FALSE,FALSE,0,0,0,"dummy","" },
+};
+
+//石塊指定ルーチン チミの特技でも使うことにしたので潤美のところから移動
+static bool item_tester_hook_stone(object_type* o_ptr)
+{
+	if (o_ptr->tval == TV_MATERIAL && o_ptr->sval == SV_MATERIAL_STONE) return TRUE;
+	else return FALSE;
+}
+
+
+cptr do_cmd_class_power_aux_chimi(int num, bool only_info)
+{
+	int plev = p_ptr->lev;
+	int chr_adj = adj_general[p_ptr->stat_ind[A_CHR]];
+	int dir;
+
+	//フロアの一部地形の数をchimi_count_feat()でカウントしている
+	int	tree_num = p_ptr->magic_num1[FF_TREE];
+	int	water_num = p_ptr->magic_num1[FF_WATER];
+	int	lava_num = p_ptr->magic_num1[FF_LAVA];
+	//同時にフロアの自然の地形の多さランクを0～3の4段階で記録している
+	int	nature_stat = p_ptr->magic_num2[0];
+
+
+	switch (num)
+	{
+
+	case 0:	//モンスター感知
+	{
+		int rad = DETECT_RAD_DEFAULT / 2 * (nature_stat + 1);
+		if (only_info) return format("範囲:%d", rad);
+		detect_monsters_normal(rad);
+		detect_monsters_invis(rad);
+		break;
+	}
+
+	case 1://山河の気I
+	{
+		cave_type* c_ptr = &cave[py][px];
+
+		//水 HP微回復
+		if (cave_have_flag_grid(c_ptr, FF_WATER))
+		{
+			int mult = cave_have_flag_grid(c_ptr, FF_DEEP) ? 3 : 2;
+			int base = 10 * (nature_stat + 1) * mult / 2;
+
+			if (only_info) return format("回復:%d+1d%d", base,base);
+
+			msg_print("水の気を取り込んで傷を癒やした。");
+			hp_player(base + randint1(base));
+			set_cut(p_ptr->cut - 25);
+			set_poisoned(p_ptr->poisoned - 25);
+		}
+		//山　空腹充足
+		else if (cave_have_flag_grid(c_ptr, FF_MOUNTAIN))
+		{
+			int food = (nature_stat + 2) * 1000;
+			if (only_info) return format("食料:%d", food);
+			msg_print("山の気を取り込んで活力を得た。");
+			set_food(MIN(PY_FOOD_MAX - 1, (p_ptr->food + food)));
+
+		}
+		//森　MP微回復
+		else if (cave_have_flag_grid(c_ptr, FF_TREE))
+		{
+			int base = 2 * (nature_stat + 1);
+			if (only_info) return format("回復:%d+1d%d", base,base);
+			msg_print("森の気を取り込んで妖力を得た。");
+			player_gain_mana(base + randint1(base));
+			//消費MP10が不要になる。失敗時は消費する
+			flag_ignore_cost = TRUE;
+		}
+		//溶岩　自分中心ファイアボール
+		else if (cave_have_flag_grid(c_ptr, FF_LAVA))
+		{
+			int mult = cave_have_flag_grid(c_ptr, FF_DEEP) ? 3 : 2;
+			int dam = 40 * (nature_stat + 1) * mult;
+			int rad = cave_have_flag_grid(c_ptr, FF_DEEP) ? 5 : 3;
+
+			if (only_info) return format("損傷:～%d", dam / 2);
+
+			msg_print("熱風が渦巻いた！");
+			project(0, rad, py, px, dam, GF_FIRE, (PROJECT_KILL | PROJECT_GRID | PROJECT_ITEM), -1);
+		}
+		//毒沼 視界内毒攻撃
+		else if (cave_have_flag_grid(c_ptr, FF_POISON_PUDDLE))
+		{
+			int mult = cave_have_flag_grid(c_ptr, FF_DEEP) ? 3 : 2;
+			int dam = 8 * (nature_stat + 1) * mult;
+
+			if (only_info) return format("損傷:%d", dam);
+
+			msg_print("毒沼からガスが噴き出した！");
+			project_hack2(GF_POIS, 0, 0, dam);
+		}
+		//雷雲　電撃ビーム
+		else if (cave_have_flag_grid(c_ptr, FF_ELEC_PUDDLE))
+		{
+			int mult = cave_have_flag_grid(c_ptr, FF_DEEP) ? 3 : 2;
+			int dam = 12 * (nature_stat + 1) * mult;
+
+			if (only_info) return format("損傷:%d", dam);
+
+			if (!get_aim_dir(&dir)) return NULL;
+			msg_print("雷雲から稲光が発生した！");
+			fire_beam(GF_ELEC, dir, dam);
+
+		}
+		//吹雪　冷気ブレス
+		else if (cave_have_flag_grid(c_ptr, FF_COLD_PUDDLE))
+		{
+			int mult = cave_have_flag_grid(c_ptr, FF_DEEP) ? 3 : 2;
+			int dam = 15 * (nature_stat + 1) * mult;
+
+			if (only_info) return format("損傷:%d", dam);
+
+			if (!get_aim_dir(&dir)) return NULL;
+			msg_print("猛烈な吹雪が起こった！");
+			fire_ball(GF_COLD, dir, dam, -2);
+		}
+		//酸　酸ボルト
+		else if (cave_have_flag_grid(c_ptr, FF_ACID_PUDDLE))
+		{
+			int mult = cave_have_flag_grid(c_ptr, FF_DEEP) ? 3 : 2;
+			int dam = 16 * (nature_stat + 1) * mult;
+
+			if (only_info) return format("損傷:%d", dam);
+
+			if (!get_aim_dir(&dir)) return NULL;
+			msg_print("酸の塊が飛んだ！");
+			fire_bolt(GF_ACID, dir, dam);
+		}
+		else
+		{
+			if (only_info) return "なし";
+			msg_print("ここには自然がない。");
+			return NULL;
+		}
+
+	}
+	break;
+
+
+	case 2: //まつろわぬ沢の気 村紗シンカーゴーストと同じ処理だがdimension_door_aux()内で追加で距離制限している
+	{
+		int range = water_num / 20;
+		if (range < 5) range = 5;
+		if (range > 100) range = 100;
+
+		if (only_info) return format("距離:%d", range);
+
+		if (!cave_have_flag_bold((py), (px), FF_WATER))
+		{
+			msg_print("水の上にいないと使えない。");
+			return NULL;
+		}
+
+		msg_print("あなたは水の中に姿を消した。");
+		if (!dimension_door(D_DOOR_MURASA)) return NULL;
+		break;
+	}
+
+
+	case 3: //うなされる森の気 
+	{
+		int power = tree_num * (25 + chr_adj) / 100;
+		if (power > 500) power = 500;
+
+		if (only_info) return format("効力:%d", power);
+
+		if (!cave_have_flag_bold((py), (px), FF_TREE))
+		{
+			msg_print("森の中にいないと使えない。");
+			return NULL;
+		}
+
+		msg_print("あなたの姿は渦を巻くように歪んだ。");
+		stun_monsters(power);
+		confuse_monsters(power);
+		break;
+	}
+
+	case 4: //荒ぶる山の気
+	{
+		int dam = lava_num * (25+chr_adj) / 100;
+
+		if (dam > 800) dam = 800;
+
+		if (only_info) return format("損傷:%d", dam);
+
+		if (!cave_have_flag_bold((py), (px), FF_LAVA))
+		{
+			msg_print("溶岩の上にいないと使えない。");
+			return NULL;
+		}
+
+		if (!get_aim_dir(&dir)) return NULL;
+		msg_print("溶岩の塊が飛んだ！");
+		fire_ball(GF_FIRE, dir, dam, 2);
+
+		break;
+	}
+
+	case 5: //守りのルーン
+	{
+		cptr q, s;
+		int item;
+
+		if (only_info) return "";
+		item_tester_hook = item_tester_hook_stone;
+
+		//足元の石に対しては使えない。アイテムにルーンの設置が妨害されるため。
+		q = "どれを加工しますか? ";
+		s = "石塊が必要だ。";
+		if (!get_item(&item, q, s, (USE_INVEN))) return NULL;
+
+		if (item >= 0)
+		{
+			inven_item_increase(item, -1);
+			inven_item_describe(item);
+			inven_item_optimize(item);
+		}
+		else//使わないけど一応
+		{
+			floor_item_increase(0 - item, -1);
+			floor_item_describe(0 - item);
+			floor_item_optimize(0 - item);
+		}
+
+		msg_print("あなたは素朴な石像を彫り上げた。");
+		warding_glyph();
+
+		break;
+	}
+
+	//荒くれる沢の気
+	case 6:
+	{
+
+		int dam = water_num * (25 + chr_adj) / 100;
+		int rad = 3 + water_num / 1000;
+
+		if (dam > 1600) dam = 1600;
+		if (rad > 8) rad = 8;
+
+		if (only_info) return format("損傷:～%d", dam / 2);
+
+		if (!cave_have_flag_bold((py), (px), FF_WATER))
+		{
+			msg_print("水の上にいないと使えない。");
+			return NULL;
+		}
+		msg_print("大渦が巻き起こった！");
+		project(0, rad, py, px, dam, GF_WATER, (PROJECT_KILL | PROJECT_GRID | PROJECT_ITEM), -1);
+
+	}
+	break;
+
+	case 7: //息苦しい森の気
+	{
+		int rad;
+		int geno_count;
+
+		if (use_itemcard)//アイテムカード使用時はフロアの森地形の数を数え直す
+		{
+			int x, y;
+			tree_num = 0;
+			for (y = 1; y < cur_hgt - 1; y++)
+			{
+				for (x = 1; x < cur_wid - 1; x++)
+				{
+					if (cave_have_flag_bold(y, x, FF_TREE)) tree_num++;
+				}
+			}
+			//msg_format("tree:%d", tree_num);
+		}
+		rad = tree_num * (50 + chr_adj) / 500;
+		if (rad > 50) rad = 50;
+		if (rad < 1) rad = 1;
+
+		if (only_info) return format("範囲:%d", rad);
+
+		//クエストダンジョンでは不可
+		if (p_ptr->inside_quest || p_ptr->inside_arena || p_ptr->inside_battle)
+		{
+			msg_print("このフロアでは使えない。");
+			return NULL;
+		}
+
+		if (!cave_have_flag_bold((py), (px), FF_TREE))
+		{
+			msg_print("森の中にいないと使えない。");
+			return NULL;
+		}
+
+		//これに動作モードを設定して森の近くの敵限定にする
+		geno_count = mass_genocide_3(rad, FALSE, FALSE,1);
+
+		if (geno_count)
+			msg_format("%d体のモンスターが森の奥に消えた。", geno_count);
+		else
+			msg_print("誰も森の近くにいなかったようだ。");
+
+		break;
+	}
+
+	case 8: //怒れる山の気
+	{
+		int i;
+		int y, x;
+		bool flag_ok = FALSE;
+		int bomb_num;
+
+		int dam_base, num_base;
+
+		num_base = 4 + chr_adj / 8;
+		dam_base = lava_num / 16;
+		if (dam_base > 255) dam_base = 255;
+
+		if (only_info) return format("損傷:%d*(%d+1d%d)", dam_base, num_base, num_base);
+
+		if (!cave_have_flag_bold((py), (px), FF_LAVA))
+		{
+			msg_print("溶岩の上にいないと使えない。");
+			return NULL;
+		}
+
+		if (!get_aim_dir(&dir)) return NULL;
+		if (dir != 5 || !target_okay() || !projectable(target_row, target_col, py, px))
+		{
+			msg_print("視界内のターゲットを明示的に指定しないといけない。");
+			return NULL;
+		}
+		y = target_row;
+		x = target_col;
+
+		bomb_num = num_base + randint1(num_base);
+
+		msg_print("自然の怒りが大地に降り注いだ！");
+		for (i = 0; i < bomb_num; i++)
+		{
+			int tx = rand_spread(x, 3);
+			int ty = rand_spread(y, 3);
+			if (!in_bounds(ty, tx) || !cave_have_flag_bold(ty, tx, FF_PROJECT)) continue;
+
+			project(0, 3, ty, tx, (dam_base + randint1(dam_base)), GF_METEOR, (PROJECT_JUMP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL), -1);
+			project(0, 2, ty, tx, 5, GF_LAVA_FLOW, (PROJECT_JUMP | PROJECT_GRID), -1);
+
+		}
+
+
+	}
+	break;
+
+
+
+	default:
+		if (only_info) return "未実装";
+		msg_format("ERROR:実装していない特技が呼ばれた num:%d", num);
+		return NULL;
+	}
+	return "";
+}
+
+
+
+
+//v2.1.1 ウバメ
 class_power_type class_power_ubame[] =
 {
 
@@ -6036,12 +6436,6 @@ class_power_type class_power_urumi[] =
 	{ 99,0,0,FALSE,FALSE,0,0,0,"dummy",	"" },
 };
 
-//石の赤子作成用石塊指定ルーチン
-static bool item_tester_hook_stone(object_type *o_ptr)
-{
-	if (o_ptr->tval == TV_MATERIAL && o_ptr->sval == SV_MATERIAL_STONE) return TRUE;
-	else return FALSE;
-}
 
 cptr do_cmd_class_power_aux_urumi(int num, bool only_info)
 {
@@ -7734,7 +8128,7 @@ cptr do_cmd_class_power_aux_okina(int num, bool only_info)
 		int geno_count;
 		if (only_info) return format("範囲:%d", rad);
 
-		geno_count = mass_genocide_3(rad, FALSE, TRUE);
+		geno_count = mass_genocide_3(rad, FALSE, TRUE,0);
 
 		if (geno_count)
 		{
@@ -22523,17 +22917,19 @@ cptr do_cmd_class_power_aux_yamame(int num, bool only_info)
 			else
 				msg_print("ここには巣を張れない。");
 
-	case 1:
-	{
-		int weight = p_ptr->lev * 10;
-		if (only_info) return format("重量:%d", weight);
-		if (!get_aim_dir(&dir)) return NULL;
-		fetch(dir, weight, FALSE);
-		break;
-	}
-
 			break;
 		}
+
+		//アイテム引き寄せ
+	case 1:
+		{
+			int weight = p_ptr->lev * 10;
+			if (only_info) return format("重量:%d", weight);
+			if (!get_aim_dir(&dir)) return NULL;
+			fetch(dir, weight, FALSE);
+			break;
+		}
+
 	case 2: //キャプチャーウェブ
 		{
 			int rad =  1 + (plev-10) / 15;
@@ -36700,9 +37096,19 @@ bool check_class_skill_usable(char *errmsg,int skillnum, class_power_type *class
 		{
 			my_strcpy(errmsg, "両手のトラバサミがないのでこの特技は使えない。", 150);
 			return FALSE;
-
 		}
 
+	}
+	else if (p_ptr->pclass == CLASS_CHIMI)
+	{
+		//チミはフロアの自然の地形の多さランクが0のとき多くの特技が使用不能
+		int	nature_stat = p_ptr->magic_num2[0];
+
+		if (nature_stat == 0 && skillnum != 0 && skillnum != 5)
+		{
+			my_strcpy(errmsg, "ここでは自然の力を全く感じられない。", 150);
+			return FALSE;
+		}
 	}
 
 
@@ -37673,6 +38079,13 @@ void do_cmd_new_class_power(bool only_browse)
 		power_desc = "特技";
 		break;
 
+	case CLASS_CHIMI:
+		class_power_table = class_power_chimi;
+		class_power_aux = do_cmd_class_power_aux_chimi;
+		power_desc = "特技";
+		break;
+
+
 
 	default:
 		msg_print("あなたは職業による特技を持っていない。");
@@ -38052,6 +38465,9 @@ void do_cmd_new_class_power(bool only_browse)
 		return;	
 	}
 
+	//特技コストを無視するフラグ　特技使用によりTRUEになってこのあとのコスト消費処理をパスすることがある
+	flag_ignore_cost = FALSE;
+
 	/*:::特技失敗処理*/
 	if (randint0(100) < chance)
 	{
@@ -38132,34 +38548,41 @@ void do_cmd_new_class_power(bool only_browse)
 	}
 	else energy_use = 100;
 
-	if (spell->use_hp)
+	//コスト消費
+	if (!flag_ignore_cost)
 	{
-		/*:::技の使用のとき何らかの理由でダメージ受けてHPが足りなくなった時の救済処置*/
-		if(p_ptr->chp < cost) cost = p_ptr->chp;
-		take_hit(DAMAGE_USELIFE, cost, "技の使用による負担", -1);
-		p_ptr->redraw |= (PR_HP);
-	}
-	else
-	{
-		if(spell->cost < 0) 
+		if (spell->use_hp)
 		{
-			p_ptr->csp = 0;
-			p_ptr->csp_frac = 0;
+			/*:::技の使用のとき何らかの理由でダメージ受けてHPが足りなくなった時の救済処置*/
+			if (p_ptr->chp < cost) cost = p_ptr->chp;
+			take_hit(DAMAGE_USELIFE, cost, "技の使用による負担", -1);
+			p_ptr->redraw |= (PR_HP);
 		}
 		else
 		{
-			p_ptr->csp -= cost;
-			if (p_ptr->csp < 0) 
+			//使用MPがマイナスのとき全て消費する
+			if (spell->cost < 0)
 			{
 				p_ptr->csp = 0;
 				p_ptr->csp_frac = 0;
 			}
+			else
+			{
+				p_ptr->csp -= cost;
+				if (p_ptr->csp < 0)
+				{
+					p_ptr->csp = 0;
+					p_ptr->csp_frac = 0;
+				}
 
+			}
 		}
+
 	}
 
+
 	/* Redraw mana */
-	p_ptr->redraw |= (PR_MANA);
+	p_ptr->redraw |= (PR_MANA | PR_HP);
 
 	/* Window stuff */
 	p_ptr->window |= (PW_PLAYER);
@@ -39071,7 +39494,10 @@ const support_item_type support_item_list[] =
 	{ 90,20,80,1,25,	MON_UBAME,class_power_ubame,do_cmd_class_power_aux_ubame,4,
 	"怪王の冠","それは地震を起こす。この地震は永久壁を破壊する。" },
 
-		
+	//v2.1.2 
+	{ 90,20,80,5,7,	MON_CHIMI,class_power_chimi,do_cmd_class_power_aux_chimi,7,
+	"花のケープ","それは周囲のモンスターをフロアから消し去るかテレポートさせる。森の近くにいないモンスターには無効。フロアに森が多いほど効果半径が広がる。" },
+
 
 	{0,0,0,0,0,0,NULL,NULL,0,"終端ダミー",""},
 };

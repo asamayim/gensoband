@@ -15517,7 +15517,7 @@ static cptr do_new_spell_chaos(int spell, int mode)
 					msg_print("ひどく孤独になった気がする。");
 
 					//v1.1.32 別関数に置き換えた
-					mass_genocide_3(0,TRUE,TRUE);
+					mass_genocide_3(0,TRUE,TRUE,0);
 #if 0
 					for (i = 1; i < m_max; i++)
 					{
@@ -25559,7 +25559,7 @@ static cptr do_new_spell_occult(int spell, int mode)
 
 				msg_print("黒服の男達が慌ただしく散って行った...");
 				//v1.1.32 別ルーチンに置き換えた
-				mass_genocide_3(rad, FALSE, FALSE);
+				mass_genocide_3(rad, FALSE, FALSE,0);
 #if 0
 				for (i = 1; i < m_max; i++)
 				{
