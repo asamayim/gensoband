@@ -6216,20 +6216,21 @@ const player_class class_info[MAX_CLASS] =
 		"逼塞した聖地の道祖神",
 		"Nareko",
 
-		{ -2, 2, 3, -1, 0, 1},
-		21, 27, 32, 1, 26, 25, 36, 30,
-		10, 12, 15, 0,  3,  7, 12, 10,
-		2, 50, 40
+		{ 1, 4, 3, 1, 1, 2 },
+		40, 36, 32, 2, 30, 20, 45, 33,
+		15, 15, 11, 0,  3,  5, 18, 12,
+		3, 45, 50
 
-		,{3,5,5,5,5,5,6,5,5,0,0,0,0,0,0,5,0,0,0,0,0}
+		//追加値暫定
+		,{ 1,5,5,5,5,0,0,0,0,0,5,5,0,0,0,0,0,0,0 }
 		,A_INT
-		,3,2,100,
-		{1,2,1,1,1,0,0,0,0,0
-		,1,1,2,3,4,1,1,1,1,1
-		,1}
-		,80,3,4,5,
+		,4,2,90,
+		{ 2,3,1,4,3,0,0,0,0,0
+		,3,2,2,4,3,3,3,2,2,2
+		,1 }
+		,70,3,3,3,
 		TRUE,FALSE,TRUE
-		,FALSE
+		,TRUE
 		,4
 		,MON_NAREKO
 	},
@@ -12185,6 +12186,8 @@ const activation_type activation_info[] =
 	  _("暁の師団召喚", "summon the Legion of the Dawn") },
 	{ "SUMMON_OCTOPUS", ACT_SUMMON_OCTOPUS, 50, 15000, {300, 0},
 	  _("蛸の大群召喚", "summon octopus") },
+	{ "SUMMON_MONSTERS", ACT_SUMMON_MONSTERS, 50, 20000, {25, 25},
+	  _("モンスター複数召喚", "summon monsters") },
 
 	{ "CHOIR_SINGS", ACT_CHOIR_SINGS, 60, 20000, {300, 0},
 	  _("回復(777)、癒し、士気高揚", "heal 777 hit points, curing and heloism") },
@@ -15648,7 +15651,7 @@ monster_food_type monster_food_list[] =
 //慧ノ子が生成できるトラップのリスト
 //player_level,trap_idx,f_tag,trap_name
 //player_levelの昇順に記述する
-enoko_make_trap_type enoko_make_trap_list[] =
+enoko_make_trap_type enoko_make_trap_list[ENOKO_TRAP_LIST_MAX] =
 {
 	{ 1,TRAP_BEAR,"TRAP_BEAR","トラバサミ" },//アイテムカードでも配置可能にするため低レベルに
 	{ 15,TRAP_PIT,"TRAP_PIT","落とし穴" }, //ダメージ+朦朧付与　飛行無効
@@ -15676,7 +15679,7 @@ enoko_make_trap_type enoko_make_trap_list[] =
 	{ 45,TRAP_TY_CURSE,"TRAP_TY_CURSE","太古の呪いの罠" },//対モンスターでは高判定の全能力低下+移動禁止
 	{ 48,TRAP_ARMAGEDDON,"TRAP_ARMAGEDDON","ハルマゲドン・トラップ" },
 
-	{ 0,0,"","dummy" }//player_levelが0の終端ダミー
+	//{ 0,0,"","dummy" }//player_levelが0の終端ダミー リスト長さを定数で管理することにしたので削除
 
 };
 

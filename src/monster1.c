@@ -3451,7 +3451,7 @@ void roff_top(int r_idx)
 			msg_print("ERROR:roff_top()");
 			return;
 		}
-		if(i == m_max || !m_ptr->hold_o_idx)
+		if(!m_ptr->hold_o_idx)
 		{
 			if(p_ptr->pclass == CLASS_TSUKUMO_MASTER) sprintf(buf2,"(以前の付喪神)");
 			else sprintf(buf2,"(以前魔力付与した武器)");

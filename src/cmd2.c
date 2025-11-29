@@ -1080,6 +1080,7 @@ static void chest_death(bool scatter, int y, int x, s16b o_idx)
 			else if (p_ptr->pclass == CLASS_MIZUCHI) a_idx = ART_JACK;
 			else if (p_ptr->pclass == CLASS_UBAME) a_idx = ART_FINGOLFIN;
 			else if (p_ptr->pclass == CLASS_CHIMI) a_idx = ART_SHIOMITSUTAMA;
+			else if (p_ptr->pclass == CLASS_NAREKO) a_idx = ART_HQA;
 
 
 			else k_idx =  lookup_kind(TV_SCROLL, SV_SCROLL_ARTIFACT);//☆生成
@@ -3946,8 +3947,10 @@ static bool do_cmd_bash_aux(int y, int x, int dir)
 
 	/* Message */
 #ifdef JP
+	/*
 	if(p_ptr->pclass != CLASS_YUGI)
 		msg_format("%sに体当たりをした！", name);
+	*/
 
 #else
 	msg_format("You smash into the %s!", name);
@@ -3979,7 +3982,7 @@ static bool do_cmd_bash_aux(int y, int x, int dir)
 		/* Break down the door */
 		else if ((randint0(100) < 50) || (feat_state(c_ptr->feat, FF_OPEN) == c_ptr->feat) || have_flag(f_ptr->flags, FF_GLASS))
 		{
-			msg_format("%sが壊れた！", name);
+			msg_format("%sを蹴破った！", name);
 			cave_alter_feat(y, x, FF_BASH);
 		}
 
@@ -4013,7 +4016,12 @@ static bool do_cmd_bash_aux(int y, int x, int dir)
 	/* High dexterity yields coolness */
 	else
 	{
-		/* Message */
+		//v2.1.3 破るのに失敗したときに麻痺する仕様をなくし、代わりに騒音が出るようにする
+
+		msg_print("カン高い音が響き渡った！");
+		aggravate_monsters(0, FALSE);
+
+		/*
 #ifdef JP
 		///msg131213
 		//msg_print("体のバランスをくずしてしまった。");
@@ -4021,10 +4029,10 @@ static bool do_cmd_bash_aux(int y, int x, int dir)
 #else
 		msg_print("You are off-balance.");
 #endif
-
-
-		/* Hack -- Lose balance ala paralysis */
 		(void)set_paralyzed(p_ptr->paralyzed + 2 + randint0(2));
+		*/
+
+
 	}
 
 	/* Result */
@@ -4094,7 +4102,8 @@ void do_cmd_bash(void)
 		{
 			/* Message */
 #ifdef JP
-			msg_print("そこには体当たりするものが見当たらない。");
+			//msg_print("そこには体当たりするものが見当たらない。");
+			msg_print("そこには破るものが見当たらない。");
 #else
 			msg_print("You see nothing there to bash.");
 #endif

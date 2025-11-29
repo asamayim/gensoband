@@ -3999,6 +3999,28 @@ bool activate_random_artifact(object_type *o_ptr, int item)
 			break;
 		}
 
+		case ACT_SUMMON_MONSTERS:
+		{
+			int i;
+			int summon_num = (plev+5) / 6;
+			u32b mode = PM_ALLOW_GROUP | PM_FORCE_PET;
+			bool flag_success = FALSE;
+
+			for (i = 0; i < summon_num; i++)
+			{
+				if (summon_specific(-1, py, px, (plev + dun_level) / 2, SUMMON_ALL, (PM_ALLOW_GROUP | PM_FORCE_PET))) flag_success = TRUE;
+
+			}
+			if(flag_success)
+			{
+				msg_print("‹P‚­ñ‚Ì‰º‚É”z‰º‚½‚¿‚ª’y‚¹ŽQ‚¶‚½B");
+			}
+
+
+			break;
+		}
+
+
 		/* Activate for healing */
 
 		case ACT_CHOIR_SINGS:

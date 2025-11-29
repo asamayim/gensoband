@@ -15,6 +15,282 @@ static bool flag_ignore_cost = FALSE;
 	tips
 */
 
+
+
+//v2.1.3 馴子
+class_power_type class_power_nareko[] =
+{
+
+	{5,0,20,FALSE,TRUE,A_INT,0,0,"謎掛け",
+		"人間型生物一体を混乱させようと試み、さらに自分のMPを回復する。友好的なモンスターに使うと怒らせる。通常の精神を持たないモンスターには効果がない。"},
+
+	{10,8,20,FALSE,TRUE,A_WIS,0,0,"道祖神の勘",
+		"周囲の地形を感知する。レベルが上がるとトラップとアイテムとモンスターも感知するようになる。"},
+
+	{20,18,25,FALSE,TRUE,A_INT,0,4,"レーザー",
+		"閃光属性のビームを放つ。"},
+
+	{25,30,40,FALSE,TRUE,A_INT,0,0,"ロジカルウォール",
+		"指定した方向を中心とする隣接3グリッドに壁を生成する。"},
+
+	{30,30,50,FALSE,TRUE,A_INT,0,0,"ピラミダルラビリンス",
+		"壁を消滅させるビームを放つ。"},
+
+	{35,25,60,FALSE,TRUE,A_INT,0,0,"エンシャントトラップ",
+		"自分のいるグリッドに太古の呪いのトラップを仕掛ける。トラップに踏み込んで判定に失敗したモンスターに全能力低下と移動禁止を付与する。"},
+
+	{40,50,75,FALSE,TRUE,A_INT,0,0,"ロジカルグレートウォール",
+		"壁を生成するビームを放つ。"},
+
+	{45,120,90,FALSE,TRUE,A_CHR,0,0,"弾幕の金字塔",
+		"指定したターゲットを中心に無属性の大ダメージを与え、さらにターゲットの周囲に壁を生成する。"},
+
+	{99,0,0,FALSE,FALSE,0,0,0,"dummy",	""},
+};
+
+cptr do_cmd_class_power_aux_nareko(int num, bool only_info)
+{
+	int plev = p_ptr->lev;
+	int chr_adj = adj_general[p_ptr->stat_ind[A_CHR]];
+
+	int dir;
+
+
+	switch (num)
+	{
+		case 0://謎掛け
+		{
+			int base = MAX(plev, 10);
+			int y, x;
+			monster_type* m_ptr;
+			monster_race* r_ptr;
+			int m_idx;
+
+			if (only_info) return format("回復:%d+1d%d", base,base);
+
+			if (!get_rep_dir2(&dir)) return NULL;
+			if (dir == 5) return NULL;
+
+			y = py + ddy[dir];
+			x = px + ddx[dir];
+			m_idx = cave[y][x].m_idx;
+			m_ptr = &m_list[m_idx];
+
+			if (m_idx && (m_ptr->ml))
+			{
+				char m_name[160];
+
+				//起こす
+				set_monster_csleep(m_idx, 0);
+				monster_desc(m_name, m_ptr, 0);
+
+				if (one_in_(7))
+					msg_print("「ワクワクするぜー」");
+				else if(one_in_(6))
+					msg_print("「朝は四本足、昼は二本足...」");
+				else
+					msg_print("あなたは謎掛けを挑んだ。");
+
+				r_ptr = &r_info[m_ptr->r_idx];
+
+				if (m_ptr->mflag & MFLAG_SPECIAL)
+					msg_format("%sは無言で襲いかかってきた。", m_name);
+				else if (r_ptr->flags2 & RF2_EMPTY_MIND || r_ptr->flagsr & RFR_RES_ALL)
+					msg_format("%sは無反応だ。", m_name);
+				else if (!(r_ptr->flags3 & (RF3_HUMAN | RF3_DEMIHUMAN)) && !is_gen_unique(m_ptr->r_idx))
+					msg_format("%sはあなたの問いかけに答えない。", m_name);
+				else if (is_pet(m_ptr))
+					msg_format("%sはまたかと言いたげに肩をすくめた。", m_name);
+				else
+				{
+					int gain_mana;
+
+					if (m_idx % 42 == 0)
+						msg_format("%sは「42」と答えた。なぜか正解のような気がするが不正解だ。", m_name);
+					else if (m_idx % 3 == 0)
+						msg_format("%sは「人間」と答えた。残念ながら不正解だ。", m_name);
+					else if (m_idx % 2 == 0)
+						msg_format("%sは「妖怪」と答えた。当然ながら不正解だ。", m_name);
+					else
+						msg_format("%sはよく分からない生物の名を答えた。よく分からないが不正解だ。", m_name);
+
+					project(0, 0, m_ptr->fy, m_ptr->fx, base, GF_OLD_CONF, PROJECT_KILL, -1);
+
+					gain_mana = base + randint1(base);
+					if (MON_CONFUSED(m_ptr)) gain_mana *= 2;
+
+					if (player_gain_mana(gain_mana)) msg_print("あなたは精神的に満たされた！");
+
+					//同じ敵に二度は使えないようフラグを立てる
+					m_ptr->mflag |= MFLAG_SPECIAL;
+					//怒らせる
+					if (is_friendly(m_ptr))
+					{
+						msg_format("%sは怒った！", m_name);
+						set_hostile(m_ptr);
+					}
+
+				}
+			}
+			else
+			{
+				msg_print("そこには何もいない。");
+				return NULL;
+			}
+		}
+		break;
+
+		case 1: //道祖神の勘
+		{
+			int rad = p_ptr->lev / 2 + 25;
+			if (only_info) return format("範囲:%d", rad);
+
+			msg_print("あなたの脳裏に周囲の状況が流れ込んできた。");
+			map_area(rad);
+			if (plev > 19) detect_traps(rad, TRUE);
+			if (plev > 24) detect_objects_normal(rad);
+			if (plev > 24) detect_objects_gold(rad);
+			if (plev > 29)detect_monsters_normal(rad);
+			if (plev > 29)detect_monsters_invis(rad);
+			break;
+		}
+
+
+		case 2://レーザー
+		{
+			int dice = 5 + plev / 5;
+			int sides = 9;
+			int base = plev + chr_adj;
+
+			if (only_info) return format("損傷:%d+%dd%d", base, dice, sides);
+			if (!get_aim_dir(&dir)) return NULL;
+			msg_print("レーザーを放った！");
+			fire_beam(GF_LITE, dir, base + damroll(dice, sides));
+			break;
+		}
+
+		case 3:
+		{
+			int y, x, dir2, dir3;
+
+			if (only_info) return format("");
+			if (!get_rep_dir2(&dir)) return NULL;
+			if (dir == 5) return NULL;
+
+			//指定したグリッドの両隣　うまい計算式があるかもしれないが思いつかなかった
+			if (dir == 1) { dir2 = 4; dir3 = 2; }
+			else if (dir == 2) { dir2 = 1; dir3 = 3; }
+			else if (dir == 3) { dir2 = 2; dir3 = 6; }
+			else if (dir == 4) { dir2 = 7; dir3 = 1; }
+			else if (dir == 6) { dir2 = 3; dir3 = 9; }
+			else if (dir == 7) { dir2 = 8; dir3 = 4; }
+			else if (dir == 8) { dir2 = 9; dir3 = 7; }
+			else if (dir == 9) { dir2 = 6; dir3 = 8; }
+			else return NULL;
+
+			y = py + ddy[dir];
+			x = px + ddx[dir];
+			if (!cave_naked_bold(y, x))
+			{
+				msg_print("ここには壁を作れない。");
+				return NULL;
+			}
+			project(0, 0, y, x, 1, GF_STONE_WALL, (PROJECT_JUMP | PROJECT_GRID), -1);
+			y = py + ddy[dir2];
+			x = px + ddx[dir2];
+			project(0, 0, y, x, 1, GF_STONE_WALL, (PROJECT_JUMP | PROJECT_GRID), -1);
+			y = py + ddy[dir3];
+			x = px + ddx[dir3];
+			project(0, 0, y, x, 1, GF_STONE_WALL, (PROJECT_JUMP | PROJECT_GRID), -1);
+			msg_print("壁が出現して道を塞いだ！");
+			break;
+		}
+
+
+		//元素領域トンネル生成の高射程版
+		case 4:
+		{
+
+			if (only_info) return format("");
+			if (!get_aim_dir(&dir)) return NULL;
+			project_hook(GF_KILL_WALL, dir, 1, (PROJECT_BEAM | PROJECT_THRU | PROJECT_GRID | PROJECT_DISI));
+
+		}
+		break;
+
+		case 5: //太古の呪いトラップ設置
+		{
+
+			if (only_info) return format("");
+
+			//15はenoko_make_trap_list[]の太古の呪い
+			if (!place_chosen_trap(plev,15 )) return NULL;
+
+		}
+		break;
+
+		case 6:
+		{
+
+			if (only_info) return format("");
+			if (!get_aim_dir(&dir)) return NULL;
+			project_hook(GF_STONE_WALL, dir, 1, (PROJECT_BEAM | PROJECT_THRU | PROJECT_GRID | PROJECT_DISI));
+
+		}
+		break;
+
+		//弾幕の金字塔
+		//攻撃と視界塞ぎを同時に行うが反撃召喚は食らう
+		case 7:
+
+		{
+			int x, y;
+			monster_type* m_ptr;
+
+			int base = plev * 4 + chr_adj * 10;
+
+			if (only_info) return format("損傷:%d", base);
+
+			if (!get_aim_dir(&dir)) return NULL;
+			if (dir != 5 || !projectable(target_row, target_col, py, px))
+			{
+				msg_print("視界内の一点を指定しないといけない。");
+				return NULL;
+			}
+			y = target_row;
+			x = target_col;
+
+			if (cave[y][x].m_idx)
+			{
+				char m_name[160];
+				m_ptr = &m_list[cave[y][x].m_idx];
+				monster_desc(m_name, m_ptr, 0);
+				msg_format("%sの上に巨石が降り注いだ！", m_name);
+			}
+			else
+			{
+				msg_print("巨石の山が積み上がった！");
+			}
+
+			project(0, 1, y, x, base, GF_ARROW, (PROJECT_KILL | PROJECT_JUMP | PROJECT_HIDE), -1);
+			project(0, 1, y, x, 1, GF_STONE_WALL, (PROJECT_GRID | PROJECT_JUMP | PROJECT_HIDE), -1);
+
+			break;
+		}
+
+	default:
+		if (only_info) return format("未実装");
+		msg_format("ERROR:実装していない特技が呼ばれた num:%d", num);
+		return NULL;
+	}
+	return "";
+}
+
+
+
+
+
+
 //v2.1.2 チミ
 class_power_type class_power_chimi[] =
 {
@@ -2361,8 +2637,8 @@ cptr do_cmd_class_power_aux_enoko(int num, bool only_info)
 
 		if (only_info) return format("");
 
-		//アイテムカード「トラバサミ」使用時は置かれるトラップがトラバサミに固定される
-		if (!place_chosen_trap(plev,use_itemcard)) return NULL;
+		//アイテムカード「トラバサミ」使用時は置かれるトラップが0(トラバサミ)に固定される
+		if (!place_chosen_trap(plev,use_itemcard ? 0:-1)) return NULL;
 
 	}
 	break;
@@ -10927,7 +11203,7 @@ class_power_type class_power_aunn[] =
 		"ターゲットに向けて短距離を移動し、そのまま攻撃する。装備が重いと失敗しやすい。"},
 
 	{30,25,40,FALSE,FALSE,A_CON,0,0,"石像化",
-		"モンスターから認識されなくなる。視界内にモンスターがいる状態では使用できない。ダメージを受けたり待機、休憩、飲食など以外の行動をすると効果が切れる。"},
+		"モンスターから認識されなくなる。視界内に賢いモンスターがいる状態では使用できない。ダメージを受けたり待機、休憩、飲食など以外の行動をすると効果が切れる。"},
 
 	{35,35,60,TRUE,FALSE,A_STR,50,10,"コマ犬回し",
 		"周囲のモンスター全てに攻撃する。装備が重いと失敗しやすい。"},
@@ -10988,11 +11264,16 @@ cptr do_cmd_class_power_aux_aunn(int num, bool only_info)
 			for (i = m_max - 1; i >= 1; i--)
 			{
 				monster_type *m_ptr = &m_list[i];
+				monster_race *r_ptr = &r_info[m_ptr->r_idx];
 				if (!m_ptr->r_idx) continue;
 				if (!projectable(py,px,m_ptr->fy,m_ptr->fx)) continue;
 				if (!is_hostile(m_ptr)) continue;
 				if(MON_CSLEEP(m_ptr)) continue;
 				if(MON_CONFUSED(m_ptr)) continue;
+
+				//v2.1.3 酔蝶華9巻で石像化して蚊を防いでいたのでSMARTのない敵になら見られていても石像化できることにした
+				if (!(r_ptr->flags2 & RF2_SMART || r_ptr->flags2 & RF2_SMART_EX)) continue;
+
 
 				flag_ng = TRUE;
 				break;
@@ -11000,7 +11281,7 @@ cptr do_cmd_class_power_aux_aunn(int num, bool only_info)
 
 			if(flag_ng)
 			{
-				msg_print("敵に見られているので石像化できない。");
+				msg_print("こちらを注意深く見ている敵がいる。いま石像化しても無駄だろう。");
 				return NULL;
 			}
 
@@ -11399,8 +11680,8 @@ cptr do_cmd_class_power_aux_soldier(int num, bool only_info)
 
 			if(only_info) return format("範囲:%d",range);
 			msg_format("慎重に辺りを窺った..");
-			detect_monsters_normal(DETECT_RAD_DEFAULT);
-			detect_monsters_invis(DETECT_RAD_DEFAULT);
+			detect_monsters_normal(range);
+			detect_monsters_invis(range);
 			break;
 		}
 	case 6:
@@ -29946,7 +30227,7 @@ class_power_type class_power_mystia[] =
 		"今歌っている歌があれば止める。行動力を消費しない。"},
 	{3,3,20,FALSE,TRUE,A_CHR,0,0,"梟の夜鳴声",
 		"あなたが今いる部屋を暗くする。"},
-	{5,8,30,FALSE,TRUE,A_CHR,0,0,"夜雀の歌",
+	{5,4,30,FALSE,TRUE,A_CHR,0,0,"夜雀の歌",
 		"周囲のモンスターを鳥目にする歌を歌う。歌っている間はMPを消費し続ける。鳥目になった敵は高確率であなたの位置を見失い無防備にあなたの攻撃を受けるが、部屋が明るかったり敵が視覚に頼らない存在だと効果が薄い。"},
 	{10,10,30,FALSE,TRUE,A_DEX,0,0,"毒蛾の鱗粉",
 		"周辺の敵を混乱させる。"},
@@ -38085,6 +38366,11 @@ void do_cmd_new_class_power(bool only_browse)
 		power_desc = "特技";
 		break;
 
+	case CLASS_NAREKO:
+		class_power_table = class_power_nareko;
+		class_power_aux = do_cmd_class_power_aux_nareko;
+		power_desc = "特技";
+		break;
 
 
 	default:
@@ -39321,7 +39607,7 @@ const support_item_type support_item_list[] =
 
 	//v1.1.33 石像化
 	{60,10,70,3,6,	MON_AUNN,class_power_aunn,do_cmd_class_power_aux_aunn,3,
-	"狛犬の台座","それを使うと石像化しモンスターから認識されなくなる。視界内にモンスターがいる状態では使用できない。ダメージを受けたり待機、休憩、飲食など以外の行動をすると効果が切れる。"},
+	"狛犬の台座","それを使うと石像化しモンスターから認識されなくなる。視界内に賢いモンスターがいる状態では使用できない。ダメージを受けたり待機、休憩、飲食など以外の行動をすると効果が切れる。"},
 
 	//v1.1.34 クリミナルサルヴェイション
 	{160,90, 127,1,30,MON_NARUMI,class_power_narumi,do_cmd_class_power_aux_narumi,8,
@@ -39498,6 +39784,9 @@ const support_item_type support_item_list[] =
 	{ 90,20,80,5,7,	MON_CHIMI,class_power_chimi,do_cmd_class_power_aux_chimi,7,
 	"花のケープ","それは周囲のモンスターをフロアから消し去るかテレポートさせる。森の近くにいないモンスターには無効。フロアに森が多いほど効果半径が広がる。" },
 
+	//v2.1.3 馴子　弾幕の金字塔
+	{ 160,60,128,4,10,	0,class_power_nareko,do_cmd_class_power_aux_nareko,7,
+	"ピラミッド","それは指定したモンスターに大ダメージを与え、さらにその周囲を壁で埋める。" },
 
 	{0,0,0,0,0,0,NULL,NULL,0,"終端ダミー",""},
 };
