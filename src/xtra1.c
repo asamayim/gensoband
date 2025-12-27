@@ -1953,7 +1953,7 @@ sprintf(text, "  %2d", command_rep);
 			strcpy(text, "…‰j");
 		}
 	}
-	else if(have_flag(f_ptr->flags, FF_TREE) && !p_ptr->kill_wall && (p_ptr->pclass != CLASS_BITEN && p_ptr->pclass != CLASS_RANGER && !prace_is_(RACE_YAMAWARO)))
+	else if(have_flag(f_ptr->flags, FF_TREE) && !p_ptr->kill_wall && (p_ptr->pclass != CLASS_BITEN && p_ptr->pclass != CLASS_RANGER && p_ptr->pclass != CLASS_YUIMAN && !prace_is_(RACE_YAMAWARO)))
 	{
 		if(p_ptr->speedster)
 		{
@@ -6597,7 +6597,6 @@ void calc_bonuses(void)
 		break;
 
 	case CLASS_NAREKO:
-
 		p_ptr->see_inv = TRUE;
 		p_ptr->resist_holy = TRUE;
 		if (plev >  9) p_ptr->free_act = TRUE;
@@ -6606,6 +6605,16 @@ void calc_bonuses(void)
 		if (plev > 34) p_ptr->warning = TRUE;
 		if (plev > 39) p_ptr->resist_neth = TRUE;
 		break;
+
+	case CLASS_YUIMAN:
+		p_ptr->see_inv = TRUE;
+		p_ptr->resist_neth = TRUE;
+		if (plev >  9) p_ptr->sustain_int = TRUE;
+		if (plev > 19) p_ptr->esp_animal = TRUE;
+		if (plev > 29) p_ptr->resist_conf = TRUE;
+		if (plev > 39) p_ptr->esp_unique = TRUE;
+		break;
+
 
 
 	default:

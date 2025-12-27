@@ -6862,6 +6862,16 @@ bool check_quest_unique_text(void)
 				strcpy(quest_text[line++], "しっかり準備を済ませてから帰ろう。");
 			}
 		}
+		else if (pc == CLASS_YUIMAN)
+		{
+			if (comp || fail)
+			{
+				strcpy(quest_text[line++], "久しぶりに旧友と腕比べを楽しんだ。");
+				strcpy(quest_text[line++], "次は一緒に鹿狩りに出かけたいものだ。");//一行40字まで
+			}
+
+		}
+
 		break;
 		//宴会幹事
 	case QUEST_HANAMI:
@@ -7279,7 +7289,9 @@ bool check_quest_unique_text(void)
 		//サーペント打倒メインクエスト
 	case QUEST_SERPENT:
 		//v1.1.18 
-		if(pc == CLASS_JUNKO || pc == CLASS_HECATIA || pc == CLASS_CLOWNPIECE || pc == CLASS_VFS_CLOWNPIECE)
+		//v2.1.4 ユイマンとアリヤも入れておく
+		if(pc == CLASS_JUNKO || pc == CLASS_HECATIA || pc == CLASS_CLOWNPIECE || pc == CLASS_VFS_CLOWNPIECE
+			|| pc == CLASS_YUIMAN || pc == CLASS_ARIYA)
 		{
 			if(accept)
 			{
@@ -8397,6 +8409,27 @@ bool check_quest_unique_text(void)
 				strcpy(quest_text[line++], "あの場所は妖怪にも神にもあまりにも危険だ。何とか策を講じねば。");
 			}
 		}
+		else if (pc == CLASS_YUIMAN)
+		{
+			if (accept)
+			{
+				strcpy(quest_text[line++], "四季の竪穴の下の化石の森に強力な妖怪が発生したようだ。");
+				strcpy(quest_text[line++], "あれでも永く住んだ我が家だ。庭先での狼藉を放置するわけにはいかない。");
+			}
+			else if (comp)
+			{
+				strcpy(quest_text[line++], "想像以上に強力な存在だったがどうにか退治に成功した。");
+				strcpy(quest_text[line++], "戦闘後、化石の木の洞の中に不思議なほど手に馴染む弓を発見した。");
+				strcpy(quest_text[line++], "戦利品として使わせてもらおう。");
+			}
+			else
+			{
+				strcpy(quest_text[line++], "汚染の広まり続ける化石の森からの逃亡を余儀なくされた。");
+				strcpy(quest_text[line++], "せめて不用意な探検者がこの混沌に飛び込まないよう見張らねばならない。");
+				strcpy(quest_text[line++], "外界の情報がただの妖怪をこうまで変容させるなどと誰が信じるだろう？");
+			}
+		}
+
 		break;
 
 
@@ -8617,6 +8650,8 @@ bool check_ignoring_quest(int questnum)
 		break;
 	case QUEST_HANGOKU2://連続昏睡事件2
 		if (pc == CLASS_MIZUCHI) return TRUE;
+
+		break;//v2.1.4 抜けてた
 
 	case QUEST_MORIYA_2:
 		if (pc == CLASS_CHIMATA) return TRUE;//千亦はアビリティカードが報酬のクエストを受けられない

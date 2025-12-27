@@ -5842,7 +5842,19 @@ static void store_process_command(void)
 		{
 			if(hack_flag_access_home && !get_check_strict("着替えを終えますか？", CHECK_OKAY_CANCEL)) break;
 
-			if (hack_flag_access_home_only_arrow && !get_check_strict("矢筒の使用を終えますか？", CHECK_OKAY_CANCEL)) break;
+			if (hack_flag_access_home_only_arrow)
+			{
+				//v2.1.4 ユイマンに矢筒と同じ効果の特技を追加したのでメッセージ変更　ユイマンが矢筒を使ったときもこっちに来るが
+				if (p_ptr->pclass == CLASS_YUIMAN)
+				{
+					if (!get_check_strict("終了しますか？", CHECK_OKAY_CANCEL)) break;
+				}
+				else
+				{
+					if(!get_check_strict("矢筒の使用を終えますか？", CHECK_OKAY_CANCEL)) break;
+				}
+
+			}
 
 			leave_store = TRUE;
 			break;

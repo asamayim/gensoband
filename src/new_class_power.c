@@ -17,6 +17,326 @@ static bool flag_ignore_cost = FALSE;
 
 
 
+//v2.1.4 ユイマン
+class_power_type class_power_yuiman[] =
+{
+	{ 5,10,20,FALSE,FALSE,A_INT,0,0,"情報取得",
+	"周囲の地形・トラップ・アイテム・モンスターを感知する。ただしダンジョン「浅間浄穢山」以外では効果範囲が大幅に狭まる。" },
+
+	{ 10,16,30,FALSE,FALSE,A_WIS,0,0,"ストリーミングドール",
+	"モンスター一体に混乱属性のダメージを与える。レベル30以降は短時間の移動禁止も追加する。" },
+
+	{ 15,25,40,FALSE,TRUE,A_INT,0,0,"有害情報除去Ⅰ",
+	"呪われた装備を解呪する。" },
+
+	{ 20,20,45,FALSE,TRUE,A_WIS,0,10,"ラブルデータ",
+	"破片属性のブレスを放つ。威力は現在のMPと等しくなる。" },
+
+	{ 24,30,50,FALSE,FALSE,A_DEX,0,0,"シカを射るだけの美しい記憶",
+	"自宅に置かれた矢を手元に呼び出す。もしくは手元の矢を自宅に置く。" },
+
+	{ 28,20,50,FALSE,TRUE,A_INT,0,0,"有害情報除去Ⅱ",
+	"隣接したモンスター一体からMPを吸収し加速と無敵化を消去する。またモンスター「虚構人間」「敵意の結晶」を一撃で倒す。" },
+
+	{ 32,40,60,FALSE,TRUE,A_WIS,0,0,"ディスコミュニケーション",
+	"視界内の全てのモンスターに敵味方の区別をつかなくさせる。ユニークモンスターと通所の精神を持たないモンスターには効果が薄い。" },
+
+	{ 36,50,70,FALSE,TRUE,A_DEX,0,0,"ディアジェノサイダー",
+	"周囲のランダムなモンスターに連続して矢を投擲する。このときの矢は動物に大ダメージを与える。投擲の指輪の効果は半減する。" },
+
+	{ 40,240,95,FALSE,TRUE,A_INT,0,0,"有害情報除去Ⅲ",
+	"ザックの中の装備品一つを指定し、反感や太古の怨念などの強力な呪いを除去する。ただし「永遠の呪い」がついた装備品には無効。" },
+
+	{ 44,64,75,FALSE,TRUE,A_CHR,0,0,"スネークランダー",
+	"閃光属性の強力なビームを放つ。" },
+
+	{ 48,150,80,FALSE,TRUE,A_CHR,0,0,"ゾルタクスコミュニケーション",
+	"視界内全てを因果混乱属性で攻撃する。" },
+
+
+	{ 99,0,0,FALSE,FALSE,0,0,0,"dummy","" },
+};
+
+
+cptr do_cmd_class_power_aux_yuiman(int num, bool only_info)
+{
+	int dir, dice, sides, base, damage, i;
+	int plev = p_ptr->lev;
+	int chr_adj = adj_general[p_ptr->stat_ind[A_CHR]];
+
+	switch (num)
+	{
+
+	case 0:
+	{
+		int rad = plev * 3 / 2;
+		if (dungeon_type != DUNGEON_ASAMA) rad /= 3;
+		if (only_info) return format("範囲:%d", rad);
+
+		msg_format("周囲の情報を収集した。");
+		map_area(rad);
+		detect_traps(rad, TRUE);
+		detect_objects_normal(rad);
+		detect_monsters_normal(rad);
+		detect_monsters_invis(rad);
+		break;
+
+	}
+	case 1:
+	{
+		int dam = plev * 2 + chr_adj * 2;
+		if (dam < 40) dam = 40;
+		if (only_info) return format("損傷:%d", dam);
+
+		if (!get_aim_dir(&dir)) return NULL;
+		if (dir != 5 || !target_okay() || !projectable(target_row, target_col, py, px))
+		{
+			msg_print("視界内のターゲットを明示的に指定しないといけない。");
+			return NULL;
+		}
+		msg_print("悪性情報の残滓を放った。");
+		if(plev > 29)
+			fire_ball_hide(GF_NO_MOVE, dir, plev/2, 0);
+		fire_ball_hide(GF_CONFUSION, dir, dam, 0);
+
+		break;
+
+	}
+	case 2:
+	{
+		bool success = FALSE;
+		if (only_info) return format("");
+
+		if (remove_all_curse())  success = TRUE;
+
+		if (success) msg_print("装備品の呪縛を分解した。");
+		else msg_print("何も起こらなかった。");
+		break;
+	}
+
+	case 3:
+	{
+		int dam;
+		dam = p_ptr->csp;
+		if (dam < 1) dam = 1;
+		if (dam > 800) dam = 800;
+
+		if (only_info) return format("損傷:%d", dam);
+		if (!get_aim_dir(&dir)) return NULL;
+		msg_print("不要情報の破片を吹き付けた。");
+		fire_ball(GF_SHARDS, dir, dam, (p_ptr->lev > 35 ? -3 : -2));
+		break;
+	}
+
+	case 4:
+	{
+		if (only_info) return format("");
+
+		//魔法の矢筒と同じ処理
+		hack_flag_access_home_only_arrow = TRUE;
+		do_cmd_store();
+		hack_flag_access_home_only_arrow = FALSE;
+
+	}
+	break;
+
+	case 5://有害情報除去2
+	{
+		int y, x,r_idx;
+		monster_type* m_ptr;
+		monster_race* r_ptr;
+		char m_name[120];
+
+		if (only_info) return format("");
+
+		//隣接モンスターを指定
+		if (!get_rep_dir2(&dir)) return FALSE;
+		if (dir == 5) return FALSE;
+		y = py + ddy[dir];
+		x = px + ddx[dir];
+		m_ptr = &m_list[cave[y][x].m_idx];
+
+		if (cave[y][x].m_idx && (m_ptr->ml))
+		{
+			int gain_mana;
+			r_idx = m_ptr->r_idx;
+
+			r_ptr = &r_info[r_idx];
+			monster_desc(m_name, m_ptr, 0);
+
+			msg_format("蛇が%sに噛みついた！",m_name);
+
+			//起こす
+			set_monster_csleep(cave[y][x].m_idx, 0);
+
+			gain_mana = MAX(1,(r_ptr->level));
+
+			//敵意の結晶と虚構人間(浅間浄穢山のランダムユニーク)を一撃で倒す
+			if (r_idx >= MON_HOSTILE_CRYSTAL_START && r_idx <= MON_HOSTILE_CRYSTAL_END
+				|| dungeon_type == DUNGEON_ASAMA && r_idx >= MON_RANDOM_UNIQUE_1 && r_idx <= MON_RANDOM_UNIQUE_3)
+			{
+				msg_format("%sの構成情報を分解した！", m_name);
+				project(0, 0, m_ptr->fy, m_ptr->fx, m_ptr->max_maxhp + 1, GF_PSY_SPEAR, (PROJECT_JUMP | PROJECT_HIDE | PROJECT_KILL), -1);
+				gain_mana *= 3;
+
+			}
+			//そうでないとき魔力消去とダメージ
+			else
+			{
+				if (MON_FAST(m_ptr)) gain_mana += 100;
+				if (MON_INVULNER(m_ptr)) gain_mana += 300;
+				dispel_monster_status(cave[y][x].m_idx);
+				project(0, 0, m_ptr->fy, m_ptr->fx, gain_mana * 2, GF_PSY_SPEAR, (PROJECT_JUMP | PROJECT_HIDE | PROJECT_KILL), -1);
+
+			}
+
+			if(player_gain_mana(gain_mana)) msg_print("エネルギーを吸い取って魔力に変換した。");
+
+			//魔力を得たとき消費MPを無視することにする
+			flag_ignore_cost = TRUE;
+
+		}
+		else
+		{
+			msg_format("そこには何もいない。");
+			return NULL;
+		}
+	}
+	break;
+	
+	case 6:
+	{
+		int power = plev * 3 + chr_adj * 3;
+
+		if (only_info) return  format("効力:%d", power);
+
+		msg_format("外界の汚染情報を解き放った！");
+		project_hack2(GF_LUNATIC_TORCH, 0, 0, power);
+
+	}
+	break;
+
+	case 7:
+	{
+		int arrow_num = plev / 6;
+
+		if (only_info) return  format("回数:最大%d", arrow_num);
+
+		if (!deer_genocider(arrow_num)) return NULL;
+
+	}
+	break;
+
+
+	case 8:
+	{
+		int     item;
+		cptr    q, s;
+		object_type* o_ptr;
+		object_type forge;
+		object_type* q_ptr = &forge;
+		u32b flgs[TR_FLAG_SIZE];
+
+		char	o_name[MAX_NLEN];
+
+		if (only_info) return "";
+
+		item_tester_hook = object_is_equipment;
+		q = "どれの有害情報を除去しますか？ ";
+		s = "装備品を持っていない。";
+		if (!get_item(&item, q, s, (USE_INVEN))) return NULL;
+
+		if (item >= 0)	o_ptr = &inventory[item];
+		else o_ptr = &o_list[0 - item];
+
+		if (!object_is_known(o_ptr))
+		{
+			msg_print("まず鑑識が必要だ。");
+			return NULL;
+		}
+		object_flags(o_ptr, flgs);
+
+		
+		if (!object_is_cursed(o_ptr) 
+			&& !have_flag(flgs,TR_NO_TELE)
+			&& !have_flag(flgs, TR_NO_MAGIC)
+			&& !have_flag(flgs, TR_TY_CURSE)
+			&& !have_flag(flgs, TR_AGGRAVATE)
+			&& !have_flag(flgs, TR_DRAIN_EXP)
+			&& !have_flag(flgs, TR_ADD_L_CURSE)
+			&& !have_flag(flgs, TR_ADD_H_CURSE)
+			//&& o_ptr->to_d >= 0 && o_ptr->to_h >= 0 && o_ptr->to_a >= 0 && o_ptr->pval >= 0
+			)
+		{
+			msg_print("このアイテムに特に問題は見当たらない。");
+			return NULL;
+		}
+		object_desc(o_name, o_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
+
+		//永遠の呪いには無効
+		if (o_ptr->curse_flags & TRC_PERMA_CURSE)
+		{
+			msg_format("蛇は%sを恐れて触れようとしない。", o_name);
+			break;
+		}
+
+		msg_format("蛇が%sを丸呑みにして吐き出した！", o_name);
+
+		//修正値のマイナス除去はベルシエルやサノスや黄昏が無法になりすぎるので没
+		//if (o_ptr->to_d < 0) o_ptr->to_d = 0;
+		//if (o_ptr->to_a < 0) o_ptr->to_a = 0;
+		//if (o_ptr->to_h < 0) o_ptr->to_h = 0;
+		//if (o_ptr->pval < 0) o_ptr->pval = 0;
+
+		o_ptr->xtra3 = SPECIAL_ESSENCE_OTHER; //鍛冶アイテム扱いにする。object_flags()内で雛の厄落とし品と同じくバッドフラグを無視する
+
+		o_ptr->curse_flags &= TRC_PERMA_CURSE;//永遠の呪い以外のフラグを消去　永遠の呪いがあるとここに来ないから全消去してもいいんだが念の為
+
+		p_ptr->window |= (PW_INVEN | PW_EQUIP);
+		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+		break;
+	}
+
+	case 9:
+	{
+		dice = 10 + chr_adj / 6;
+		sides = plev * 4 / 3;
+
+		if (only_info) return format("損傷:%dd%d", dice, sides);
+
+		if (!get_aim_dir(&dir)) return NULL;
+		msg_format("光る蛇の群れが地を這った。");
+		fire_beam(GF_LITE, dir, damroll(dice,sides));
+		break;
+	}
+	case 10:
+	{
+
+		damage = plev * 6 + chr_adj * 10;
+
+		if (only_info) return format("損傷:%d", damage);
+
+		msg_print("情報のブラックホールが時空を歪めた！");
+		project_hack2(GF_NEXUS, 0, 0, damage);
+	}
+	break;
+
+
+
+
+	default:
+		if (only_info) return format("未実装");
+
+		msg_format("ERROR:実装していない特技が呼ばれた num:%d", num);
+		return NULL;
+	}
+	return "";
+}
+
+
+
+
+
 //v2.1.3 馴子
 class_power_type class_power_nareko[] =
 {
@@ -16884,7 +17204,7 @@ cptr do_cmd_class_power_aux_sakuya(int num, bool only_info)
 				if(!inven_add[i].k_idx) continue;
 				o_ptr = &inven_add[i];
 
-				if (do_cmd_throw_aux2(py, px, ty, tx, 1, o_ptr, 0))
+				if (do_cmd_throw_aux2(py, px, ty, tx, 1, o_ptr, 2))
 				{
 					//v1.1.46 重量減少処理が抜けていたので追加
 					p_ptr->total_weight -= inven_add[i].weight * inven_add[i].number;
@@ -38372,6 +38692,12 @@ void do_cmd_new_class_power(bool only_browse)
 		power_desc = "特技";
 		break;
 
+	case CLASS_YUIMAN:
+		class_power_table = class_power_yuiman;
+		class_power_aux = do_cmd_class_power_aux_yuiman;
+		power_desc = "特技";
+		break;
+
 
 	default:
 		msg_print("あなたは職業による特技を持っていない。");
@@ -39785,8 +40111,14 @@ const support_item_type support_item_list[] =
 	"花のケープ","それは周囲のモンスターをフロアから消し去るかテレポートさせる。森の近くにいないモンスターには無効。フロアに森が多いほど効果半径が広がる。" },
 
 	//v2.1.3 馴子　弾幕の金字塔
-	{ 160,60,128,4,10,	0,class_power_nareko,do_cmd_class_power_aux_nareko,7,
+	{ 160,60,128,4,10,	MON_NAREKO,class_power_nareko,do_cmd_class_power_aux_nareko,7,
 	"ピラミッド","それは指定したモンスターに大ダメージを与え、さらにその周囲を壁で埋める。" },
+
+	//v2.1.4 ユイマン　有害情報除去2(MP吸収と魔力消去)
+	{ 80,40,100,7,6,	MON_YUIMAN,class_power_yuiman,do_cmd_class_power_aux_yuiman,5,
+	"帯のような蛇","それは隣接したモンスター一体からMPを吸収し、さらに加速や無敵化を消去する。" },
+
+
 
 	{0,0,0,0,0,0,NULL,NULL,0,"終端ダミー",""},
 };
