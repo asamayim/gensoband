@@ -319,6 +319,12 @@ void reset_tim_flags(void)
 
 	if ((p_ptr->pclass == CLASS_YUMA) && (p_ptr->lev > 19)) p_ptr->oppose_pois = 1;
 
+	if ((p_ptr->pclass == CLASS_ARIYA) && (p_ptr->lev > 29)) p_ptr->oppose_fire = 1;
+	if ((p_ptr->pclass == CLASS_ARIYA) && (p_ptr->lev > 29)) p_ptr->oppose_cold = 1;
+	if ((p_ptr->pclass == CLASS_ARIYA) && (p_ptr->lev > 29)) p_ptr->oppose_pois = 1;
+	if ((p_ptr->pclass == CLASS_ARIYA) && (p_ptr->lev > 44)) p_ptr->magicdef = 1;
+
+
 	if ( p_ptr->pseikaku == SEIKAKU_BERSERK) p_ptr->shero = 1;
 
 	if (p_ptr->riding)
@@ -540,6 +546,16 @@ bool set_mimic(int v, int p, bool do_dec)
 	//v1.1.85 新たに変身するとき、モンスター変身用のidxを記録してあったのをリセット
 	if (!do_dec) p_ptr->metamor_r_idx = 0;
 
+	if (p_ptr->pclass == CLASS_ARIYA && !do_dec)
+	{
+		msg_print("あなたの肉体は変容を拒絶した。");
+		return FALSE;
+	}
+	else if (p_ptr->prace == RACE_HOURAI && !do_dec)
+	{
+		msg_print("あなたの肉体は変容を受け付けなかった。");
+		return FALSE;
+	}
 
 	if(p_ptr->riding && mimic_info[p].MIMIC_FLAGS & MIMIC_NO_RIDING && !do_dec)
 	{
@@ -549,11 +565,6 @@ bool set_mimic(int v, int p, bool do_dec)
 			msg_print("今は踊るのに忙しく変身できない。");
 		else
 			msg_print("まず馬から降りてからでないとその変身はできない。");
-		return FALSE;
-	}
-	if(p_ptr->prace == RACE_HOURAI && !do_dec)
-	{
-		msg_print("・・あなたの肉体は変容を受け付けなかった。");
 		return FALSE;
 	}
 
@@ -773,6 +784,8 @@ bool set_blind(int v)
 
 	if (p_ptr->is_dead) return FALSE;
 
+	if (p_ptr->pclass == CLASS_ARIYA && p_ptr->lev > 29) v=0;
+
 	//v1.1.55
 	if (p_ptr->special_defense & MUSOU_TENSEI)
 	{
@@ -883,6 +896,7 @@ bool set_confused(int v)
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
 	if (p_ptr->is_dead) return FALSE;
+	if (p_ptr->pclass == CLASS_ARIYA && p_ptr->lev > 29) v=0;
 
 	/* Open */
 	if (v)
@@ -1003,6 +1017,7 @@ bool set_poisoned(int v)
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
 	if (p_ptr->is_dead) return FALSE;
+	if (p_ptr->pclass == CLASS_ARIYA && p_ptr->lev > 29) v=0;
 
 	/* Open */
 	if (v)
@@ -1065,6 +1080,7 @@ bool set_afraid(int v)
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
 	if (p_ptr->is_dead) return FALSE;
+	if (p_ptr->pclass == CLASS_ARIYA && p_ptr->lev > 29) v=0;
 
 	/* Open */
 	if (v)
@@ -1145,6 +1161,7 @@ bool set_paralyzed(int v)
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
 	if (p_ptr->is_dead) return FALSE;
+	if (p_ptr->pclass == CLASS_ARIYA && p_ptr->lev > 29) v=0;
 
 	//v1.1.55
 	if (p_ptr->special_defense & MUSOU_TENSEI)
@@ -1231,6 +1248,7 @@ bool set_image(int v)
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
 	if (p_ptr->is_dead) return FALSE;
+	if (p_ptr->pclass == CLASS_ARIYA && p_ptr->lev > 29) v=0;
 
 
 	/* Open */
@@ -1464,6 +1482,7 @@ bool set_slow(int v, bool do_dec)
 
 	//v1.1.71 早鬼は減速を受けない
 	if (p_ptr->pclass == CLASS_SAKI) v = 0;
+	if (p_ptr->pclass == CLASS_ARIYA && p_ptr->lev > 29) v=0;
 
 	//v1.1.55
 	if (p_ptr->special_defense & MUSOU_TENSEI)
@@ -1937,6 +1956,8 @@ bool set_tim_aggravation(int v, bool do_dec)
 
 	if (p_ptr->is_dead) return FALSE;
 
+	if (p_ptr->pclass == CLASS_ARIYA && p_ptr->lev > 29)v = 0;
+
 	/* Open */
 	if (v)
 	{
@@ -2063,6 +2084,7 @@ msg_print("あなたの周りの死霊たちが消えた。");
  * Set "p_ptr->magicdef", notice observable changes
  */
 /*:::魔法の鎧　魔法防御とAC上昇、いくつかのステータス異常耐性　魔力消去の対象*/
+//幻想蛮怒では光の剣以外の全ダメージ2/3
 bool set_magicdef(int v, bool do_dec)
 {
 	bool notice = FALSE;
@@ -2071,6 +2093,9 @@ bool set_magicdef(int v, bool do_dec)
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
 	if (p_ptr->is_dead) return FALSE;
+
+	if ((p_ptr->pclass == CLASS_ARIYA) && (p_ptr->lev > 44)) v = 1;
+
 
 	/* Open */
 	if (v)
@@ -3980,6 +4005,12 @@ bool set_tsuyoshi(int v, bool do_dec)
 
 	if (p_ptr->is_dead) return FALSE;
 
+	if (p_ptr->pclass == CLASS_ARIYA && p_ptr->lev > 29)
+	{
+		p_ptr->tsuyoshi = 0;
+		return FALSE;
+	}
+
 	/* Open */
 	if (v)
 	{
@@ -4449,6 +4480,7 @@ bool set_oppose_fire(int v, bool do_dec)
 	else if ((p_ptr->pclass == CLASS_MAYUMI) && (p_ptr->lev > 29)) v = 1;
 	else if ((p_ptr->pclass == CLASS_KEIKI) && (p_ptr->lev > 29)) v = 1;
 	else if (is_special_seikaku(SEIKAKU_SPECIAL_JYOON) && (p_ptr->lev > 29)) v = 1;
+	else if ((p_ptr->pclass == CLASS_ARIYA) && (p_ptr->lev > 29)) v = 1;
 
 	if ( (p_ptr->mimic_form == MIMIC_DEMON)) v = 1;
 	//if ((prace_is_(RACE_DEMON) && (p_ptr->lev > 44)) || (p_ptr->mimic_form == MIMIC_DEMON)) v = 1;
@@ -4522,6 +4554,7 @@ bool set_oppose_cold(int v, bool do_dec)
 	if ((p_ptr->pclass == CLASS_LETTY) && (p_ptr->lev > 19)) v=1;
 
 	if ((p_ptr->pclass == CLASS_NARUMI) && (p_ptr->lev > 29)) v=1;
+	if ((p_ptr->pclass == CLASS_ARIYA) && (p_ptr->lev > 29)) v = 1;
 
 	/* Open */
 	if (v)
@@ -4591,6 +4624,7 @@ bool set_oppose_pois(int v, bool do_dec)
 
 	if ((p_ptr->pclass == CLASS_MOMOYO) && (p_ptr->lev > 19)) v = 1;
 	if ((p_ptr->pclass == CLASS_YUMA) && (p_ptr->lev > 19)) v = 1;
+	if ((p_ptr->pclass == CLASS_ARIYA) && (p_ptr->lev > 29)) v = 1;
 
 	if (p_ptr->is_dead) return FALSE;
 
@@ -4665,6 +4699,9 @@ bool set_stun(int v)
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
 	if (p_ptr->is_dead) return FALSE;
+
+	if (p_ptr->pclass == CLASS_ARIYA && p_ptr->lev > 29)v = 0;
+
 	///race class 朦朧への耐性
 	if (prace_is_(RACE_GOLEM) || (( p_ptr->pseikaku == SEIKAKU_BERSERK) && (p_ptr->lev > 34))) v = 0;
 
@@ -4879,6 +4916,10 @@ bool set_cut(int v)
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
 	if (p_ptr->is_dead) return FALSE;
+
+	if (p_ptr->pclass == CLASS_ARIYA && p_ptr->lev > 29)v = 0;
+
+
 	///race 切り傷への耐性
 	if ((RACE_NO_CUT) && !p_ptr->mimic_form)
 		v = 0;
@@ -5323,6 +5364,13 @@ bool set_food(int v)
 
 	bool notice = FALSE;
 
+	//v2.1.5 阿梨夜の満腹度は変化しない
+	if (p_ptr->pclass == CLASS_ARIYA)
+	{
+		p_ptr->food = 5000;
+		return FALSE;
+	}
+
 	//v2.0.6
 	//尤魔特殊処理
 	//食べ過ぎにならない。
@@ -5646,6 +5694,9 @@ bool set_alcohol(int v)
 	/* Hack -- Force good values */
 	v = (v > 20000) ? 20000 : (v < 0) ? 0 : v;
 
+	//v2.1.5 阿梨夜は酔わない
+	if (p_ptr->pclass == CLASS_ARIYA) return FALSE;
+
 	//勇儀は特別酒に強い
 	if(p_ptr->pclass == CLASS_YUGI && v >= DRANK_4) v = DRANK_4 - 1;
 	//酒神も酒に強い
@@ -5839,6 +5890,9 @@ bool dec_stat(int stat, int amount, int permanent)
 	max = p_ptr->stat_max[stat];
 	/* Note when the values are identical */
 	same = (cur == max);
+
+	//v2.1.5 阿梨夜能力低下無効
+	if (p_ptr->pclass == CLASS_ARIYA && p_ptr->lev > 19) return FALSE;
 
 	if (cur > 3)
 	{
@@ -8289,6 +8343,12 @@ bool set_clawextend(int v, bool do_dec)
 
 	if (p_ptr->is_dead) return FALSE;
 
+	if (p_ptr->pclass == CLASS_ARIYA && p_ptr->lev > 29 && !do_dec)
+	{
+		msg_print("あなたの肉体は変容を拒絶した。");
+		return FALSE;
+	}
+
 	/* Open */
 	if (v)
 	{
@@ -9230,6 +9290,7 @@ bool set_no_move(int v)
 
 	if (p_ptr->is_dead) return FALSE;
 
+	if (p_ptr->pclass == CLASS_ARIYA && p_ptr->lev > 29)v = 0;
 
 	/* Open */
 	if (v)

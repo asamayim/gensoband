@@ -1411,7 +1411,7 @@ void activate_floor_trap(int y, int x, u32b mpe_mode)
 
 	if (trap_feat_type == NOT_TRAP) return;
 
-	if (world_player || SAKUYA_WORLD)
+	if (world_player || SAKUYA_WORLD || (ARIYA_STOP))
 	{
 		msg_print("トラップは作動しなかった。");
 		return;

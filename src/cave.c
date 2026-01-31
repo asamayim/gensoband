@@ -1338,6 +1338,12 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 					*ap = a;
 					*cp = c;
 				}
+				//v2.1.5 ˆ¢—œ–éuP‹v‚Ì“~v‚ÌŒø‰Ê
+				else if (ARIYA_STOP)
+				{
+					*ap = a;
+					*cp = c;
+				}
 
 				/*
 				 * Monsters with both CHAR_CLEAR and ATTR_CLEAR
@@ -1477,6 +1483,7 @@ void print_rel(char c, byte a, int y, int x)
 			if (world_monster) a = TERM_DARK;
 			else if (SUPER_SHION) a = TERM_L_BLUE;
 			else if (SAKUYA_WORLD)a = TERM_L_DARK;
+			else if (ARIYA_STOP)a = TERM_L_DARK;
 			else if (YUMA_ULTIMATE_MODE) a = TERM_RED;
 			else if (IS_INVULN() || world_player) a = TERM_WHITE;
 			else if (p_ptr->wraith_form) a = TERM_L_DARK;
@@ -1659,6 +1666,7 @@ void display_dungeon(void)
 					else if (SUPER_SHION) a = TERM_L_BLUE;
 					else if (YUMA_ULTIMATE_MODE) a = TERM_RED;
 					else if (SAKUYA_WORLD)a = TERM_L_DARK;
+					else if (ARIYA_STOP)a = TERM_L_DARK;
 					else if (IS_INVULN()  || world_player) a = TERM_WHITE;
 					else if (p_ptr->wraith_form) a = TERM_L_DARK;
 				}
@@ -1714,6 +1722,7 @@ void lite_spot(int y, int x)
 			else if (SUPER_SHION) a = TERM_L_BLUE;
 			else if (YUMA_ULTIMATE_MODE) a = TERM_RED;
 			else if (SAKUYA_WORLD)a = TERM_L_DARK;
+			else if (ARIYA_STOP)a = TERM_L_DARK;
 			else if (IS_INVULN() || world_player) a = TERM_WHITE;
 			else if (p_ptr->wraith_form) a = TERM_L_DARK;
 		}
@@ -1800,6 +1809,7 @@ void prt_map(void)
 				else if (SUPER_SHION) a = TERM_L_BLUE;
 				else if (YUMA_ULTIMATE_MODE) a = TERM_RED;
 				else if (SAKUYA_WORLD)a = TERM_L_DARK;
+				else if (ARIYA_STOP)a = TERM_L_DARK;
 				else if (IS_INVULN() || world_player) a = TERM_WHITE;
 				else if (p_ptr->wraith_form) a = TERM_L_DARK;
 			}
@@ -1875,6 +1885,7 @@ void prt_path(int y, int x)
 				else if (SUPER_SHION) a = TERM_L_BLUE;
 				else if (YUMA_ULTIMATE_MODE) a = TERM_RED;
 				else if (SAKUYA_WORLD)a = TERM_L_DARK;
+				else if (ARIYA_STOP)a = TERM_L_DARK;
 				else if (IS_INVULN() || world_player) a = TERM_WHITE;
 				else if (p_ptr->wraith_form) a = TERM_L_DARK;
 			}
@@ -2202,6 +2213,7 @@ void display_map(int *cy, int *cx)
 				else if (SUPER_SHION) ta = TERM_L_BLUE;
 				else if (YUMA_ULTIMATE_MODE) ta = TERM_RED;
 				else if (SAKUYA_WORLD) ta = TERM_L_DARK;
+				else if (ARIYA_STOP)ta = TERM_L_DARK;
 				else if (IS_INVULN() || world_player) ta = TERM_WHITE;
 				else if (p_ptr->wraith_form) ta = TERM_L_DARK;
 			}
