@@ -1721,7 +1721,7 @@ void	add_junko_flag_val(int flag_num, int add_val)
 
 	if(flag_num < 0 || flag_num > 107)
 	{
-		msg_format("ERROR:add_junko_flag_val()に不正なnum値(%d)が入力された");
+		msg_format("ERROR:add_junko_flag_val()に不正なnum値(%d)が入力された",flag_num);
 		return;
 	}
 

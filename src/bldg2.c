@@ -3167,6 +3167,7 @@ void exbldg_search_around(void)
 	int price;
 	bool houtou = FALSE;
 
+	bool flag_use_up = TRUE;//二度と建物が使えなくなるフラグ
 
 	if(inventory[INVEN_PACK-1].k_idx) flag_max_inven = TRUE;
 
@@ -3352,6 +3353,12 @@ void exbldg_search_around(void)
 		msg3 = "怨霊たちはあなたに構わず何やら盛り上がっている...";
 		break;
 
+	case BLDG_EX_CHOCOLATE: //v2.1.6 チョコレートの川
+		msg1 = "むせ返るような甘い匂いがする。";
+		msg1_2 = "なんとチョコレートの川と噴水がある！";
+		msg2 = "飲みますか？";
+		msg3 = "";//この建物は無限に使用できるのでこのメッセージは不要
+		break;
 
 
 		default:
@@ -4236,12 +4243,24 @@ void exbldg_search_around(void)
 		}
 		break;
 
+		//チョコレートの川
+		case BLDG_EX_CHOCOLATE:
+		{
+			msg_print("あなたは溢れんばかりの甘味を堪能した！");
+			set_food(p_ptr->food + 5000);
+			player_gain_mana(500);
+
+			flag_use_up = FALSE;//この建物は何度でも使える
+		}
+		break;
+
 		default:
 		msg_print("ERROR:exbldg_search_around()にこの建物の処理が登録されていない");
 	}
 
 	//建物使用完了フラグ
-	ex_buildings_param[ex_bldg_num] = 255;
+	if(flag_use_up)
+		ex_buildings_param[ex_bldg_num] = 255;
 
 	p_ptr->redraw |= (PR_GOLD);
 	p_ptr->window |= (PW_INVEN | PW_EQUIP);

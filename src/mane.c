@@ -10,9 +10,13 @@
 
 /* Purpose: Imitation code */
 
+
 #include "angband.h"
 
+//v2.1.6 ニナの特技でものまねを実装したがここでなくcast_monspell_new()から実行することにしたのでここの本家ものまね関数は無効化した
+//mane.cから有効な関数がなくなったがプロジェクトとgithubからファイルを削除する方法をよく知らんので放置
 
+#if 0
 static int damage;
 
 static void mane_info(char *p, int power, int dam)
@@ -64,7 +68,7 @@ static void mane_info(char *p, int power, int dam)
 		}
 	}
 }
-
+#endif
 
 /*
  * Allow user to choose a imitation.
@@ -81,6 +85,7 @@ static void mane_info(char *p, int power, int dam)
  * sorry.
  */
 /*:::記憶しているものまねの一覧を表示し選択を受け付ける　*snにmonster_powers[]の添え字としてものまね番号を戻す*/
+#if 0
 static int get_mane_power(int *sn, bool baigaesi)
 {
 	int             i = 0;
@@ -279,13 +284,14 @@ put_str("失率 効果", y, x + 36);
 	/* Success */
 	return (TRUE);
 }
-
+#endif
 
 /*
  * do_cmd_cast calls this function if the player's class
  * is 'imitator'.
  */
 /*:::ものまねを実行する。選択と成功判定は済んでいる　詳細未読*/
+#if 0
 static bool use_mane(int spell)
 {
 	int             dir;
@@ -1269,13 +1275,14 @@ msg_print("特別な強敵を召喚した！");
 
 	return TRUE;
 }
-
+#endif
 
 /*
  * do_cmd_cast calls this function if the player's class
  * is 'imitator'.
  */
-/*:::ものまねを使用する*/
+//本家ものまねコマンド
+#if 0
 bool do_cmd_mane(bool baigaesi)
 {
 	int             n = 0, j;
@@ -1379,3 +1386,4 @@ msg_print("ものまねに失敗した！");
 
 	return TRUE;
 }
+#endif

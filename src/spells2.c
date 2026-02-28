@@ -8384,7 +8384,7 @@ msg_print("生命力が体から吸い取られた気がする！");
 			{
 				msg_print("あなたは彫像化の呪いを跳ね除けた！");
 			}
-			else if ( (RACE_RESIST_STATUE) || (p_ptr->pclass == CLASS_AUNN) || (p_ptr->pclass == CLASS_EIKI) || (p_ptr->pclass == CLASS_NAREKO))
+			else if ( (RACE_RESIST_STATUE) || (p_ptr->pclass == CLASS_AUNN) || (p_ptr->pclass == CLASS_EIKI) || (p_ptr->pclass == CLASS_NAREKO) || (p_ptr->pclass == CLASS_NINA))
 			{
 				msg_print("あなたは元々石なので彫像化しなかった！");
 			}

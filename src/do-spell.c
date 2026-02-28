@@ -1684,8 +1684,8 @@ static bool item_tester_hook_dragonkind(object_type *o_ptr)
 	return (FALSE);
 }
 
-
-
+//本家生命魔法
+#if 0
 static cptr do_life_spell(int spell, int mode)
 {
 	bool name = (mode == SPELL_NAME) ? TRUE : FALSE;
@@ -2382,8 +2382,9 @@ static cptr do_life_spell(int spell, int mode)
 
 	return "";
 }
-
-
+#endif
+//本家仙術魔法
+#if 0
 static cptr do_sorcery_spell(int spell, int mode)
 {
 	bool name = (mode == SPELL_NAME) ? TRUE : FALSE;
@@ -3086,8 +3087,9 @@ static cptr do_sorcery_spell(int spell, int mode)
 
 	return "";
 }
-
-
+#endif
+//本家自然魔法
+#if 0
 static cptr do_nature_spell(int spell, int mode)
 {
 	bool name = (mode == SPELL_NAME) ? TRUE : FALSE;
@@ -3861,8 +3863,10 @@ static cptr do_nature_spell(int spell, int mode)
 
 	return "";
 }
+#endif
 
-
+//本家カオス魔法
+#if 0
 static cptr do_chaos_spell(int spell, int mode)
 {
 	bool name = (mode == SPELL_NAME) ? TRUE : FALSE;
@@ -4665,8 +4669,10 @@ static cptr do_chaos_spell(int spell, int mode)
 
 	return "";
 }
+#endif
 
-
+//本家暗黒魔法
+#if 0
 static cptr do_death_spell(int spell, int mode)
 {
 	bool name = (mode == SPELL_NAME) ? TRUE : FALSE;
@@ -5502,8 +5508,9 @@ static cptr do_death_spell(int spell, int mode)
 
 	return "";
 }
-
-
+#endif
+//本家トランプ魔法
+#if 0
 static cptr do_trump_spell(int spell, int mode)
 {
 	bool name = (mode == SPELL_NAME) ? TRUE : FALSE;
@@ -6431,8 +6438,10 @@ static cptr do_trump_spell(int spell, int mode)
 
 	return "";
 }
+#endif
 
-
+//本家秘術魔法
+#if 0
 static cptr do_arcane_spell(int spell, int mode)
 {
 	bool name = (mode == SPELL_NAME) ? TRUE : FALSE;
@@ -7156,8 +7165,10 @@ static cptr do_arcane_spell(int spell, int mode)
 
 	return "";
 }
+#endif
 
-
+//本家匠魔法
+#if 0
 static cptr do_craft_spell(int spell, int mode)
 {
 	bool name = (mode == SPELL_NAME) ? TRUE : FALSE;
@@ -7855,8 +7866,10 @@ static cptr do_craft_spell(int spell, int mode)
 
 	return "";
 }
+#endif
 
-
+//本家悪魔魔法
+#if 0
 static cptr do_daemon_spell(int spell, int mode)
 {
 	bool name = (mode == SPELL_NAME) ? TRUE : FALSE;
@@ -8648,8 +8661,10 @@ static cptr do_daemon_spell(int spell, int mode)
 
 	return "";
 }
+#endif
 
-
+//本家破邪魔法
+#if 0
 static cptr do_crusade_spell(int spell, int mode)
 {
 	bool name = (mode == SPELL_NAME) ? TRUE : FALSE;
@@ -9439,8 +9454,10 @@ static cptr do_crusade_spell(int spell, int mode)
 
 	return "";
 }
+#endif
 
-///sys　realm 歌　しばらくは無効にしておく
+//本家歌魔法
+#if 0
 static cptr do_music_spell(int spell, int mode)
 {
 	bool name = (mode == SPELL_NAME) ? TRUE : FALSE;
@@ -10677,7 +10694,7 @@ static cptr do_music_spell(int spell, int mode)
 
 	return "";
 }
-
+#endif
 
 ///mod140817 歌集でなく職業ごと特技から直接使う音楽専用　ミスティアなどが使う
 //cast:使用時　cont:継続時一定ゲームターンごと効果 stop:中止時メッセージ
@@ -18421,11 +18438,11 @@ static cptr do_new_spell_necromancy(int spell, int mode)
 #endif
     
 		{
-			int num = 1 + plev / 7;
+			int max_num = 1 + plev / 7;
 
-			if(num > 8) num = 8;
+			if(max_num > 8) max_num = 8;
 
-			if (info) return format("最大：%d体",num);
+			if (info) return format("最大：%d体", max_num);
 
 			if (cast)
 			{
@@ -18438,10 +18455,10 @@ static cptr do_new_spell_necromancy(int spell, int mode)
 					monster_race *r_ptr = &r_info[m_ptr->r_idx];
 					if (!m_ptr->r_idx) continue;
 					if (!is_pet(m_ptr) || !(r_ptr->flags3 & RF3_UNDEAD)) continue;
-					/*:::アンデッドのペットのidxを配列に格納 呼び出せる以上の数の配下がいたら候補から適当に入れ替える*/
-					///このやり方だと出てくる配下がある程度固定化されてしまうかもしれないがまあ実用上大した影響はないだろう。
-					if(cnt<num)idx[cnt++] = i;
-					else idx[randint0(num)] = i;
+					//アンデッドのペットのidxを配列に格納 呼び出せる以上の数の配下がいたら候補から適当に入れ替える
+					//このやり方だとm_list[]の最初のほうにいる配下が来なくなるがまあ実用上大した問題はないだろう
+					if(cnt< max_num)idx[cnt++] = i;
+					else idx[randint0(max_num)] = i;
 				}
 				if(cnt==0)
 				{
@@ -18451,7 +18468,7 @@ static cptr do_new_spell_necromancy(int spell, int mode)
 				if (!get_aim_dir(&dir)) return NULL;
 
 				msg_format("配下のアンデッドを呼び出した！");
-				for(i=0;i<cnt&&i<num;i++)
+				for(i=0;i<cnt&&i< max_num;i++)
 				{
 					teleport_monster_to(idx[i], target_row, target_col, 100, TELEPORT_PASSIVE);
 				}
@@ -26708,15 +26725,16 @@ static cptr do_new_spell_incident_stone(int spell, int mode)
 			if (flag_boost) base = base * 3 / 2;
 			if (info) return info_duration(base, base);
 
-
-			if (!object_has_a_blade(&inventory[INVEN_RARM]) && !object_has_a_blade(&inventory[INVEN_LARM]))
+			if (cast)
 			{
-				msg_print("刃物を持っていないと使えない。");
-				return NULL;
+				if (!object_has_a_blade(&inventory[INVEN_RARM]) && !object_has_a_blade(&inventory[INVEN_LARM]))
+				{
+					msg_print("刃物を持っていないと使えない。");
+					return NULL;
+				}
+
+				set_ele_attack(ATTACK_VORPAL, base + randint1(base));
 			}
-
-			set_ele_attack(ATTACK_VORPAL, base + randint1(base));
-
 
 		}
 		break;

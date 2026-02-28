@@ -15,6 +15,213 @@ static bool flag_ignore_cost = FALSE;
 	tips
 */
 
+
+
+class_power_type class_power_nina[] =
+{
+
+	{ 5,15,20,FALSE,TRUE,A_INT,0,0,"蜃気楼Ⅰ",
+	"周囲の敵を混乱させようと試みる。" },
+
+	{ 10,15,30,FALSE,TRUE,A_INT,0,0,"テトラモノアイ",
+	"周囲のモンスターを感知する。レベルが上がるとアイテムや地形も感知する。" },
+
+	{ 15,10,0,FALSE,TRUE,A_INT,0,0,"蜃気楼Ⅱ",
+	"自分が最近目にした魔法や特技を再現する。威力は目にしたときと同じで発動に追加のコストは必要ないが追加の成功判定が必要。使用したものの記憶は消える。「特別な行動」は再現できない。レベルの上昇に伴い記憶できる個数が増える。" },
+
+	{ 20,30,35,FALSE,TRUE,A_CON,0,0,"ケムトレイルクラウド",
+	"一時的に毒の一時耐性を得る。レベルが上がると火炎・冷気・酸・電撃の一時耐性も得る。" },
+
+	{ 25,50,50,FALSE,TRUE,A_INT,0,0,"蜃気楼Ⅲ",
+	"ダンジョンの今いる場所に指定した種類の建物を生成する。レベルが上がると作れる建物の種類が増える。ただし周囲に広いスペースがないといけない。一部の特殊な地形には作ることができない。" },
+
+	{ 30,40,60,FALSE,TRUE,A_CHR,0,0,"レプティリアンインテリジェンス",
+	"最近打倒したユニークモンスターの幻影を配下として召喚する。幻影の能力は元のモンスターと同じだが一部の特殊行動は使えず、またプレイヤーがフロアから出ると消える。一度召喚したモンスターは候補リストから消える。パラメータが不定などの特殊なモンスターを呼び出すことはできない。" },
+
+	{ 35,30,65,FALSE,TRUE,A_CON,0,0,"アーティフィシャルディザスター",
+	"周辺を*破壊*する。" },
+
+	{ 39,80,70,FALSE,TRUE,A_INT,0,0,"タルタリアンラプソディ",
+	"今いるフロアをほぼ一瞬で作り変え、新たなフロアには地下街が出現する。難易度EXTRAの場合は次に行くフロアに地下街が出現する。地下街の存在しない一部のダンジョンではフロアを作り変える効果のみが発動。地上やクエスト中のダンジョンでは使用できない。" },
+
+	{ 43,50,75,FALSE,FALSE,A_CHR,0,0,"ニューワールドオーダー",
+	"指定したターゲットの周辺にフロアにいる自分の配下をテレポートさせる。さらに配下がすぐに次の行動を行えるようになる。" },
+
+	{ 47,100,80,FALSE,FALSE,A_CHR,0,0,"アンゴルモアの大王",
+	"自分の種族を短時間「魔王」に変化させる。またその間は「蜃気楼Ⅱ」で再現する魔法や特技の威力が二倍になる。" },
+
+	{ 99,0,0,FALSE,FALSE,0,0,0,"dummy","" },
+};
+
+
+
+
+
+
+cptr do_cmd_class_power_aux_nina(int num, bool only_info)
+{
+	int dir;
+	int plev = p_ptr->lev;
+	int chr_adj = adj_general[p_ptr->stat_ind[A_CHR]];
+
+	switch (num)
+	{
+
+	case 0://蜃気楼1
+	{
+		int power = 50 + p_ptr->lev * 4;
+		if (only_info) return format("効力:%d", power);
+
+		msg_format("周囲が様々な幻影に包まれた...");
+		confuse_monsters(power);
+		break;
+	}
+
+
+	case 1://テトラモノアイ
+	{
+		int rad = DETECT_RAD_DEFAULT;
+		if (only_info) return format("範囲:%d", rad);
+
+		msg_format("高次存在からの啓蒙を得た気がする！");
+		if(plev > 29)map_area(rad);
+		if(plev > 19)detect_objects_normal(rad);
+		detect_monsters_normal(rad);
+		detect_monsters_invis(rad);
+		break;
+
+	}
+	case 2:
+	{
+		int mode = 1;
+
+		if (only_info) return "";
+
+		if (p_ptr->mimic_form == MIMIC_DEMON_LORD) mode = 2;
+
+		if (!cast_monspell_new(mode)) return NULL;
+		break;
+	}
+
+	case 3: //ケムトレイルクラウド
+	{
+		int base = 15;
+		int v;
+		if (only_info) return format("期間:%d+1d%dターン", base, base);
+
+		msg_format("濃密な雲が現れ、あなたを包み込んだ...");
+		v = base + randint1(base);
+		set_oppose_pois(v, FALSE);
+
+		if (plev > 24) set_oppose_fire(v, FALSE);
+		if (plev > 24) set_oppose_cold(v, FALSE);
+		if (plev > 34) set_oppose_acid(v, FALSE);
+		if (plev > 34) set_oppose_elec(v, FALSE);
+
+		break;
+	}
+
+	case 4://建物生成
+	{
+
+		if (only_info) return "";
+
+		if (!nina_make_special_building()) return NULL;
+
+	}
+	break;
+
+	case 5:
+	{
+
+		if (only_info) return "";
+
+		if (!nina_recall_unique_mon()) return NULL;
+
+
+	}
+	break;
+
+	case 6:
+	{
+		int base = 12;
+		if (only_info) return format("範囲:%d", base);
+		destroy_area(py, px, base, FALSE, FALSE, FALSE);
+		break;
+	}
+
+	case 7:
+	{
+
+		if (only_info) return format("");
+
+		if (!dun_level || p_ptr->inside_arena || quest_number(dun_level))
+		{
+			msg_print("ここでは使えない。");
+			return NULL;
+		}
+		if (p_ptr->special_flags & SPF_DUNGEON_ARCADE)
+		{
+			msg_print("すでに使っている。");
+			return NULL;
+		}
+
+		if (use_itemcard)
+			msg_print("カードから輝く霧があふれだし辺りを包んだ...");
+		else
+			msg_print("輝く霧があふれだし辺りを包んだ...");
+
+		//次回のフロア生成時に地下街を作る特殊フラグを立てる
+		p_ptr->special_flags |= SPF_DUNGEON_ARCADE;
+
+		//普通の現実変容だと発動前に階段を昇り降りしたとき移動先でアーケード生成が発動してしまうので即時にする
+		if (!EXTRA_MODE)
+		{
+			p_ptr->alter_reality = 1;
+			p_ptr->redraw |= (PR_STATUS);
+		}
+
+	}
+	break;
+
+	//ニューワールドオーダー　八千慧の「搦手の鬼畜生」と同じ
+	case 8:
+	{
+		int mon_max = 8;//最大8体
+		if (only_info) return format("対象:%d体", mon_max);
+
+		if (!teleport_pets_to(mon_max, 1)) return NULL;
+
+		msg_format("あなたは配下たちに特別司令を下した！");
+
+	}
+	break;
+
+	case 9:
+	{
+		int base = 15;
+		if (only_info) return format("期間:%d+1d%dターン", base, base);
+
+
+		set_mimic(base + randint1(base), MIMIC_DEMON_LORD, FALSE);
+
+	}
+	break;
+
+	default:
+	{
+		if (only_info) return "未実装";
+
+		msg_format("ERROR:実装していない特技が呼ばれた num:%d", num);
+		return NULL;
+	}
+
+	}
+	return "";
+}
+
+
+
 //v2.1.5 阿梨夜
 class_power_type class_power_ariya[] =
 {
@@ -2277,7 +2484,7 @@ cptr do_cmd_class_power_aux_zanmu(int num, bool only_info)
 	{
 		if (only_info) return "";
 
-		if (p_ptr->inside_arena || (EXTRA_MODE))
+		if (p_ptr->inside_arena || (EXTRA_MODE) || quest_number(dun_level))
 		{
 			msg_print("今その特技は使えない。");
 			return NULL;
@@ -4111,7 +4318,7 @@ cptr do_cmd_class_power_aux_yuma(int num, bool only_info)
 	{
 		if (only_info) return "";
 
-		if (!cast_monspell_new()) return NULL;
+		if (!cast_monspell_new(0)) return NULL;
 
 		//満腹度消費
 		set_food(p_ptr->food - digestion);
@@ -6025,7 +6232,7 @@ cptr do_cmd_class_power_aux_researcher(int num, bool only_info)
 	{
 		if (only_info) return "";
 
-		if (!cast_monspell_new()) return NULL;
+		if (!cast_monspell_new(0)) return NULL;
 		break;
 	}
 
@@ -6919,41 +7126,13 @@ cptr do_cmd_class_power_aux_yachie(int num, bool only_info)
 
 	case 8:
 	{
-		int mon_max = 6 ;//最大6体
-		int pick_num = 0;
-		int i;
-		int cnt = 0;
-		int idx[6]; //最大6体
-		if (only_info) return format("対象:%d体",mon_max);
+		int mon_max = 6;//最大6体
+		if (only_info) return format("対象:%d体", mon_max);
 
-		//do_new_spell_necromancy()の「使嗾」の魔法をコピペして少し改変
-		for (i = 1; i < m_max; i++)
-		{
-			monster_type *m_ptr = &m_list[i];
-			if (!m_ptr->r_idx) continue;
-			if (!is_pet(m_ptr)) continue;
-			pick_num++;
-			//呼び出せる以上の数の配下がいたら候補から適当に入れ替える
-			if (cnt<mon_max)
-				idx[cnt++] = i;
-			else if(randint1(pick_num) > cnt) 
-				idx[randint0(mon_max)] = i;
-		}
-		if (!pick_num)
-		{
-			msg_format("フロアに配下がいない。");
-			return NULL;
-		}
-		if (!get_aim_dir(&dir)) return NULL;
+		//v2.1.6 ニナの特技に同じ処理を使うので別関数にした
+		if (!teleport_pets_to(mon_max, 1)) return NULL;
 
 		msg_format("あなたは配下たちに奇襲を命じた！");
-		for (i = 0; i<cnt&&i<mon_max; i++)
-		{
-			monster_type *m_ptr = &m_list[idx[i]];
-			teleport_monster_to(idx[i], target_row, target_col, 100, TELEPORT_PASSIVE);
-			m_ptr->energy_need = 0;
-			
-		}
 
 	}
 	break;
@@ -8896,7 +9075,7 @@ cptr do_cmd_class_power_aux_okina(int num, bool only_info)
 	{
 		if (only_info) return "";
 
-		if (!cast_monspell_new()) return NULL;
+		if (!cast_monspell_new(0)) return NULL;
 		break;
 	}
 
@@ -10609,7 +10788,7 @@ cptr do_cmd_class_power_aux_mai(int num, bool only_info)
 			return NULL;
 		}
 
-		if (!cast_monspell_new()) return NULL;
+		if (!cast_monspell_new(0)) return NULL;
 
 	}
 	break;
@@ -10863,7 +11042,7 @@ cptr do_cmd_class_power_aux_larva(int num, bool only_info)
 	{
 		if (only_info) return "";
 
-		if (p_ptr->inside_arena)
+		if (p_ptr->inside_arena || quest_number(dun_level))
 		{
 			msg_print("今その特技は使えない。");
 			return NULL;
@@ -13396,7 +13575,7 @@ cptr do_cmd_class_power_aux_yorihime(int num, bool only_info)
 			set_kamioroshi(KAMIOROSHI_YAOYOROZU, 0);
 
 			 //キャンセルしても行動順を消費する
-			if(!cast_monspell_new())
+			if(!cast_monspell_new(0))
 			{
 				cptr mname;
 
@@ -14645,7 +14824,7 @@ cptr do_cmd_class_power_aux_eirin(int num, bool only_info)
 		{
 			if(only_info) return "";
 
-			if (p_ptr->inside_arena)
+			if (p_ptr->inside_arena || !(EXTRA_MODE) && quest_number(dun_level))
 			{
 				msg_print("今その特技は使えない。");
 				return NULL;
@@ -15556,7 +15735,7 @@ cptr do_cmd_class_power_aux_yukari(int num, bool only_info)
 		{
 			if(only_info) return "";
 
-			if(!cast_monspell_new()) return NULL;
+			if(!cast_monspell_new(0)) return NULL;
 			break;
 		}
 	case 3:
@@ -15649,7 +15828,7 @@ cptr do_cmd_class_power_aux_yukari(int num, bool only_info)
 		{
 			if(only_info) return format("効果:現実変容");
 
-			if (p_ptr->inside_arena)
+			if (p_ptr->inside_arena || quest_number(dun_level))
 			{
 				msg_print("今その特技は使えない。");
 				return NULL;
@@ -16446,7 +16625,7 @@ cptr do_cmd_class_power_aux_raiko(int num, bool only_info)
 		{
 			if(only_info) return "";
 
-			if(!cast_monspell_new()) return NULL;
+			if(!cast_monspell_new(0)) return NULL;
 			break;
 		}
 	case 6:
@@ -18375,7 +18554,7 @@ cptr do_cmd_class_power_aux_doremy(int num, bool only_info)
 	case 9:
 		{
 			if(only_info) return format("効果:現実変容");
-			if (p_ptr->inside_arena)
+			if (p_ptr->inside_arena || quest_number(dun_level))
 			{
 				msg_print("今その特技は使えない。");
 				return NULL;
@@ -27163,7 +27342,7 @@ cptr do_cmd_class_power_aux_keine(int num, bool only_info)
 				if(only_info) return format("");
 				if (!get_check("このフロアの歴史の再構築を試みますか？")) return NULL;
 
-				if (p_ptr->inside_arena || ironman_downward)
+				if (p_ptr->inside_arena || ironman_downward || quest_number(dun_level))
 				{
 					msg_print("何も起こらなかった。");
 				}
@@ -28050,7 +28229,7 @@ cptr do_cmd_class_power_aux_kokoro(int num, bool only_info)
 		{
 			if(only_info) return "";
 
-			if(!cast_monspell_new()) return NULL;
+			if(!cast_monspell_new(0)) return NULL;
 			break;
 		}
 
@@ -28996,7 +29175,7 @@ cptr do_cmd_class_power_aux_kyouko(int num, bool only_info)
 			}
 
 			if(!use_itemcard) stop_singing();
-			if(!cast_monspell_new_aux(monspell_yamabiko,FALSE,FALSE,CAST_MONSPELL_EXTRA_KYOUKO_YAMABIKO)) return NULL;
+			if(!cast_monspell_new_aux(monspell_yamabiko,FALSE,FALSE,CAST_MONSPELL_EXTRA_KYOUKO_YAMABIKO,0)) return NULL;
 
 			kyouko_echo(TRUE,0);//一度オウム返ししたら消去
 			break;
@@ -29119,7 +29298,7 @@ cptr do_cmd_class_power_aux_satori(int num, bool only_info)
 		{
 			if(only_info) return "";
 
-			if(!cast_monspell_new()) return NULL;
+			if(!cast_monspell_new(0)) return NULL;
 			break;
 		}
 	case 2:
@@ -38965,6 +39144,11 @@ void do_cmd_new_class_power(bool only_browse)
 		power_desc = "特技";
 		break;
 
+	case CLASS_NINA:
+		class_power_table = class_power_nina;
+		class_power_aux = do_cmd_class_power_aux_nina;
+		power_desc = "特技";
+		break;
 
 	default:
 		msg_print("あなたは職業による特技を持っていない。");
@@ -39456,6 +39640,9 @@ void do_cmd_new_class_power(bool only_browse)
 
 			}
 		}
+
+		//v2.1.6 格闘家の現在MPが最大MPを超過しているときのボーナスについて計算し直す
+		if (p_ptr->pclass == CLASS_MARTIAL_ARTIST) p_ptr->update |= PU_BONUS;
 
 	}
 
@@ -40389,6 +40576,9 @@ const support_item_type support_item_list[] =
 	{ 120,50,120,2,30,	MON_ARIYA,class_power_ariya,do_cmd_class_power_aux_ariya,6,
 	"化石の翼","フロア全ての壁を永久壁にする。またはフロア全ての永久壁を普通の壁にする。" },
 
+	//v2.1.6 ニナ　タルタリアンラプソディ
+	{ 120,20,120,1,30,	MON_NINA,class_power_nina,do_cmd_class_power_aux_nina,7,
+	"二枚貝の化石","それは次に行くフロアに地下街を生成する。" },
 
 	{0,0,0,0,0,0,NULL,NULL,0,"終端ダミー",""},
 };

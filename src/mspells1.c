@@ -2816,7 +2816,7 @@ bool make_attack_spell(int m_idx, int special_flag)
 			//if ((p_ptr->pseikaku == SEIKAKU_COMBAT) || (inventory[INVEN_BOW].name1 == ART_CRIMSON))
 			//	msg_print("やりやがったな！");
 #endif
-			learn_spell(MS_DISPEL);
+			//learn_spell(MS_DISPEL);
 			nue_check_mult = -1;
 			break;
 		}
@@ -4389,7 +4389,7 @@ msg_print("しかし恐怖に侵されなかった。");
 			{
 				(void)set_afraid(p_ptr->afraid + randint0(4) + 4);
 			}
-			learn_spell(MS_SCARE);
+			//learn_spell(MS_SCARE);
 			update_smart_learn(m_idx, DRS_FEAR);
 			nue_check_mult = 50;
 			break;
@@ -4434,7 +4434,7 @@ msg_print("しかし効力を跳ね返した！");
 			{
 				(void)set_blind(12 + randint0(4));
 			}
-			learn_spell(MS_BLIND);
+			//learn_spell(MS_BLIND);
 			update_smart_learn(m_idx, DRS_BLIND);
 			nue_check_mult = 50;
 			break;
@@ -4479,7 +4479,7 @@ msg_print("しかし幻覚にはだまされなかった。");
 			{
 				(void)set_confused(p_ptr->confused + randint0(4) + 4);
 			}
-			learn_spell(MS_CONF);
+			//learn_spell(MS_CONF);
 			update_smart_learn(m_idx, DRS_CONF);
 			nue_check_mult = 50;
 			break;
@@ -4518,7 +4518,7 @@ msg_print("しかし効力を跳ね返した！");
 			{
 				(void)set_slow(p_ptr->slow + randint0(4) + 4, FALSE);
 			}
-			learn_spell(MS_SLOW);
+			//learn_spell(MS_SLOW);
 			update_smart_learn(m_idx, DRS_FREE);
 			nue_check_mult = 50;
 			break;
@@ -4563,7 +4563,7 @@ msg_format("しかし効力を跳ね返した！");
 			{
 				(void)set_paralyzed(p_ptr->paralyzed + randint0(4) + 4);
 			}
-			learn_spell(MS_SLEEP);
+			//learn_spell(MS_SLEEP);
 			update_smart_learn(m_idx, DRS_FREE);
 			break;
 		}
@@ -5287,7 +5287,7 @@ msg_format("%sは無傷の球の呪文を唱えた。", m_name);
 #endif
 
 			teleport_player_to(m_ptr->fy, m_ptr->fx, TELEPORT_PASSIVE);
-			learn_spell(MS_TELE_TO);
+			//learn_spell(MS_TELE_TO);
 			break;
 		}
 
@@ -5323,7 +5323,7 @@ msg_format("%^sにテレポートさせられた。", m_name);
 			msg_format("%^s teleports you away.", m_name);
 #endif
 
-			learn_spell(MS_TELE_AWAY);
+			//learn_spell(MS_TELE_AWAY);
 			teleport_player_away(m_idx, 100);
 			update_smart_learn(m_idx, DRS_TIME);
 			nue_check_mult = 50;
@@ -5370,7 +5370,7 @@ msg_print("しかし効力を跳ね返した！");
 			{
 				teleport_level(0);
 			}
-			learn_spell(MS_TELE_LEVEL);
+			//learn_spell(MS_TELE_LEVEL);
 			update_smart_learn(m_idx, DRS_TIME);
 			break;
 		}
@@ -5417,7 +5417,7 @@ msg_print("しかし効力を跳ね返した！");
 			}
 			else
 			{
-				learn_spell(MS_DARKNESS);
+				//learn_spell(MS_DARKNESS);
 				(void)unlite_area(0, 3);
 			}
 
@@ -5447,7 +5447,7 @@ msg_print("しかし効力を跳ね返した！");
 			else msg_format("%^s casts a spell and cackles evilly.", m_name);
 #endif
 
-			learn_spell(MS_MAKE_TRAP);
+			//learn_spell(MS_MAKE_TRAP);
 			nue_check_mult = 30;
 			(void)trap_creation(y, x);
 
@@ -5485,7 +5485,7 @@ msg_print("記憶が薄れてしまった。");
 #endif
 
 			}
-			learn_spell(MS_FORGET);
+			//learn_spell(MS_FORGET);
 			nue_check_mult = 50;
 			break;
 		}
@@ -7161,11 +7161,10 @@ msg_format("%sが瞬時に間合いを詰めてきた。", m_name);
 	//v1.1.73 八千慧のモンスター買収フラグ解除
 	flag_bribe_summon_monsters = FALSE;
 
-///class ものまねと青魔の特殊処理らしい
-	if ((p_ptr->action == ACTION_LEARN) && thrown_spell > 175)
-	{
-		learn_spell(thrown_spell - 96);
-	}
+	//if ((p_ptr->action == ACTION_LEARN) && thrown_spell > 175)
+	//{
+	//	learn_spell(thrown_spell - 96);
+	//}
 
 	//v1.1.82 新職業「弾幕研究家」の特技習得処理
 	if (p_ptr->pclass == CLASS_RESEARCHER)
@@ -7174,31 +7173,33 @@ msg_format("%sが瞬時に間合いを詰めてきた。", m_name);
 		if (m_ptr->r_idx)
 		{
 			learn_monspell_new(thrown_spell, m_ptr, TRUE, learnable,caster_dist);
-
 		}
-
 	}
 
-	if (seen && maneable && !world_monster && (p_ptr->pclass == CLASS_IMITATOR))
+	//v2.1.6 ものまね関係の処理の再実装
+	//ニナもしくはゴゴペンダント装備中のみモンスター特技を記憶できる
+	if (seen && maneable && !world_monster 
+		&& (p_ptr->pclass == CLASS_NINA || check_equip_specific_fixed_art(ART_GOGO, TRUE)))
 	{
-		if (thrown_spell != 167) /* Not RF6_SPECIAL */
+		if (thrown_spell != 124 && thrown_spell != 167) //特別な行動1,2を除く
 		{
 			if (p_ptr->mane_num == MAX_MANE)
 			{
 				int i;
 				p_ptr->mane_num--;
-				for (i = 0;i < p_ptr->mane_num;i++)
+				for (i = 0; i < p_ptr->mane_num; i++)
 				{
-					p_ptr->mane_spell[i] = p_ptr->mane_spell[i+1];
-					p_ptr->mane_dam[i] = p_ptr->mane_dam[i+1];
+					p_ptr->mane_spell[i] = p_ptr->mane_spell[i + 1];
+					p_ptr->mane_dam[i] = p_ptr->mane_dam[i + 1];
 				}
 			}
-			p_ptr->mane_spell[p_ptr->mane_num] = thrown_spell - 96;
+			//元々96だったがmonster_powers[]に代わって新しく使うmonspell_list2[]は1から始まるので95に変更
+			p_ptr->mane_spell[p_ptr->mane_num] = thrown_spell - 95;
 			p_ptr->mane_dam[p_ptr->mane_num] = dam;
 			p_ptr->mane_num++;
 			new_mane = TRUE;
 
-			p_ptr->redraw |= (PR_IMITATION);
+			//p_ptr->redraw |= (PR_IMITATION);
 		}
 	}
 
