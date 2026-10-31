@@ -43,7 +43,8 @@ static bool get_enemy_dir(int m_idx, int *mm)
 	if(p_ptr->pclass == CLASS_PARSEE && m_ptr->r_idx == MON_GREEN_EYED)
 	{
 		int target_idx = p_ptr->magic_num1[0];
-		if(!m_list[target_idx].r_idx)
+
+		if(target_idx <= 0 || target_idx >= m_max || !m_list[target_idx].r_idx)
 		{
 			msg_format("ERROR:グリーンアイドモンスターのターゲットIDXが無効");
 			return FALSE;
@@ -4432,6 +4433,15 @@ static void process_monster(int m_idx)
 #endif
 		}
 
+		//v2.1.7 モンスター「窮鬼」も音を出す。セリフという形にすると少し違和感のある表記になるのでmonspeak_j.txtでなくこちらで処理した
+		if (m_ptr->ap_r_idx == MON_KYUUKI && (m_ptr->cdis <= MAX_SIGHT) && one_in_(3))
+		{
+			if (one_in_(2))
+				msg_print("どこからか太鼓のような音が聞こえる。");
+			else
+				msg_print("ドンツクドンツクと賑やかな音が響いてくる...");
+		}
+
 		/* Some monsters can speak */
 		///幻想ユニーク判定追加 RF2_CAN_SPEAKは必要ない
 		//タンオブウルフ、静寂、二ッ岩家の裁きなどのときは喋らせない
@@ -4863,12 +4873,12 @@ msg_format("%^s%s", m_name, monmessage);
 
 		}
 
+		/* Ignore locations off of edge */
+		if (!in_bounds2(ny, nx)) continue;
 
 		/* Access that cave grid */
 		c_ptr = &cave[ny][nx];
 		f_ptr = &f_info[c_ptr->feat];
-		/* Ignore locations off of edge */
-		if (!in_bounds2(ny, nx)) continue;
 
 		can_cross = monster_can_cross_terrain(c_ptr->feat, r_ptr, is_riding_mon ? CEM_RIDING : 0);
 
@@ -5040,7 +5050,9 @@ msg_format("%^s%s", m_name, monmessage);
 						/* Update some things */
 						p_ptr->update |= (PU_FLOW);
 						p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
-						if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flags2 |= (RF2_BASH_DOOR);
+						
+						//モンスターがガラスのドアを破壊して死ぬなどしたときの思い出処理　このとき既にm_ptrはクリアされているはずなので消しておく
+						//if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flags2 |= (RF2_BASH_DOOR);
 
 						return;
 					}
@@ -5062,7 +5074,7 @@ msg_format("%^s%s", m_name, monmessage);
 		if(p_ptr->pclass == CLASS_MERLIN  &&  music_singing(MUSIC_NEW_MERLIN_SOLO) && player_bold(ny,nx))
 		{
 
-			int tmp = r_ptr->level * (r_ptr->flags2 & RF2_POWERFUL)?3:2;
+			int tmp = r_ptr->level * ((r_ptr->flags2 & RF2_POWERFUL)?3:2);
 			if(randint1(tmp) < p_ptr->lev + adj_general[p_ptr->stat_ind[A_CHR]])
 			{
 				do_move = FALSE;
@@ -5764,9 +5776,10 @@ msg_format("%^s%s", m_name, monmessage);
 
 
 	/*:::Mega Hack - 赤蛮奇の頭が見たものは＠も認識する。前の方にも似たルーチンがある*/
-	if(do_move && 
-		(p_ptr->pclass == CLASS_BANKI && (m_ptr->r_idx == MON_BANKI_HEAD_1 || m_ptr->r_idx == MON_BANKI_HEAD_2))
-			|| (p_ptr->pclass == CLASS_YOUMU && m_ptr->r_idx == MON_YOUMU && (m_ptr->mflag & MFLAG_EPHEMERA)))
+	if(do_move &&(
+			(p_ptr->pclass == CLASS_BANKI && (m_ptr->r_idx == MON_BANKI_HEAD_1 || m_ptr->r_idx == MON_BANKI_HEAD_2))
+		||	(p_ptr->pclass == CLASS_YOUMU && m_ptr->r_idx == MON_YOUMU && (m_ptr->mflag & MFLAG_EPHEMERA))
+		))
 
 	{
 		for (i = m_max - 1; i >= 1; i--)

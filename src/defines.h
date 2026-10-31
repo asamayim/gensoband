@@ -79,7 +79,7 @@
 ///sys131117 FAKE_VERSIONの定数を消した
 #define H_VER_MAJOR 2
 #define H_VER_MINOR 1
-#define H_VER_PATCH 6
+#define H_VER_PATCH 7
 #define H_VER_EXTRA 0
 
 /*:::＊＊＊◆◆◆アップロード時には必ずこれをコメントアウトする◆◆◆＊＊＊:::*/
@@ -227,10 +227,11 @@
 #define QUEST_YAKUZA_1		71
 #define QUEST_HANGOKU2		72
 #define QUEST_YAKUZA_2		73
-#define QUEST_DELIVER_SAZARE 74
+#define QUEST_DELIVER_SAZARE	74
 #define QUEST_NINA			75
+#define QUEST_DELIVER_INCIDENT_STONE	76
 
-#define QUEST_MAX			76 //クエストの最後の番号+1
+#define QUEST_MAX			77 //クエストの最後の番号+1
 
 //v1.1.24 急流下りクエストでこのターン数以下で入賞
 #define QT_TURN1			250
@@ -3155,6 +3156,8 @@
 #define SV_CHEST_HANGOKU2		60
 //v2.0.13 動物霊戦争2
 #define SV_CHEST_YAKUZA2		61
+//v2.1.7 異変石納入クエスト
+#define SV_CHEST_MAMIZOU		62
 
 //SVAL:人形 TV:61
 #define SV_FIGURINE_NORMAL	0
@@ -7236,7 +7239,9 @@ extern int PlayerUID;　
 #define MON_ARIYA			1412
 #define MON_NINA			1413
 
-#define MON_IDX_MAX			1418	//最大IDX+1 この数値をちゃんと増やさないと音楽再生のところでバグるかも
+#define MON_KYUUKI			1418
+
+#define MON_IDX_MAX			1420	//最大IDX+1 この数値をちゃんと増やさないと音楽再生のところでバグるかも
 
 
 
@@ -7779,7 +7784,7 @@ extern int PlayerUID;　
 ///mod141116 p_ptr->concentを使う職の判定
 //v1.1.14 依姫追加
 //TODO:この判定式要るのか？reset_concentration()
-#define CLASS_USE_CONCENT	(p_ptr->pclass == CLASS_SNIPER || p_ptr->pclass == CLASS_SOLDIER || p_ptr->pclass == CLASS_KISUME || p_ptr->pclass == CLASS_YUGI || p_ptr->pclass == CLASS_SANAE || p_ptr->pclass == CLASS_MEIRIN || p_ptr->pclass == CLASS_YATSUHASHI || p_ptr->pclass == CLASS_BENBEN || p_ptr->pclass == CLASS_RAIKO || p_ptr->pclass == CLASS_YORIHIME || p_ptr->pclass == CLASS_RESEARCHER || p_ptr->pclass == CLASS_ENOKO)
+#define CLASS_USE_CONCENT	(p_ptr->pclass == CLASS_SNIPER || p_ptr->pclass == CLASS_SOLDIER || p_ptr->pclass == CLASS_KISUME || p_ptr->pclass == CLASS_YUGI || p_ptr->pclass == CLASS_SANAE || p_ptr->pclass == CLASS_MEIRIN || p_ptr->pclass == CLASS_YATSUHASHI || p_ptr->pclass == CLASS_BENBEN || p_ptr->pclass == CLASS_RAIKO || p_ptr->pclass == CLASS_YORIHIME || p_ptr->pclass == CLASS_RESEARCHER || p_ptr->pclass == CLASS_ENOKO || p_ptr->pclass == CLASS_RANGER || p_ptr->pclass == CLASS_ARCHER)
 
 
 

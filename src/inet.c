@@ -2,7 +2,9 @@
 
 #include "angband.h"
 
-#ifdef WORLD_SCORE
+//v2.1.7 WinHTTP使用に伴い旧スコア送信関連関数を無効化
+//#ifdef WORLD_SCORE
+#if defined(WORLD_SCORE) && !defined(USE_WINHTTP)
 
 #include <stdio.h>
 #include <stdarg.h>

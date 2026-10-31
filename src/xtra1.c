@@ -125,8 +125,10 @@ s16b modify_stat_value(int value, int amount)
  */
 static void prt_field(cptr info, int row, int col)
 {
-	/* Dump 13 spaces to clear */
-	c_put_str(TERM_WHITE, "             ", row, col);
+
+	/* Dump 17 spaces to clear */
+	//v2.1.7 13¨17
+	c_put_str(TERM_WHITE, "                 ", row, col);
 
 	/* Dump the info itself */
 	c_put_str(TERM_L_BLUE, info, row, col);
@@ -558,6 +560,7 @@ static struct {
 #ifdef JP
 = {
 	{TERM_YELLOW, "‚Â", "‚Â‚æ‚µ"},
+
 	{TERM_VIOLET, "Œ¶", "Œ¶Šo"},
 	{TERM_L_DARK, "–Ó", "–Ó–Ú"},
 	{TERM_RED, "áƒ", "–ƒáƒ"},
@@ -568,6 +571,7 @@ static struct {
 	{TERM_SLATE, "”½", "”½ŽË"},
 	{TERM_SLATE, "•Ç", "•Ç”²‚¯"},
 	{TERM_L_DARK, "—H", "—H‘Ì"},
+
 	{TERM_SLATE, "Ž×", "–hŽ×"},
 	{TERM_VIOLET, "•Ï", "•Ï‚í‚èg"},
 	{TERM_YELLOW, "–‚", "–‚–@ŠZ"},
@@ -578,6 +582,7 @@ static struct {
 	{TERM_YELLOW, "‹†", "‹†‹É"},
 	{TERM_YELLOW, "–³", "–³“G"},
 	{TERM_L_GREEN, "Ž_", "Ž_–Æ‰u"},
+
 	{TERM_GREEN, "Ž_", "‘ÏŽ_"},
 	{TERM_L_BLUE, "“d", "“d–Æ‰u"},
 	{TERM_BLUE, "“d", "‘Ï“d"},
@@ -588,6 +593,7 @@ static struct {
 	{TERM_GREEN, "“Å", "‘Ï“Å"},
 	{TERM_L_DARK, "–", "‘Ï’n–"},
 	{TERM_L_BLUE, "Žž", "‘ÏŽžŠÔ"},
+
 	{TERM_L_DARK, "•Ð", "”j•ÐƒI[ƒ‰"},
 	{TERM_L_RED, "ƒI", "‰ÎƒI[ƒ‰"},
 //	{TERM_WHITE, "“¬", "“¬‹C"},
@@ -599,6 +605,7 @@ static struct {
 	{TERM_RED, "‹¶", "‹¶—"},
 	{TERM_L_RED, "‰Î", "–‚Œ•‰Î"},
 	{TERM_WHITE, "—â", "–‚Œ•—â"},
+
 	{TERM_L_BLUE, "“d", "–‚Œ•“d"},
 	{TERM_SLATE, "Ž_", "–‚Œ•Ž_"},
 	{TERM_L_GREEN, "“Å", "–‚Œ•“Å"},
@@ -609,6 +616,7 @@ static struct {
 	{TERM_L_RED, "Ô", "ÔŠO"},
 	{TERM_UMBER, "‰B", "‰B–§"},
 	{TERM_YELLOW, "‰B", "’´‰B–§"},
+
 	{TERM_WHITE, "‹A", "‹AŠÒ"},
 	{TERM_WHITE, "Œ»", "Œ»ŽÀ•Ï—e"},
 	/* Hex */
@@ -620,6 +628,7 @@ static struct {
 	{TERM_L_DARK, "—", "Žô‚¢‚Ì—lŒ`"},
 	{TERM_VIOLET, "‹«", "‹«ŠE‘€ì"},
 	{TERM_L_BLUE, "Œõ", "ŒõŠw–ÀÊ"},
+
 	{TERM_SLATE, "–Æ", "“ÁŽê–Æ‰u"},
 	{TERM_BLUE, "ŽÔ", "–¶‚ÌŽÔ—Ö"},
 	{TERM_YELLOW, "’e", "_X‚Ì’eŠ¥"},
@@ -630,6 +639,7 @@ static struct {
 	{TERM_L_DARK, "ŒŽ", "ˆÅ•„"},
 	{TERM_VIOLET, "“×", "‘Ï¬“×"},
 	{TERM_UMBER, "”›", "ƒeƒŒƒ|‘jŠQ"},
+
 	{TERM_L_BLUE, "‹­", "‹­‰»"},
 	{TERM_L_BLUE, "‰ñ", "”½‰ž‰ñ•œ"},
 	{TERM_RED, "Š´", "ƒŒ[ƒ_["},
@@ -640,6 +650,7 @@ static struct {
 	{TERM_WHITE, "—\", "—\’m"},
 	{TERM_UMBER, "‘—", "‘—ŠÒp"},
 	{TERM_WHITE, "’Ü", "’Ü‹­‰»"},
+
 	{TERM_L_BLUE, "‹ì", "‚‘¬ˆÚ“®"},
 	{TERM_YELLOW, "—", "——Í"},
 	{TERM_VIOLET, "‹¶", "‘Ï‹¶‹C"},
@@ -650,36 +661,36 @@ static struct {
 	{TERM_VIOLET, "“×", "¬“×–‚Œ•"},
 	{TERM_RED, "ŠE", "ŠE‰¤Œ"},
 	{TERM_RED, "‘_", "Æ€"},
+
 	{TERM_L_BLUE, "–h", "Œ‹ŠEƒK[ƒh"},
 	{TERM_RED, "’D", "–‚—Í’DŽæ"},
 	{TERM_L_DARK, "‘œ", "Î‘œ‰»"},
-
 	{TERM_L_DARK, "‹~", "‹~Ï"},
 	{ TERM_RED, "Ø", "Ø‚ê–¡" },
 	{ TERM_YELLOW, "•x", "ŽUà" },
 	{ TERM_RED, "‰Ð", "à‰Ð" },
 	{ TERM_YELLOW, "”à", "ŒãŒË‚Ì—Í" },
 	{ TERM_YELLOW, "“Á", "“ÁŽêˆêŽžŒø‰Ê" },
+	{ TERM_YELLOW, "Œ|", "–³‰‚ÌŒ|”\ŽÒ" },//[100]
 
-	{ TERM_YELLOW, "Œ|", "–³‰‚ÌŒ|”\ŽÒ" },
 	{ TERM_L_DARK, "d", "‰Ád" },
 	{ TERM_YELLOW, "‹à", "”ƒŽû" },
-
 	{ TERM_L_BLUE, "—U", "Ž€o‚Ì—U‰é“”" },
 	{ TERM_YELLOW, "Œ", "ŒŒ" },
 	{ TERM_WHITE, "ŠÑ", "—â‹C‘Ï«ŠÑ’Ê" },
 
 	{ TERM_GREEN, "X", "’´‰B–§(X)" },
-
 	{ TERM_RED, "‹ò", "–\H" },
 	{ TERM_RED, "“{", "”½Š´" },
 	{ TERM_L_GREEN, "‘", "ˆÙ•ÏÎ‘•" },
 	{ TERM_RED, "”½", "ƒJƒEƒ“ƒ^[" },
+
 	{ TERM_YELLOW, "”š", "¶–½”š”­" },
 	{ TERM_VIOLET, "•z", "‚Ð‚ç‚è•z" },
 	{ TERM_BLUE, "–Y", "–Y‹p" },
 	{ TERM_RED, "”›", "ˆÚ“®‹ÖŽ~" },
 	{ TERM_WHITE, "‘—", "ˆÚ‘—‚Ìã©" },
+
 	{ TERM_L_DARK, "–³", "‹•–³‚Ì—Í" },
 	{ TERM_YELLOW, "–I", "–I‚ÌŒì‰q" },
 	{ TERM_L_DARK, "‰B", "ö•š" },
@@ -2136,7 +2147,8 @@ static void prt_study(void)
 	}
 }
 
-///class ‚à‚Ì‚Ü‚Ë
+#if 0
+//‚à‚Ì‚Ü‚ËŽt‚ªu‚Ü‚Ëv‚Æ•\Ž¦‚·‚éŠÖ”@–³Œø‰»
 static void prt_imitation(void)
 {
 	int wid, hgt, row_study, col_study;
@@ -2164,7 +2176,7 @@ static void prt_imitation(void)
 		}
 	}
 }
-
+#endif
 
 static void prt_cut(void)
 {
@@ -2506,7 +2518,7 @@ static void prt_frame_extra(void)
 	/* Study spells */
 	prt_study();
 
-	prt_imitation();
+	//prt_imitation();
 
 	prt_status();
 }
@@ -4316,21 +4328,26 @@ static void calc_torch(void)
 	 * check if the player doesn't have light radius, 
 	 * but does weakly glow as an intrinsic.
 	 */
-	if (p_ptr->cur_lite <= 0 && p_ptr->lite) p_ptr->cur_lite++;
+	if (p_ptr->cur_lite <= 0 && p_ptr->lite)
+	{
+		p_ptr->cur_lite++;
+		//“Á’è‚ÌƒNƒ‰ƒX‚Ì‚Æ‚«ƒƒbƒZ[ƒWˆ—
+		//‚±‚ÌƒƒbƒZ[ƒW‚Í’‹‚Ì‰®ŠO‚È‚Ç–¾‚é‚¢‚Æ‚±‚ë‚Å‚ào‚éB‹æ•Ê‚µ‚ÄƒƒbƒZ[ƒW‚ðo‚·‚æ‚¤‚É‚·‚é‚Ì‚Í­X‚â‚â‚±‚µ‚¢‚Ì‚Å•Û—¯
+		if (p_ptr->old_lite != p_ptr->cur_lite)
+		{
+			if (p_ptr->pclass == CLASS_ORIN)
+				msg_print("‚ ‚È‚½‚ÌK”ö‚Ìæ‚ª˜º‚©‚É”R‚¦‚Ä•Ó‚è‚ðÆ‚ç‚µ‚½B");
+
+			//if (p_ptr->pclass == CLASS_REIMU)
+			//	msg_print("‚ ‚È‚½‚Í‚¨âP‚¢–_‚Ìæ‚É‰Î‚ð‚Â‚¯‚Ä¼–¾‘ã‚í‚è‚É‚µ‚½B");
+			
+		}
+	}
 
 	if (p_ptr->cur_lite > 14) p_ptr->cur_lite = 14;
 	if (p_ptr->cur_lite < 0) p_ptr->cur_lite = 0;
 
 	/* end experimental mods */
-
-	//v2.0.13 ‚¨—Ó‚Í‘¼‚ÉŒõŒ¹‚ª‚È‚¢‚Æ‚«Ž©‘OŒõŒ¹+1(K”ö‚Ìæ‚ªŒõ‚é)
-	if (p_ptr->pclass == CLASS_ORIN && p_ptr->cur_lite < 1)
-	{
-		p_ptr->cur_lite++;
-		if (p_ptr->old_lite != p_ptr->cur_lite)
-			msg_print("‚ ‚È‚½‚ÌK”ö‚Ìæ‚ª˜º‚©‚É”R‚¦‚Ä•Ó‚è‚ðÆ‚ç‚µ‚½B");
-
-	}
 
 
 	/* Notice changes in the "lite radius" */
@@ -5067,7 +5084,7 @@ void calc_bonuses(void)
 		case CLASS_RANGER:
 			if (p_ptr->lev > 19) p_ptr->free_act = TRUE;
 			if (p_ptr->lev > 29) p_ptr->esp_animal = TRUE;		
-			if (p_ptr->lev > 39) p_ptr->resist_pois = TRUE;		
+			if (p_ptr->lev > 39) p_ptr->resist_pois = TRUE;	
 			break;
 
 		case CLASS_ROGUE:
@@ -5282,6 +5299,10 @@ void calc_bonuses(void)
 		p_ptr->resist_fire = TRUE;
 		p_ptr->resist_neth = TRUE;
 
+		//v2.0.13 ‚¨—Ó‚Í‘¼‚ÉŒõŒ¹‚ª‚È‚¢‚Æ‚«Ž©‘OŒõŒ¹+1(K”ö‚Ìæ‚ªŒõ‚é)
+		//v2.1.7 ­‚µ‹Lq‚ð®—
+		p_ptr->lite = TRUE;
+
 		if (p_ptr->lev > 9) p_ptr->esp_undead = TRUE;
 		if (p_ptr->lev > 19) p_ptr->see_inv = TRUE;
 		if (p_ptr->lev > 34)
@@ -5289,9 +5310,9 @@ void calc_bonuses(void)
 			p_ptr->oppose_fire = 1;
 			p_ptr->redraw |= PR_STATUS;
 		}
-
 		if (p_ptr->lev > 44) p_ptr->resist_insanity = TRUE;
 		break;
+
 	case CLASS_SHINMYOUMARU:
 		p_ptr->resist_fear = TRUE;
 		if (p_ptr->lev > 29) p_ptr->speedster = TRUE;
@@ -5896,6 +5917,7 @@ void calc_bonuses(void)
 		p_ptr->resist_water = TRUE;
 		if(plev > 19) p_ptr->resist_time = TRUE;
 		if(plev > 34) p_ptr->esp_evil = TRUE;
+		break;
 
 	case CLASS_YORIHIME:
 		p_ptr->resist_water = TRUE;
@@ -6755,7 +6777,11 @@ void calc_bonuses(void)
 			new_speed += 3;
 			p_ptr->to_a += 10;
 			p_ptr->dis_to_a += 10;
-			if (p_ptr->pclass != CLASS_NINJA) p_ptr->lite = TRUE;
+
+			//v2.1.7 Ž©‘OŒõŒ¹‚Å‚È‚­ˆÃŽ‹”\—Í‚ð“¾‚é‚±‚Æ‚É‚·‚é
+			//if (p_ptr->pclass != CLASS_NINJA) p_ptr->lite = TRUE;
+			p_ptr->see_nocto = TRUE;
+
 			break;
 		//b•ÏgŽž rŽ_“d‰Î—â“Å—–ƒ‹° ‹}Œx@r‘« ‰Á‘¬lev/2 ƒmƒNƒg
 		case MIMIC_BEAST:
@@ -7223,9 +7249,12 @@ void calc_bonuses(void)
 			p_ptr->slow_digest = TRUE;
 			if (p_ptr->lev > 19) p_ptr->resist_insanity = TRUE;
 			if (p_ptr->lev > 34) p_ptr->levitation = TRUE;
-			if (p_ptr->pclass != CLASS_NINJA) p_ptr->lite = TRUE;
 			if (p_ptr->lev > 39) p_ptr->speedster = TRUE;
 			new_speed += (p_ptr->lev) / 10;
+
+			//v2.1.7 Ž©‘OŒõŒ¹‚Å‚È‚­ˆÃŽ‹”\—Í‚ð“¾‚é‚±‚Æ‚É‚·‚é
+			//if (p_ptr->pclass != CLASS_NINJA) p_ptr->lite = TRUE;
+			p_ptr->see_nocto = TRUE;
 
 			break;
 		case RACE_SPECTRE:
@@ -11592,6 +11621,12 @@ void calc_bonuses(void)
 		p_ptr->skill_tht += rank * 5 + rank * lv / 5;
 
 	}
+	else if (p_ptr->pclass == CLASS_RANGER || p_ptr->pclass == CLASS_ARCHER)
+	{
+		//“Á‹Zu\‚¦‚év‚ÅW’†‚µ‚Ä‚¢‚é‚ÆŽËŒ‚ƒXƒLƒ‹“ñ”{
+		if (p_ptr->concent) p_ptr->skill_thb *= 2;
+
+	}
 
 	///mod150110 žò‚ª”G‚ê‚½‚çƒpƒ‰ƒ[ƒ^Žã‘Ì‰»
 	else if(p_ptr->pclass == CLASS_CHEN && p_ptr->magic_num1[0])
@@ -12494,7 +12529,8 @@ void redraw_stuff(void)
 		if (p_ptr->redraw & (PR_IMITATION))
 		{
 			p_ptr->redraw &= ~(PR_IMITATION);
-			prt_imitation();
+			//v2.1.7 ‚à‚Ì‚Ü‚ËŒnE‹Æ‚Å‚àu‚Ü‚Ëv‚Ì•\Ž¦‚Í‚µ‚È‚¢
+			//prt_imitation();
 		}
 	}
 	else if (p_ptr->redraw & (PR_STUDY))

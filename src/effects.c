@@ -544,9 +544,6 @@ bool set_mimic(int v, int p, bool do_dec)
 
 	if (p_ptr->is_dead) return FALSE;
 
-	//v1.1.85 新たに変身するとき、モンスター変身用のidxを記録してあったのをリセット
-	if (!do_dec) p_ptr->metamor_r_idx = 0;
-
 	if (p_ptr->pclass == CLASS_ARIYA && !do_dec)
 	{
 		msg_print("あなたの肉体は変容を拒絶した。");
@@ -568,6 +565,9 @@ bool set_mimic(int v, int p, bool do_dec)
 			msg_print("まず馬から降りてからでないとその変身はできない。");
 		return FALSE;
 	}
+
+	//v1.1.85 新たに変身するとき、モンスター変身用のidxを記録してあったのをリセット
+	if (!do_dec) p_ptr->metamor_r_idx = 0;
 
 	// -Hack - ぬえは特殊フラグが立っている限り変身が解けない
 	if(p_ptr->mimic_form == MIMIC_NUE && (p_ptr->special_defense & NUE_UNDEFINED) && !v)
@@ -738,7 +738,7 @@ bool set_mimic(int v, int p, bool do_dec)
 	if (disturb_state) disturb(0, 1);
 
 	/* Redraw title */
-	p_ptr->redraw |= (PR_BASIC | PR_STATUS | PR_MAP);
+	p_ptr->redraw |= (PR_BASIC | PR_STATUS | PR_STATS | PR_MISC | PR_MAP);
 
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS | PU_HP | PU_TORCH);
@@ -1627,6 +1627,9 @@ bool set_kamioroshi(u32b kamioroshi_type, int v)
 {
 	bool flag_master = FALSE;
 
+	u32b new_kamioroshi_flag = kamioroshi_type;
+
+
 	//神降ろしを２つ同時に降ろせるフラグ
 	//v2.0.20 霊夢と依姫もレベル40までできないことにした
 	if(p_ptr->pclass == CLASS_HIGH_MAGE && p_ptr->realm1 == TV_BOOK_PUNISH && p_ptr->lev > 39
@@ -1754,22 +1757,30 @@ bool set_kamioroshi(u32b kamioroshi_type, int v)
 
 	}
 
-	//一瞬だけ発動して常駐しないタイプの神降ろしはフラグ値を0にする
+	//一瞬だけ発動して持続しないタイプの神降ろしはここでフラグ値を0にし、p_ptr->kamioroshiに残らないようにする
 	if(kamioroshi_type == KAMIOROSHI_AMATO || kamioroshi_type == KAMIOROSHI_IZUNOME || kamioroshi_type == KAMIOROSHI_AMATERASU 
 		||kamioroshi_type == KAMIOROSHI_YAOYOROZU || kamioroshi_type == KAMIOROSHI_HONOIKAZUTI || kamioroshi_type == KAMIOROSHI_AMATSUMIKABOSHI) 
-		kamioroshi_type = 0L;
+		new_kamioroshi_flag = 0L;
 
-	if ((v) && (kamioroshi_type))
+	//v2.1.7 持続型神降ろしに関するフラグとタイムカウントの処理を修正
+
+	//魔力消去を受けたときと持続型神降ろしがタイムアウトしたとき
+	if (!kamioroshi_type && !v)
 	{
-		p_ptr->kamioroshi |= (kamioroshi_type);
+		p_ptr->kamioroshi = 0;
+		p_ptr->kamioroshi_count = 0;
+	}
+	//新たな持続型の神降ろしを行ったとき
+	else if ((v) && (new_kamioroshi_flag))
+	{
+		p_ptr->kamioroshi |= (new_kamioroshi_flag);
 		p_ptr->kamioroshi_count = v;
 	}
-	//即時型神降ろしはカウントとフラグをリセット。ただし神降ろし同時可能な職はリセットしない。
-	//2つ降ろしているなら片方残るし1つしか降ろしてないなら枠に余裕があるため。
-	else if(!v && !kamioroshi_type && !flag_master)
+	//アメノウズメをアマテラス降臨で消去するなどして持続型神降ろしがなくなったとき
+	//持続型神降ろしがない状態で発動型神降ろしをしたときにも一応ここに来る
+	else if(!p_ptr->kamioroshi)
 	{
 		p_ptr->kamioroshi_count = 0;
-		p_ptr->kamioroshi = 0L;
 	}
 
 	/* Disturb */

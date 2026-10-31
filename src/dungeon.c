@@ -9076,6 +9076,9 @@ msg_print("’†’f‚µ‚Ü‚µ‚½B");
 				else
 					monomane_hold_max = 0;
 
+				//paranoia
+				if (p_ptr->mane_num > MAX_MANE)
+					p_ptr->mane_num = MAX_MANE;
 
 				if (p_ptr->mane_num > monomane_hold_max)
 				{

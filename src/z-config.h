@@ -606,6 +606,13 @@
 ///\131117 system スコア送信機能を消す
 //v1.1.25 復活
 #define WORLD_SCORE
+
+//v2.1.7 winHTTP 旧スコア送信関数を使う場合これをコメントアウトする
+#if defined(WINDOWS)
+#define USE_WINHTTP
+#endif
+
+
 #endif
 
 #endif /* HAVE_CONFIG_H */
@@ -613,3 +620,9 @@
 
 ///patch　本家の修正をこっちにも適用するとき
 #define PATCH_ORIGIN
+
+//v2.1.7 buf_sprintf()に安全性の高い関数を使うために必要？なぜオフになっていたんだろう
+#if defined(WINDOWS) && defined(_MSC_VER)
+#define HAVE_VSNPRINTF
+#endif
+

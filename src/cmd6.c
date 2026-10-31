@@ -3622,6 +3622,7 @@ static void sagume_read_scroll_aux(int item, bool known)
 			}
 			while (one_in_(6));
 			ident = TRUE;
+			break;
 		}
 
 		//フロアリセット：シャドウシフトする
@@ -3794,6 +3795,7 @@ static void sagume_read_scroll_aux(int item, bool known)
 			
 			ident = TRUE;
 		}
+		break;
 
 		//パニックモンスター：混乱と幻覚
 		case SV_SCROLL_MONSTER_CONFUSION:

@@ -1117,7 +1117,8 @@ bool dispel_check(int m_idx)
 	int i;
 
 	/* Invulnabilty (including the song) */
-	if (IS_INVULN() && !(p_ptr->special_defense & MUSOU_TENSEI) && !SUPER_SHION && (YUMA_ULTIMATE_MODE)) return (TRUE);
+	//v2.1.7 ðŒŽ®‚ðŠÔˆá‚¦‚Ä‚½‚Ì‚ÅC³
+	if (IS_INVULN() && !(p_ptr->special_defense & MUSOU_TENSEI) && !SUPER_SHION && !(YUMA_ULTIMATE_MODE)) return (TRUE);
 
 	//v1.1.44 ƒCƒrƒ‹ƒAƒ“ƒWƒ…ƒŒ[ƒVƒ‡ƒ“
 	if (p_ptr->special_defense & EVIL_UNDULATION_MASK) return (TRUE);
@@ -7120,12 +7121,18 @@ msg_format("%s‚ªuŽž‚ÉŠÔ‡‚¢‚ð‹l‚ß‚Ä‚«‚½B", m_name);
 			if (m_ptr->r_idx == MON_YUMA)
 			{
 				(void)project(m_idx, rad, m_ptr->fy, m_ptr->fx, dam, GF_WATER, (PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_PLAYER | PROJECT_JUMP | PROJECT_HIDE), FALSE);
-				(void)project(m_idx, rad, m_ptr->fy, m_ptr->fx, dam, GF_DIG_OIL, (PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP), FALSE);
+				if (m_ptr->r_idx)//–Ú‚É‚Í–Ú‚È‚Ç‚ÅÅ‰‚ÌUŒ‚Žž‚Éƒ‚ƒ“ƒXƒ^[‚ª“|‚ê‚Ä‚¢‚é‰Â”\«‚ª‚ ‚é‚Ì‚ÅðŒŽ®’Ç‰Á
+				{
+					(void)project(m_idx, rad, m_ptr->fy, m_ptr->fx, dam, GF_DIG_OIL, (PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP), FALSE);
+				}
 			}
 			else
 			{
 				(void)project(m_idx, rad, m_ptr->fy, m_ptr->fx, dam, GF_WATER, (PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_PLAYER | PROJECT_JUMP), FALSE);
-				(void)project(m_idx, rad, m_ptr->fy, m_ptr->fx, rad, GF_WATER_FLOW, (PROJECT_GRID | PROJECT_ITEM | PROJECT_JUMP | PROJECT_HIDE), FALSE);
+				if (m_ptr->r_idx)//–Ú‚É‚Í–Ú‚È‚Ç‚ÅÅ‰‚ÌUŒ‚Žž‚Éƒ‚ƒ“ƒXƒ^[‚ª“|‚ê‚Ä‚¢‚é‰Â”\«‚ª‚ ‚é‚Ì‚ÅðŒŽ®’Ç‰Á
+				{
+					(void)project(m_idx, rad, m_ptr->fy, m_ptr->fx, rad, GF_WATER_FLOW, (PROJECT_GRID | PROJECT_ITEM | PROJECT_JUMP | PROJECT_HIDE), FALSE);
+				}
 			}
 			update_smart_learn(m_idx, DRS_WATER);
 			break;
@@ -7183,10 +7190,10 @@ msg_format("%s‚ªuŽž‚ÉŠÔ‡‚¢‚ð‹l‚ß‚Ä‚«‚½B", m_name);
 	{
 		if (thrown_spell != 124 && thrown_spell != 167) //“Á•Ê‚Ès“®1,2‚ðœ‚­
 		{
-			if (p_ptr->mane_num == MAX_MANE)
+			if (p_ptr->mane_num >= MAX_MANE)
 			{
 				int i;
-				p_ptr->mane_num--;
+				p_ptr->mane_num = MAX_MANE - 1;
 				for (i = 0; i < p_ptr->mane_num; i++)
 				{
 					p_ptr->mane_spell[i] = p_ptr->mane_spell[i + 1];

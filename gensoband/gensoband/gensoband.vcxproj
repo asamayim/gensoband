@@ -1,0 +1,256 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>17.0</VCProjectVersion>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectGuid>{3d5f7ba7-ba90-4a4c-a4af-5611e1a0f777}</ProjectGuid>
+    <RootNamespace>gensoband</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>..\..</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>..\..\</OutDir>
+    <TargetName>$(ProjectName)</TargetName>
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>false</SDLCheck>
+      <PreprocessorDefinitions>WINDOWS;JP;SJIS;_CRT_SECURE_NO_WARNINGS;WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>false</ConformanceMode>
+      <DisableSpecificWarnings>4244;4996;4101</DisableSpecificWarnings>
+      <ControlFlowGuard>Guard</ControlFlowGuard>
+      <AdditionalOptions>/source-charset:.932 /execution-charset:.932 %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
+      <LinkStatus>false</LinkStatus>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>false</SDLCheck>
+      <PreprocessorDefinitions>WINDOWS;JP;SJIS;_CRT_SECURE_NO_WARNINGS;WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <DisableSpecificWarnings>4244;4996;4101</DisableSpecificWarnings>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>winmm.lib;wsock32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\src\ability_card.c" />
+    <ClCompile Include="..\..\src\artifact.c" />
+    <ClCompile Include="..\..\src\autopick.c" />
+    <ClCompile Include="..\..\src\avatar.c" />
+    <ClCompile Include="..\..\src\birth.c" />
+    <ClCompile Include="..\..\src\bldg.c" />
+    <ClCompile Include="..\..\src\bldg2.c" />
+    <ClCompile Include="..\..\src\cave.c" />
+    <ClCompile Include="..\..\src\chuukei.c" />
+    <ClCompile Include="..\..\src\cmd1.c" />
+    <ClCompile Include="..\..\src\cmd2.c" />
+    <ClCompile Include="..\..\src\cmd3.c" />
+    <ClCompile Include="..\..\src\cmd4.c" />
+    <ClCompile Include="..\..\src\cmd5.c" />
+    <ClCompile Include="..\..\src\cmd6.c" />
+    <ClCompile Include="..\..\src\cmd7.c" />
+    <ClCompile Include="..\..\src\cmd_junko.c" />
+    <ClCompile Include="..\..\src\cmd_yuma.c" />
+    <ClCompile Include="..\..\src\do-spell.c" />
+    <ClCompile Include="..\..\src\dungeon.c" />
+    <ClCompile Include="..\..\src\effects.c" />
+    <ClCompile Include="..\..\src\files.c" />
+    <ClCompile Include="..\..\src\flavor.c" />
+    <ClCompile Include="..\..\src\floors.c" />
+    <ClCompile Include="..\..\src\generate.c" />
+    <ClCompile Include="..\..\src\grid.c" />
+    <ClCompile Include="..\..\src\hex.c" />
+    <ClCompile Include="..\..\src\hissatsu.c" />
+    <ClCompile Include="..\..\src\inet.c" />
+    <ClCompile Include="..\..\src\init1.c" />
+    <ClCompile Include="..\..\src\init2.c" />
+    <ClCompile Include="..\..\src\japanese.c" />
+    <ClCompile Include="..\..\src\load.c" />
+    <ClCompile Include="..\..\src\maid-x11.c" />
+    <ClCompile Include="..\..\src\main-win.c" />
+    <ClCompile Include="..\..\src\main.c" />
+    <ClCompile Include="..\..\src\mane.c" />
+    <ClCompile Include="..\..\src\melee1.c" />
+    <ClCompile Include="..\..\src\melee2.c" />
+    <ClCompile Include="..\..\src\mind.c" />
+    <ClCompile Include="..\..\src\monster1.c" />
+    <ClCompile Include="..\..\src\monster2.c" />
+    <ClCompile Include="..\..\src\mspells1.c" />
+    <ClCompile Include="..\..\src\mspells2.c" />
+    <ClCompile Include="..\..\src\mspells3.c" />
+    <ClCompile Include="..\..\src\mutation.c" />
+    <ClCompile Include="..\..\src\new_class_power.c" />
+    <ClCompile Include="..\..\src\object1.c" />
+    <ClCompile Include="..\..\src\object2.c" />
+    <ClCompile Include="..\..\src\obj_kind.c" />
+    <ClCompile Include="..\..\src\racial.c" />
+    <ClCompile Include="..\..\src\random_unique_monster.c" />
+    <ClCompile Include="..\..\src\readdib.c" />
+    <ClCompile Include="..\..\src\report.c" />
+    <ClCompile Include="..\..\src\rooms.c" />
+    <ClCompile Include="..\..\src\save.c" />
+    <ClCompile Include="..\..\src\scores.c" />
+    <ClCompile Include="..\..\src\snipe.c" />
+    <ClCompile Include="..\..\src\spells1.c" />
+    <ClCompile Include="..\..\src\spells2.c" />
+    <ClCompile Include="..\..\src\spells3.c" />
+    <ClCompile Include="..\..\src\store.c" />
+    <ClCompile Include="..\..\src\straygod.c" />
+    <ClCompile Include="..\..\src\streams.c" />
+    <ClCompile Include="..\..\src\tables.c" />
+    <ClCompile Include="..\..\src\util.c" />
+    <ClCompile Include="..\..\src\variable.c" />
+    <ClCompile Include="..\..\src\wild.c" />
+    <ClCompile Include="..\..\src\wizard1.c" />
+    <ClCompile Include="..\..\src\wizard2.c" />
+    <ClCompile Include="..\..\src\xtra1.c" />
+    <ClCompile Include="..\..\src\xtra2.c" />
+    <ClCompile Include="..\..\src\z-form.c" />
+    <ClCompile Include="..\..\src\z-rand.c" />
+    <ClCompile Include="..\..\src\z-term.c" />
+    <ClCompile Include="..\..\src\z-util.c" />
+    <ClCompile Include="..\..\src\z-virt.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\src\angband.h" />
+    <ClInclude Include="..\..\src\defines.h" />
+    <ClInclude Include="..\..\src\externs.h" />
+    <ClInclude Include="..\..\src\generate.h" />
+    <ClInclude Include="..\..\src\grid.h" />
+    <ClInclude Include="..\..\src\h-basic.h" />
+    <ClInclude Include="..\..\src\h-config.h" />
+    <ClInclude Include="..\..\src\h-define.h" />
+    <ClInclude Include="..\..\src\h-system.h" />
+    <ClInclude Include="..\..\src\h-type.h" />
+    <ClInclude Include="..\..\src\init.h" />
+    <ClInclude Include="..\..\src\kajitips.h" />
+    <ClInclude Include="..\..\src\mindtips.h" />
+    <ClInclude Include="..\..\src\readdib.h" />
+    <ClInclude Include="..\..\src\resource.h" />
+    <ClInclude Include="..\..\src\rooms.h" />
+    <ClInclude Include="..\..\src\streams.h" />
+    <ClInclude Include="..\..\src\types.h" />
+    <ClInclude Include="..\..\src\z-config.h" />
+    <ClInclude Include="..\..\src\z-form.h" />
+    <ClInclude Include="..\..\src\z-rand.h" />
+    <ClInclude Include="..\..\src\z-term.h" />
+    <ClInclude Include="..\..\src\z-util.h" />
+    <ClInclude Include="..\..\src\z-virt.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\..\src\angband.ico" />
+    <Image Include="..\..\src\wall.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\..\src\angband.rc" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

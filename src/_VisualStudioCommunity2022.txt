@@ -20,7 +20,6 @@ Gensobandフォルダを作ってその下にsrcフォルダとlibフォルダ�
 
 	リンカー - 入力 - 追加の依存ファイルを以下にする
 		winmm.lib
-		wsock32.lib
 
 	リンカー - システム - サブシステムをWindows(/SUBSYSTEM;WINDOWS)に変更
 

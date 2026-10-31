@@ -4941,6 +4941,8 @@ int mod_need_mana(int need_mana, int spell, int realm)
  */
 int mod_spell_chance_1(int chance)
 {
+	//v2.1.7 モンスター魔法や職業特技などでこのto_m_chanceの処理が既に行われており効果が実質二倍になっている。
+	//公開当初からのミスだがまあ今更なので仕様としておく
 	chance += p_ptr->to_m_chance;
 
 	if (p_ptr->heavy_spell) chance += 20;

@@ -94,7 +94,8 @@
 /*
  * Hack -- allow use of "screen saver" mode
  */
-#define USE_SAVER
+//v2.1.7 使っていない(と思う)USE_SAVERをコメントアウト
+//#define USE_SAVER
 
 
 /*
@@ -4272,10 +4273,10 @@ static void setup_menus(void)
 		      (arg_sound ? MF_CHECKED : MF_UNCHECKED));
 	CheckMenuItem(hm, IDM_OPTIONS_BG,
 		      (use_bg ? MF_CHECKED : MF_UNCHECKED));
-#ifndef JP
-	CheckMenuItem(hm, IDM_OPTIONS_SAVER,
-		      (hwndSaver ? MF_CHECKED : MF_UNCHECKED));
-#endif
+//#ifndef JP
+//	CheckMenuItem(hm, IDM_OPTIONS_SAVER,
+//		      (hwndSaver ? MF_CHECKED : MF_UNCHECKED));
+//#endif
 
 #ifdef USE_GRAPHICS
 	/* Menu "Options", Item "Graphics" */
@@ -5127,6 +5128,9 @@ static void process_menus(WORD wCmd)
 			}
 			break;
 #else /* HTML_HELP */
+			//v2.1.7　使っていないWinExecをコメントアウト
+
+			/*
 			char buf[1024];
 			char tmp[1024];
 			path_build(tmp, sizeof(tmp), ANGBAND_DIR_XTRA_HELP, "zangband.hlp");
@@ -5146,6 +5150,7 @@ static void process_menus(WORD wCmd)
 #endif
 
 			}
+			*/
 			break;
 #endif /* HTML_HELP */
 		}

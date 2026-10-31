@@ -253,7 +253,7 @@ static cptr class_jouhou[MAX_CLASS] =
   
 "あなたは宝物を求めて怪物の棲家や遺跡を探検する、いわゆるトレジャーハンターです。隠密や解錠や投擲など様々な技能に優れ、探索に向いた便利な特技を持ちます。職業柄しばしば怪物や遺跡の番人と戦闘になるため白兵戦もそこそここなせますが、純戦士ほどの腕っ節の強さはありません。魔法を一領域習得可能ですがその学習は遅く、あまり強力な魔法は使えません。短剣の扱いが得意で短剣を装備していると攻撃回数が上昇します。短剣のほかにはクロスボウの扱いも得意です。それ以外の大きな武器の扱いは苦手です。",
   
-"あなたは森の奥深くで獣のように狩りをして暮らしています。過酷な環境で育ったあなたは白兵戦と射撃の両方に秀でています。また先達から伝えられた自然の力を借りる技術を修めており自然か変容の魔法を行使可能です。成長すると麻痺や毒の耐性を得て、さらにモンスターの詳細な情報を調査する特技を使えるようになります。隠密行動は得意ですが小手先の繊細な技術についてはやや不得手です。",
+"あなたは森や山の奥深くで狩りをして暮らしています。過酷な環境で育ったあなたは白兵戦と射撃の両方に秀でています。また先達から伝えられた自然の力を借りる技術を修めており自然か変容の魔法を行使可能です。成長すると麻痺や毒の耐性を得て、さらにモンスターの詳細な情報を調査する特技を使えるようになります。様々な技能に秀でますが魔道具の扱いはやや不得手です。",
   
 "あなたは聖域を守るために戦う高潔な戦士です。高い白兵能力を持ち、特に剣と槍の扱いを得意とします。魔法は使えませんが外敵から身を守るためのいくつかの技を習得できます。祝福された武器を装備すると攻撃力が増加しますが、呪われた武器を装備すると攻撃力が大幅に低下します。騎乗技能の適性もありますが混沌の勢力の魔獣を操ることは大の苦手です。レベルが上昇すると恐怖と破邪攻撃に対する耐性を得ます。",
   
@@ -2768,9 +2768,10 @@ outfit_type birth_outfit_class[] = {
 	{CLASS_HIGH_MAGE,2,0,TV_STICK,SV_WEAPON_QUARTERSTAFF,1},
 	{CLASS_HIGH_MAGE,2,0,TV_CLOTHES,SV_CLOTH_ROBE,1},
 	{CLASS_RANGER,2,0,TV_ARMOR,SV_ARMOR_LEATHER,1},
-	{CLASS_RANGER,2,0,TV_KNIFE,SV_WEAPON_YAMAGATANA,1},
-	{CLASS_RANGER,2,0,TV_BOW,SV_FIRE_SHORT_BOW,1},
-	{CLASS_RANGER,2,0,TV_ARROW,SV_AMMO_LIGHT,20},
+	{CLASS_RANGER,2,0,TV_SPEAR,SV_WEAPON_SPEAR,1},
+	{CLASS_RANGER,2,0,TV_GUN,SV_FIRE_GUN_HUNTING,1},
+	//{CLASS_RANGER,2,0,TV_BOW,SV_FIRE_SHORT_BOW,1},
+	//{CLASS_RANGER,2,0,TV_ARROW,SV_AMMO_LIGHT,20},
 	{CLASS_MAID,0,0,TV_CLOTHES,SV_CLOTH_MAID,1},
 	{CLASS_MAID,1,0,TV_CLOTHES,SV_CLOTH_SUIT,1},
 	{CLASS_MAID,2,0,TV_KNIFE,SV_WEAPON_DAGGER,1},

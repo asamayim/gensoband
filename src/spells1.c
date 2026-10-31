@@ -124,7 +124,7 @@ byte spell_color(int type)
 			case GF_NEXUS:          return (0x0C);
 			case GF_CONFUSION:      return (mh_attr(4));
 			case GF_SOUND:          return (0x09);
-			case GF_SHARDS:         return (0x08);
+			case GF_SHARDS:			return (0x08);
 			case GF_TIMED_SHARD:         return (0x08);
 
 			case GF_FORCE:          return (0x09);
@@ -437,6 +437,9 @@ sint project_path(u16b *gp, int range, int y1, int x1, int y2, int x2, int flg)
 				if ((n > 0) && !cave_have_flag_bold(y, x, FF_PROJECT)) break;
 			}
 
+			//チェックの場所移動　ループの一周前でこれに引っかかってbreakするからcave配列外の状態で下のチェックにはいかないはずだが一応
+			if (!in_bounds(y, x)) break;
+
 			/* Sometimes stop at non-initial monsters/players */
 			if (flg & (PROJECT_STOP))
 			{
@@ -445,7 +448,6 @@ sint project_path(u16b *gp, int range, int y1, int x1, int y2, int x2, int flg)
 					break;
 			}
 
-			if (!in_bounds(y, x)) break;
 
 			/* Slant */
 			if (m)
@@ -526,6 +528,9 @@ sint project_path(u16b *gp, int range, int y1, int x1, int y2, int x2, int flg)
 				if ((n > 0) && !cave_have_flag_bold(y, x, FF_PROJECT)) break;
 			}
 
+			//チェックの場所移動　ループの一周前でこれに引っかかってbreakするからcave配列外の状態で下のチェックにはいかないはずだが一応
+			if (!in_bounds(y, x)) break;
+
 			/* Sometimes stop at non-initial monsters/players */
 			if (flg & (PROJECT_STOP))
 			{
@@ -533,8 +538,6 @@ sint project_path(u16b *gp, int range, int y1, int x1, int y2, int x2, int flg)
 				    (player_bold(y, x) || cave[y][x].m_idx != 0))
 					break;
 			}
-
-			if (!in_bounds(y, x)) break;
 
 			/* Slant */
 			if (m)
@@ -597,6 +600,9 @@ sint project_path(u16b *gp, int range, int y1, int x1, int y2, int x2, int flg)
 				if ((n > 0) && !cave_have_flag_bold(y, x, FF_PROJECT)) break;
 			}
 
+			//チェックの場所移動　ループの一周前でこれに引っかかってbreakするからcave配列外の状態で下のチェックにはいかないはずだが一応
+			if (!in_bounds(y, x)) break;
+
 			/* Sometimes stop at non-initial monsters/players */
 			if (flg & (PROJECT_STOP))
 			{
@@ -605,7 +611,6 @@ sint project_path(u16b *gp, int range, int y1, int x1, int y2, int x2, int flg)
 					break;
 			}
 
-			if (!in_bounds(y, x)) break;
 
 			/* Advance (Y) */
 			y += sy;
@@ -1613,7 +1618,8 @@ bool project_f(int who, int r, int y, int x, int dam, int typ)
 		{
 			if (have_flag(f_ptr->flags, FF_PERMANENT)) break;
 			//v1.1.85 酸の沼と毒の沼も追加
-			if (!have_flag(f_ptr->flags, FF_WATER) && !have_flag(f_ptr->flags, FF_LAVA) && !have_flag(f_ptr->flags, FF_ACID_PUDDLE && !have_flag(f_ptr->flags, FF_POISON_PUDDLE))) break;
+			if (!have_flag(f_ptr->flags, FF_WATER) && !have_flag(f_ptr->flags, FF_LAVA) && !have_flag(f_ptr->flags, FF_ACID_PUDDLE) && !have_flag(f_ptr->flags, FF_POISON_PUDDLE)) 
+				break;
 			cave_set_feat(y, x,  feat_floor);
 			break;
 		}
@@ -8422,7 +8428,6 @@ note = "には効果がなかった。";
 				if (dam < 1) dam = 1;
 
 				note = "の苦痛の記憶がさらなる苦痛を与えた！";
-				break;
 			}
 
 			//v1.1.94 精神系攻撃で魔法能力低下
@@ -12647,7 +12652,7 @@ bool in_disintegration_range(int y1, int x1, int y2, int x2)
  */
 /*:::ブレスの効果が及ぶ全グリッドを計算 詳細未読*/
 ///mod140328 大型レーザー用フラグ追加
-void breath_shape(u16b *path_g, int dist, int *pgrids, byte *gx, byte *gy, byte *gm, int *pgm_rad, int rad, int y1, int x1, int y2, int x2, int typ, bool masterspark)
+void breath_shape(u16b *path_g, int dist, int *pgrids, byte *gx, byte *gy, s16b *gm, int *pgm_rad, int rad, int y1, int x1, int y2, int x2, int typ, bool masterspark)
 {
 	int by = y1;
 	int bx = x1;
@@ -12657,6 +12662,9 @@ void breath_shape(u16b *path_g, int dist, int *pgrids, byte *gx, byte *gy, byte 
 	int cdis;
 	int path_n = 0;
 	int mdis = distance(y1, x1, y2, x2) + rad;
+
+	//v2.1.7 外で実質制限されてるはずだが一応
+	if (dist < 1) dist = 1;
 
 	while (bdis <= mdis)
 	{
@@ -12736,6 +12744,9 @@ void breath_shape(u16b *path_g, int dist, int *pgrids, byte *gx, byte *gy, byte 
 		/* Find the next ripple */
 		bdis++;
 	}
+
+	if(p_ptr->wizard)
+		msg_format("dist:%d mdis:%d bdis:%d",dist,mdis,bdis);
 
 	/* Store the effect size */
 	*pgm_rad = bdis;
@@ -12983,10 +12994,13 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg, int mons
 	byte gx[2048], gy[2048];
 
 	/* Encoded "radius" info (see above) */
-	byte gm[32];
+	//v2.1.7 ブレイジングスターを実行したときbreath_shape()でサイズを超過するので32→2048
+	// 型も念のためs16bに
+	//TODO:この辺いずれ見直す
+	s16b gm[2048];
 
 	/* Actual radius encoded in gm[] */
-	int gm_rad = rad;
+	int gm_rad;
 
 	bool jump = FALSE;
 
@@ -13005,6 +13019,17 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg, int mons
 	//project()再帰の中で改めて発射点にこの座標を格納してwhoを0に戻す。
 	//↑v1.1.44ではPROJECT_OPTでしか使われてないはず。いずれ消したい
 	static int mdn_tmp_x, mdn_tmp_y;
+
+	//v2.1.7
+	if (rad > 25)
+	{
+		msg_print("(project()においてradパラメータが大きすぎる)");
+		rad = 25;
+	}
+	gm_rad = rad;
+
+	//v2.1.7 配列を拡張 あとコンパイラが警告出すので初期化を前に持ってきた
+	for (dist = 0; dist < 2048; dist++) gm[dist] = 0;
 
 	/* Initialize by null string */
 	who_name[0] = '\0';
@@ -13202,10 +13227,6 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg, int mons
 		if (flg & PROJECT_HIDE) old_hide = TRUE;
 		flg |= PROJECT_HIDE;
 	}
-
-
-	/* Hack -- Assume there will be no blast (max radius 32) */
-	for (dist = 0; dist < 32; dist++) gm[dist] = 0;
 
 
 	/* Initial grid */
@@ -13842,7 +13863,7 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg, int mons
 					c = PICT_C(p);
 
 					//v1.1.63 虹属性の色をy座標によって変えてみる
-					if (typ == GF_RAINBOW)
+					if (typ == GF_RAINBOW )
 					{
 						switch (y % 7)
 						{
@@ -13855,7 +13876,21 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg, int mons
 						case 6:a = TERM_RED; break;
 
 						}
-
+					}
+					//v2.1.7 フランの特技「フラジャイルウィング」の色を変えるための例外処理
+					//フランが使う破片属性が全てこうなってしまうがそれほどの問題はないだろう
+					else if (p_ptr->pclass == CLASS_FLAN && typ == GF_SHARDS)
+					{
+						switch (randint0(7))
+						{
+						case 0:a = TERM_VIOLET; break;
+						case 1:a = TERM_BLUE; break;
+						case 2:a = TERM_L_BLUE; break;
+						case 3:a = TERM_L_GREEN; break;
+						case 4:a = TERM_YELLOW; break;
+						case 5:a = TERM_ORANGE; break;
+						case 6:a = TERM_RED; break;
+						}
 					}
 
 					/* Visual effects -- Display */
@@ -14802,10 +14837,11 @@ bool blazing_star(int who, int rad, int dir, int *y_end, int x_end, int dam)
 	int grids = 0;
 
 	/* Coordinates of the affected grids */
-	byte gx[1024], gy[1024];
+	byte gx[2048], gy[2048];
 
 	/* Encoded "radius" info (see above) */
-	byte gm[32];
+	//byte gm[32];
+	s16b gm[2048]
 
 	/* Actual radius encoded in gm[] */
 	int gm_rad = rad;

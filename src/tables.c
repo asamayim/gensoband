@@ -2546,16 +2546,16 @@ const player_class class_info[MAX_CLASS] =
 		"Ranger",
 
 		{ 2, 0, -1, 3, 1, -1},
-		30, 23, 36, 3, 35, 60, 60, 72,
-		10,  9, 10, 2,  5, 18, 21, 32,
+		36, 23, 36, 3, 35, 60, 60, 72,
+		12,  9, 10, 2,  5, 18, 21, 32,
 		5, 30, 40
 
 		,{1,0,0,0,0,0,0,0,4,4,0,0,0,0,0,0,0,0,0,0,0}
 		,A_INT
 		,5,4,70,
 		{3,2,4,3,4,0,0,0,0,0
-		,5,4,3,3,3,5,3,3,5,4
-		,3}
+		,5,3,3,3,3,4,4,3,5,4
+		,4}
 		,70,2,3,2,
 		FALSE,FALSE,FALSE
 		,TRUE
@@ -3430,7 +3430,7 @@ const player_class class_info[MAX_CLASS] =
 		,A_INT
 		,4,3,100,	
 		{4,3,4,1,3,0,0,0,0,0		
-		,3,2,2,2,4,2,2,3,2,2		
+		,3,2,2,2,4,2,4,3,2,2		
 		,4}
 		,10,3,1,5,		
 		TRUE,TRUE,TRUE		
@@ -14487,10 +14487,10 @@ const nightmare_spellname_type	nightmare_spellname_table[] =
 	{ MON_MINORIKO,CLASS_MINORIKO,NULL,"五穀豊穣",NULL,18 },
 
 
-	{ MON_HINA,CLASS_MINORIKO,NULL,"厄神様","の",12 },
-	{ MON_HINA,CLASS_MINORIKO,NULL,"バッド",NULL,10 },
-	{ MON_HINA,CLASS_MINORIKO,NULL,"ミスフォーチュン",NULL,16 },
-	{ MON_HINA,CLASS_MINORIKO,"の","雛人形",NULL,1 },
+	{ MON_HINA,CLASS_HINA,NULL,"厄神様","の",12 },
+	{ MON_HINA,CLASS_HINA,NULL,"バッド",NULL,10 },
+	{ MON_HINA,CLASS_HINA,NULL,"ミスフォーチュン",NULL,16 },
+	{ MON_HINA,CLASS_HINA,"の","雛人形",NULL,1 },
 
 	{ MON_NITORI,CLASS_NITORI,NULL,"撃て！",NULL,40 },
 	{ MON_NITORI,CLASS_NITORI,NULL,"飛べ！",NULL,40 },

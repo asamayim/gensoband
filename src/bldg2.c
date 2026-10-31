@@ -1277,7 +1277,7 @@ int	calc_battle_mon_attack_dam(int r_idx, int enemy_r_idx, int *attack_score_mul
 			if (enemy_r_ptr->flagsr & RFR_RES_SOUN) dam /= 5;
 			else if (!(enemy_r_ptr->flags3 & RF3_NO_STUN)) 
 				score_mult_plus += 70 * hit_chance / 100;
-
+			break;
 		case RBE_CHAOS: case RBE_MUTATE:
 			if (enemy_r_ptr->flagsr & RFR_RES_CHAO) dam /= 3;
 			else if (!(enemy_r_ptr->flags3 & RF3_NO_CONF)) 
@@ -2041,6 +2041,7 @@ static int check_marisa_can_make_spell(int spell_num)
 }
 
 /*:::魔理沙の魔法選定 選択時にmarisa_magic_table添字、キャンセル時は-1が返る*/
+//v2.1.7 ウィザードモードのとき保有数を無視して使える
 int choose_marisa_magic(int mode)
 {
 	int num = -1;
@@ -2049,7 +2050,7 @@ int choose_marisa_magic(int mode)
 	bool flag_repeat = FALSE;
 
 	for(i=0;i<MARISA_MAGIC_KIND_MAX;i++) if(p_ptr->magic_num2[i]) break;
-	if(i == MARISA_MAGIC_KIND_MAX)
+	if(i == MARISA_MAGIC_KIND_MAX && !p_ptr->wizard)
 	{
 		msg_print("まだ一つも魔法のアイデアがない。");
 		return -1;
@@ -2085,7 +2086,7 @@ int choose_marisa_magic(int mode)
 		char sym = (i < 26)?('a'+i):('A'+i-26);
 
 		//未作成レシピは表示しない
-		if(!p_ptr->magic_num2[i]) continue;
+		if(!p_ptr->magic_num2[i] && !p_ptr->wizard) continue;
 
 		if(mode == CMM_MODE_CARRY || mode == CMM_MODE_CHECK)
 		{
@@ -2161,7 +2162,7 @@ int choose_marisa_magic(int mode)
 		}
 
 		//未作成レシピは選択されない
-		if(!p_ptr->magic_num2[num]) continue;
+		if(!p_ptr->magic_num2[num] && !p_ptr->wizard) continue;
 		//魔法作成時、材料が足りない魔法は選択されない
 		if(mode == CMM_MODE_MAKE  && !check_marisa_can_make_spell(num))
 		{
@@ -2170,7 +2171,7 @@ int choose_marisa_magic(int mode)
 			msg_print(NULL);
 			continue;
 		}
-		else if(mode == CMM_MODE_CAST && !p_ptr->magic_num1[num+MARISA_HOME_CARRY_SHIFT])
+		else if(mode == CMM_MODE_CAST && !p_ptr->magic_num1[num+MARISA_HOME_CARRY_SHIFT] && !p_ptr->wizard)
 		{
 			msg_print("その魔法は手持ちがない。");
 			num = -1;
@@ -2960,8 +2961,9 @@ void compound_drug(void)
 		amt += add;
 		if(p_ptr->wizard) msg_format("cost:%d base_cost:%d max_num:%d mult:%d add:%d",cost,drug_compound_table[compound_result_num].base_cost,max_num,mult,add);
 	}
+	//v2.1.7 オーバーフロー修正
+	if (amt > 99) amt = 99;
 	prod_o_ptr->number = amt;
-	if(prod_o_ptr->number > 99) prod_o_ptr->number = 99;
 
 	if(flag_success && flag_have_recipe) //レシピ通りに作った場合*鑑定*済みにする
 	{

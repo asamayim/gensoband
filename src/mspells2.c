@@ -142,7 +142,7 @@ static bool breath_direct(int y1, int x1, int y2, int x2, int rad, int typ, bool
 
 	int grids = 0;
 	byte gx[2048], gy[2048];
-	byte gm[32];
+	s16b gm[2048];
 	int gm_rad = rad;
 
 	bool hit2 = FALSE;
@@ -3934,8 +3934,9 @@ bool monst_spell_monst(int m_idx)
 	case 160+6:
 #if 0
 		int who = 0;
-		if(m_ptr->r_idx = MON_DIO) who == 1;
-		else if(m_ptr->r_idx = MON_WONG) who == 3;
+		//v2.1.7 コメントアウトされた場所ではあるが=を==に修正
+		if(m_ptr->r_idx == MON_DIO) who = 1;
+		else if(m_ptr->r_idx == MON_WONG) who = 3;
 		dam = who;
 		if(!process_the_world(randint1(2)+2, who, player_has_los_bold(m_ptr->fy, m_ptr->fx))) return (FALSE);
 #endif
@@ -5969,9 +5970,9 @@ else msg_format("%^sが%sへ向けてファイナルスパークを放った！", m_name, t_name);
 	{
 		if (thrown_spell != 124 && thrown_spell != 167) //特別な行動1,2を除く
 		{
-			if (p_ptr->mane_num == MAX_MANE)
+			if (p_ptr->mane_num >= MAX_MANE)
 			{
-				p_ptr->mane_num--;
+				p_ptr->mane_num = MAX_MANE - 1;
 				for (i = 0; i < p_ptr->mane_num; i++)
 				{
 					p_ptr->mane_spell[i] = p_ptr->mane_spell[i+1];

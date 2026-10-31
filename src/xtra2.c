@@ -1777,7 +1777,7 @@ void monster_death(int m_idx, bool drop_item)
 	if(p_ptr->pclass == CLASS_HINA && drop_chosen_item )
 	{
 		int get_au;
-		get_au = r_ptr->level * r_ptr->level * r_ptr->level / (200-p_ptr->lev-p_ptr->stat_ind[A_CHR]);
+		get_au = r_ptr->level * r_ptr->level * r_ptr->level / (200 - p_ptr->lev - p_ptr->stat_ind[A_CHR]);
 		if(r_ptr->flags1 & (RF1_UNIQUE | RF1_QUESTOR) || r_ptr->flags7 & RF7_UNIQUE2)
 			get_au = get_au * 5 + 100;
 		p_ptr->magic_num1[1] += get_au;
@@ -2286,11 +2286,12 @@ msg_print("勝利！チャンピオンへの道を進んでいる。");
 	case MON_UNMAKER:
 		/* One more ultra-hack: An Unmaker goes out with a big bang! */
 		{
+
+			int flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL;
+
 			//v2.1.5 阿梨夜「恒久の冬」の効果
 			if (ARIYA_STOP) break;
 
-
-			int flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL;
 			(void)project(m_idx, 6, y, x, 100, GF_CHAOS, flg, -1);
 		}
 		break;

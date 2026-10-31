@@ -1616,9 +1616,11 @@ cptr do_cmd_class_power_aux_ubame(int num, bool only_info)
 		{
 			for (x = px - rad; x <= px + rad; x++)
 			{
+				//v2.1.7 チェック位置がまずかったので修正
+				if (!in_bounds(y, x)) continue;
+
 				c_ptr = &cave[y][x];
 				f_ptr = &f_info[c_ptr->feat];
-				if (!in_bounds(y, x)) continue;
 				if (distance(py, px, y, x) > rad) continue;
 
 				if (!have_flag(f_ptr->flags, FF_WALL)) continue;
@@ -9455,6 +9457,9 @@ class_power_type class_power_shion[] =
 	{ 19,30,50,FALSE,TRUE,A_INT,0,0,"透明化",
 	"一時的に隠密能力を高める。レベル40以降は壁抜け能力も獲得する。" },
 
+	{ 25,0,50,TRUE,FALSE,A_DEX,0,0,"霊喰い",
+	"隣接した低レベルな幽霊系モンスター一体を捕食してMPを回復する。" },
+
 	{ 33,0,0,FALSE,FALSE,A_CHR,0,0,"最凶最悪の極貧不幸神",
 	"凶悪なスーパー貧乏神に変化する。変身可能なターン数は蓄積した「不運パワー」により増え、4ターン以下では変身できない。あまりターン数が溜まりすぎると勝手に変身することがある。" },
 
@@ -9628,7 +9633,61 @@ cptr do_cmd_class_power_aux_shion(int num, bool only_info)
 	}
 	break;
 
+
 	case 5:
+	{
+		int y, x;
+		monster_type* m_ptr;
+		monster_race* r_ptr;
+
+		if (only_info) return format("");
+
+		if (p_ptr->inside_arena)
+		{
+			msg_print("今その特技は使えない。");
+			return NULL;
+		}
+
+		if (!get_rep_dir2(&dir)) return NULL;
+		if (dir == 5) return NULL;
+
+		y = py + ddy[dir];
+		x = px + ddx[dir];
+		m_ptr = &m_list[cave[y][x].m_idx];
+
+		if (cave[y][x].m_idx && (m_ptr->ml))
+		{
+			char m_name[80];
+			r_ptr = &r_info[m_ptr->r_idx];
+			monster_desc(m_name, m_ptr, 0);
+
+			if (r_ptr->d_char != 'G' && r_ptr->d_char != 'S' || !(r_ptr->flags2 & RF2_PASS_WALL))
+			{
+				msg_format("それは雑霊ではない。");
+				return NULL;
+			}
+			if (r_ptr->flags1 & (RF1_UNIQUE | RF1_QUESTOR) || r_ptr->level > p_ptr->lev / 2)
+			{
+				msg_format("それを飲み込むのは無理そうだ。");
+				return NULL;
+			}
+
+			msg_format("あなたは%sを引っ掴んで一呑みにした！", m_name);
+			player_gain_mana(r_ptr->level * 10);
+			check_quest_completion(m_ptr);
+			delete_monster_idx(cave[y][x].m_idx);
+
+		}
+		else
+		{
+			msg_format("そこには何もいない。");
+			return NULL;
+		}
+	}
+	break;
+
+
+	case 6:
 	{
 		int v = CALC_SUPER_SHION_TURNS;
 
@@ -9659,7 +9718,7 @@ cptr do_cmd_class_power_aux_shion(int num, bool only_info)
 
 		break;
 	}
-	case 6:
+	case 7:
 	{
 		int pows = p_ptr->magic_num1[1] / SHION_BINBOUDAMA;
 		int dam = 250 + plev * 5;
@@ -9683,7 +9742,7 @@ cptr do_cmd_class_power_aux_shion(int num, bool only_info)
 	}
 	break;
 
-	case 7:
+	case 8:
 	{
 		int power = p_ptr->lev * 10;
 		if (power < 300) power = 300;
@@ -19472,7 +19531,7 @@ cptr do_cmd_class_power_aux_alice(int num, bool only_info)
 				damage = r_ptr->hdice * r_ptr->hside;
 			else
 				damage = damroll(r_ptr->hdice,r_ptr->hside);
-			if(num == 4)
+			if(num == 6)
 			{
 				damage /= 2;			
 				if(damage > 1600) damage = 1600;
@@ -24982,7 +25041,7 @@ cptr do_cmd_class_power_aux_byakuren(int num, bool only_info)
 			msg_print("あなたの周りに光線が渦を巻いた！");
 			for (i = 0; i < num; i++)
 			{
-				project(0, rad, py, px, base, GF_LITE, PROJECT_KILL, -1);
+				project(0, rad, py, px, base, GF_LITE, PROJECT_KILL|PROJECT_GRID, -1);
 				rad = MIN(7,rad+1);
 			}
 			break;
@@ -25288,7 +25347,7 @@ cptr do_cmd_class_power_aux_nitori(int skillnum, bool only_info)
 //v1.1.95 ↑使わなくなった
 class_power_type class_power_remy[] =
 {
-	{10,10,30,FALSE,TRUE,A_INT,0,6,"スターオブダビデ",
+	{10,10,30,FALSE,TRUE,A_INT,0,6,"スターオブヴァニティーズ",
 		"自分の周辺のランダムな場所に複数回の無属性攻撃を行う。"},
 	{15,15,30,FALSE,FALSE,A_DEX,30,0,"マイハートブレイク",
 		"武器などを強力に投擲する。"},
@@ -27421,6 +27480,10 @@ class_power_type class_power_murasa[] =
 		"錨を投げつけ、命中した敵とその周辺に無属性ダメージを与える。腕力が高いと威力が上がる。"},
 	{20,20,55,FALSE,TRUE,A_WIS,0,0,"ディープヴォーテックス",
 		"自分の周辺に水属性攻撃を行い、さらに地形を水にする。すでに水地形上の場合威力が上がる。"},
+	//v2.1.7
+	{25,25,60,FALSE,TRUE,A_DEX,0,10,"沈没船のアンカー",
+	"近くのモンスター一体に減速属性のダメージを与え、さらに短時間移動禁止状態にする。" },
+
 	{32,30,65,FALSE,TRUE,A_DEX,0,0,"シンカーゴースト",
 		"指定した水地形へテレポートする。通常の1/3の行動時間しか使わない。水地形にいないと使えない。"},
 	{40,100,70,FALSE,TRUE,A_CHR,0,0,"船底のヴィーナス",
@@ -27487,7 +27550,31 @@ cptr do_cmd_class_power_aux_murasa(int num, bool only_info)
 
 			break;
 		}
+
+
 	case 3:
+	{
+		int dam = 40 + plev * 2 + chr_adj * 2;
+		int range = 2 + plev / 10;
+
+		if (only_info) return format("効力:%d", dam);
+
+		project_length = range;
+		if (!get_aim_dir(&dir)) return NULL;
+		if (dir != 5 || !target_okay() || !projectable(target_row, target_col, py, px))
+		{
+			msg_print("視界内のターゲットを明示的に指定しないといけない。");
+			return NULL;
+		}
+		msg_print("鎖が敵を拘束した！");
+		fire_ball_hide(GF_NO_MOVE, dir, plev / 2, 0);
+		fire_ball_hide(GF_OLD_SLOW, dir, dam, 0);
+
+		break;
+
+	}
+
+	case 4:
 		{
 			if(only_info) return format("");
 
@@ -27496,7 +27583,7 @@ cptr do_cmd_class_power_aux_murasa(int num, bool only_info)
 			new_class_power_change_energy_need = 33;
 			break;
 		}
-	case 4:
+	case 5:
 		{
 			int damage = plev + chr_adj * 5;
 			if(damage < 80) damage = 80;
@@ -27509,7 +27596,7 @@ cptr do_cmd_class_power_aux_murasa(int num, bool only_info)
 
 			break;
 		}
-	case 5:
+	case 6:
 		{
 			int y, x;
 			monster_type *m_ptr;
@@ -30623,7 +30710,9 @@ class_power_type class_power_flan[] =
 		"視界内全てに無属性ダメージを与え、さらに短時間移動禁止にする。" },
 	{40,72,70,FALSE,TRUE,A_STR,0,0,"レーヴァテイン",
 		"自分の周囲を地獄の劫火属性で攻撃する。威力は武器攻撃力に依存する。"},
-	{45,99,75,FALSE,TRUE,A_CHR,0,0,"495年の波紋",
+	{43,77,60,TRUE,TRUE,A_STR,0,0,"フラジャイルウィング",//v2.1.7
+		"ターゲットに向けて破片属性のロケットを3～7回放つ。"},
+	{47,99,75,FALSE,TRUE,A_CHR,0,0,"495年の波紋",
 		"自分の周辺のランダムな場所に強力な分解属性ボールを複数発生させる。体力が少ないほど威力が上がる。"},
 	{50,-100,95,FALSE,TRUE,A_WIS,0,0,"スカーレットニヒリティ",
 		"MP全て(最低100)とアイテム「フォービドゥンフルーツ」を消費し、極めて強力な万能属性のボール攻撃を行う。「フォービドゥンフルーツ」を使わずにこの特技を使用すると「虚無召来」の効果が発生する。" },
@@ -30826,7 +30915,36 @@ cptr do_cmd_class_power_aux_flan(int num, bool only_info)
 			break;
 		}
 		break;
-	case 10: //495年の波紋
+
+	case 10:
+	{
+		int tx, ty, i;
+		int shoot_num = 2 + randint1(5);
+		int dam = plev * 2 + chr_adj * 2;
+		if (only_info) return format("損傷:%d * 不定", dam);
+
+		if (!get_aim_dir(&dir)) return NULL;
+		if ((dir == 5) && target_okay())
+		{
+			tx = target_col;
+			ty = target_row;
+		}
+		else
+		{
+			tx = px + 99 * ddx[dir];
+			ty = py + 99 * ddy[dir];
+		}
+
+		msg_print("羽の欠片をむしって投げた！");
+		for (i = 0; i < shoot_num; i++)
+		{
+			project(0, 3, ty, tx, dam, GF_SHARDS, (PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL), -1);
+		}
+
+		break;
+	}
+
+	case 11: //495年の波紋
 		{
 			int dam = plev * 3 + chr_adj * 5;
 			int rad = 2;
@@ -30841,7 +30959,7 @@ cptr do_cmd_class_power_aux_flan(int num, bool only_info)
 			break;
 		}
 
-	case 11: //スカーレットニヒリティ
+	case 12: //スカーレットニヒリティ
 		{
 			cptr q, s;
 			int item;
@@ -31550,7 +31668,7 @@ cptr do_cmd_class_power_aux_librarian(int num, bool only_info)
 class_power_type class_power_patchouli[] =
 {
 	{ 3,4,15,FALSE,TRUE,A_INT,0,2,"ドヨースピア",
-		"ターゲットに複数回の無属性攻撃をする。射程は短い。"},
+		"ターゲットの位置に無属性の攻撃を発生させる。射程は短い。"},
 	{ 15,10,30,FALSE,TRUE,A_INT,0,4,"プリンセスウンディネ",
 		"水属性のボルトを連射する。"},
 	{ 20,20,35,FALSE,TRUE,A_INT,0,0,"エレメンタルハーベスター",
@@ -34512,6 +34630,9 @@ class_power_type class_power_archer[] =
 		"矢を作る。近くに森林地形がないと作れない。"},
 	{10,0,60,FALSE,FALSE,A_DEX,0,0,"ボルト生成",
 		"クロスボウの矢を作る。近くに森林地形がないと作れない。"},
+	//v2.1.7
+	{20,0,0,FALSE,FALSE,A_DEX,0,0,"構える",
+		"この行動のあとで射撃を行うと命中率が上昇する。またこの行動は通常の1/2の行動力しか消費しない。"},
 
 	{99,0,0,FALSE,FALSE,0,0,0,"dummy",	""},
 };
@@ -34555,6 +34676,26 @@ cptr do_cmd_class_power_aux_archer(int num, bool only_info)
 
 			break;
 		}
+
+	case 2: //構える p_ptr->concent使用
+	{
+		if (only_info) return format("");
+
+		if (!object_is_shooting_weapon(&inventory[INVEN_RARM]) &&
+			!object_is_shooting_weapon(&inventory[INVEN_LARM]))
+		{
+			msg_print("射撃武器を装備していない。");
+			return NULL;
+		}
+
+		do_cmd_concentrate(0);
+		new_class_power_change_energy_need = 50;
+
+
+		break;
+	}
+
+
 	default:
 		msg_format("ERROR:実装していない特技が呼ばれた num:%d",num);
 		return NULL;
@@ -34568,8 +34709,16 @@ class_power_type class_power_ranger[] =
 {
 	{10,0,10,FALSE,FALSE,A_DEX,0,0,"早持ち替え",
 		"通常の半分の行動力消費で装備変更を行う。ただし右手と左手の装備のみ。"},
+
+	{20,0,0,FALSE,FALSE,A_DEX,0,0,"構える",
+		"この行動のあとで射撃を行うと命中率が上昇する。またこの行動は通常の1/2の行動力しか消費しない。"},
+
 	{25,16,50,FALSE,FALSE,A_INT,0,0,"調査",
 		"視界内の敵の能力について詳細な情報を得る。"},
+
+	{30,20,60,FALSE,TRUE,A_DEX,0,0,"罠設置",
+		"自分のいるグリッドに罠を仕掛ける。仕掛けられるトラップの種類はトラバサミ・落とし穴・ダーツからランダムに選ばれる。"},
+
 
 	{99,0,0,FALSE,FALSE,0,0,0,"dummy",	""},
 };
@@ -34588,13 +34737,44 @@ cptr do_cmd_class_power_aux_ranger(int num, bool only_info)
 			new_class_power_change_energy_need = 50;
 			break;
 		}
-	case 1:
+
+	case 1: //構える p_ptr->concent使用
+	{
+		if (only_info) return format("");
+
+		if (!object_is_shooting_weapon(&inventory[INVEN_RARM]) &&
+			!object_is_shooting_weapon(&inventory[INVEN_LARM]))
+		{
+			msg_print("射撃武器を装備していない。");
+			return NULL;
+		}
+
+		do_cmd_concentrate(0);
+		new_class_power_change_energy_need = 50;
+
+
+		break;
+	}
+
+	case 2:
 		{
 			if(only_info) return format("");
 			msg_format("周囲の敵を調査した・・");
 			probing();
 			break;
 		}
+
+	case 3: //罠設置
+	{
+		if (only_info) return format("");
+
+		//罠は0(トラバサミ)～4(耐久低下ダーツ)のどれかがランダムに選ばれる
+		if (!place_chosen_trap(50, randint0(5))) return NULL;
+
+	}
+	break;
+
+
 	default:
 		msg_format("ERROR:実装していない特技が呼ばれた num:%d",num);
 		return NULL;
@@ -34873,7 +35053,9 @@ class_power_type class_power_marisa[] =
 		"アイテムを一つ鑑定する。レベル40以降は*鑑定*になる。"},
 	{30,25,60,FALSE,TRUE,A_INT,0,5,"マジック・ナパーム",
 		"魔力属性のロケットを放つ。"},
-
+	//v2.1.7
+	{35,30,65,FALSE,TRUE,A_DEX,0,0,"捕獲用魔法陣",
+		"隣接した敵全てを短時間移動禁止状態にする。"},
 	{40,50,80,FALSE,TRUE,A_CHR,0,14,"マスタースパーク",
 		"核熱属性の強力なビームを放つ。"},
 	{45,250,75,FALSE,TRUE,A_DEX,0,0,"着せ替え魔法",
@@ -34909,7 +35091,10 @@ cptr do_cmd_class_power_aux_marisa(int num, bool only_info)
 
 
 			if(!use_marisa_magic(spell_num,FALSE)) return NULL;
-			p_ptr->magic_num1[spell_num + MARISA_HOME_CARRY_SHIFT] -= 1;
+
+			//v2.1.7 ウィザードモードのとき保有数を無視して使える
+			if(!p_ptr->wizard)
+				p_ptr->magic_num1[spell_num + MARISA_HOME_CARRY_SHIFT] -= 1;
 
 			break;
 		}
@@ -34982,7 +35167,21 @@ cptr do_cmd_class_power_aux_marisa(int num, bool only_info)
 			break;
 		}
 
-	case 9: //マスパ400-800
+	case 9: //v2.1.7 捕獲用魔法陣
+		{
+			int power = plev;
+
+			if (only_info) return format("効力:%d", power/2);
+
+			msg_format("魔法陣を描きながら駆け回った！");
+
+			project(0, 1, py, px, power, GF_NO_MOVE, (PROJECT_JUMP | PROJECT_KILL), -1);
+
+
+		}
+		break;
+
+	case 10: //マスパ400-800
 		{
 			int dice = 15 + p_ptr->lev / 2;
 			int sides = 20 + chr_adj / 2;
@@ -34994,7 +35193,7 @@ cptr do_cmd_class_power_aux_marisa(int num, bool only_info)
 
 			break;
 		}
-	case 10: //着せ替え魔法
+	case 11: //着せ替え魔法
 		{
 			if(only_info) return format("");
 
@@ -37643,12 +37842,12 @@ bool check_class_skill_usable(char *errmsg,int skillnum, class_power_type *class
 	}
 	else if(p_ptr->pclass == CLASS_MURASA)
 	{
-		if(skillnum == 3 && !cave_have_flag_bold((py), (px), FF_WATER))
+		if(skillnum == 4 && !cave_have_flag_bold((py), (px), FF_WATER))
 		{
 				my_strcpy(errmsg, "その技は水の中でないと使えない。", 150);
 				return FALSE;
 		}
-		if(skillnum == 5 && (!cave_have_flag_bold((py), (px), FF_WATER) || !cave_have_flag_bold((py), (px), FF_DEEP)))
+		if(skillnum == 6 && (!cave_have_flag_bold((py), (px), FF_WATER) || !cave_have_flag_bold((py), (px), FF_DEEP)))
 		{
 				my_strcpy(errmsg, "その技は深い水の中でないと使えない。", 150);
 				return FALSE;
@@ -38065,22 +38264,19 @@ bool check_class_skill_usable(char *errmsg,int skillnum, class_power_type *class
 			return FALSE;
 
 		}
-		else if (SUPER_SHION && (skillnum == 5))
+		else if (SUPER_SHION && (skillnum == 6))
 		{
 			my_strcpy(errmsg, "すでに変身している。", 150);
 			return FALSE;
 
 		}
-		else if ((skillnum == 6) && p_ptr->magic_num1[1] < SHION_BINBOUDAMA)
+		else if ((skillnum == 7) && p_ptr->magic_num1[1] < SHION_BINBOUDAMA)
 		{
 			my_strcpy(errmsg, "十分な不幸パワーが溜まっていない。", 150);
 			return FALSE;
 
 		}
-
-
-
-		else if (!SUPER_SHION && (skillnum == 7))
+		else if (!SUPER_SHION && (skillnum == 8))
 		{
 			my_strcpy(errmsg, "今はその特技を使えない。", 150);
 			return FALSE;
@@ -39595,8 +39791,14 @@ void do_cmd_new_class_power(bool only_browse)
 		if (!(*class_power_aux)(num, FALSE))
 		{
 			hack_flag_darkness_power = FALSE;
+
+			//project_lengthによる射程制限があった場合リセットしておく
+			project_length = 0;
+
 			return;
 		}
+		//project_lengthによる射程制限があった場合リセットしておく
+		project_length = 0;
 		hack_flag_darkness_power = FALSE;
 
 	}
@@ -39645,7 +39847,6 @@ void do_cmd_new_class_power(bool only_browse)
 		if (p_ptr->pclass == CLASS_MARTIAL_ARTIST) p_ptr->update |= PU_BONUS;
 
 	}
-
 
 	/* Redraw mana */
 	p_ptr->redraw |= (PR_MANA | PR_HP);
@@ -39759,13 +39960,13 @@ const support_item_type support_item_list[] =
 	{25, 40, 90,5,5,	MON_MARISA,class_power_marisa,do_cmd_class_power_aux_marisa,8,
 	"キノコエキス","それは魔力属性のロケットを放つ。"},
 	//マスパ
-	{35, 50, 110,3,8,	MON_MARISA,class_power_marisa,do_cmd_class_power_aux_marisa,9,
+	{35, 50, 110,3,8,	MON_MARISA,class_power_marisa,do_cmd_class_power_aux_marisa,10,
 	"八卦炉","それは強力な核熱属性のビームを放つ。"},
 	//ファイナルマスパ
 	{100, 80, 128,1,40,	MON_MARISA,class_power_extra,do_cmd_class_power_aux_extra,0,
 	"緋緋色金製の八卦炉","それは極めて強力な分解属性のビームを放つ。"},
 	//idx30 着せ替え魔法
-	{75, 25, 128,1,40,	MON_MARISA,class_power_marisa,do_cmd_class_power_aux_marisa,10,
+	{75, 25, 128,1,40,	MON_MARISA,class_power_marisa,do_cmd_class_power_aux_marisa,11,
 	"魔法の小瓶","それを使うとその場で探索拠点にアクセスし、アイテム入れ替えや装備の変更ができる。一度でも拠点から出たら終了するので注意。"},
 
 	//ピッチャー返し
@@ -40009,7 +40210,7 @@ const support_item_type support_item_list[] =
 	{65, 20, 60,4,2,MON_MURASA,class_power_murasa,do_cmd_class_power_aux_murasa,2,
 	"バケツ","それは周辺に水属性攻撃を行い、さらに地形を水にする。水地形上で使うと威力が上がる。"},
 	//船底のヴィーナス
-	{85, 40, 100,4,8,MON_MURASA,class_power_murasa,do_cmd_class_power_aux_murasa,4,
+	{85, 40, 100,4,8,MON_MURASA,class_power_murasa,do_cmd_class_power_aux_murasa,5,
 	"舟幽霊の帽子","それは視界内全ての床を水没させ、敵に水属性ダメージを与える。"},
 
 	//歴史隠蔽Ⅲ
@@ -40428,7 +40629,7 @@ const support_item_type support_item_list[] =
 	//v1.1.48
 	{ 120,30, 90,1,20,MON_SHION_2,class_power_shion,do_cmd_class_power_aux_shion,4,
 		"黒猫の縫いぐるみ","それは一時的に隠密能力を高める。レベル40以降は壁抜け能力も追加する。" },
-	{ 100,60, 120,1,25,MON_SHION_2,class_power_shion,do_cmd_class_power_aux_shion,7,
+	{ 100,60, 120,1,25,MON_SHION_2,class_power_shion,do_cmd_class_power_aux_shion,8,
 		"貧乏神の鉢","それは視界内のモンスターのHPを半減させる。抵抗されると無効。ユニークモンスターには効果がない。" },
 
 	//v1.1.57 摩多羅隠岐奈「七星の剣」

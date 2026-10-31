@@ -533,7 +533,7 @@ bool send_world_score(bool do_send)
 //		if(get_check_strict("スコアをスコア・サーバに登録しますか? ", (CHECK_NO_ESCAPE | CHECK_NO_HISTORY)))
 		if(get_check_strict("ゲームデータを幻想蛮怒スコア・サーバに送信しますか? ", (CHECK_NO_ESCAPE | CHECK_NO_HISTORY)))
 #else
-		else if(get_check_strict("Do you send score to the world score sever? ", (CHECK_NO_ESCAPE | CHECK_NO_HISTORY)))
+		if(get_check_strict("Do you send score to the world score sever? ", (CHECK_NO_ESCAPE | CHECK_NO_HISTORY)))
 #endif
 		{
 			errr err;

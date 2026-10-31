@@ -210,6 +210,7 @@ void apply_deity_ability(int deity_type, int *new_speed)
 		case 25: //–Ø‚±‚è
 		if(buki_motteruka(INVEN_RARM) && inventory[INVEN_RARM].tval == TV_AXE) p_ptr->to_ds[0]+=2;
 		if(buki_motteruka(INVEN_LARM) && inventory[INVEN_LARM].tval == TV_AXE) p_ptr->to_ds[1]+=2;
+		break;
 		case 26: //ƒWƒƒƒ“ƒOƒ‹
 		p_ptr->resist_pois = TRUE;
 		p_ptr->regenerate = TRUE;

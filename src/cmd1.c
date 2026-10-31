@@ -872,7 +872,7 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, int mode, bo
 	switch (o_ptr->tval)
 	{
 		///item TVAL weapon
-		case TV_BULLET:
+		//case TV_BULLET:
 		case TV_ARROW:
 		case TV_BOLT:
 		case TV_KNIFE:
@@ -885,6 +885,7 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, int mode, bo
 		case TV_POLEARM:		
 		case TV_OTHERWEAPON:
 		case TV_LITE:
+		case TV_MAGICWEAPON: //v2.1.7
 		{
 			/* Slaying */
 			mult = mult_slaying(mult, flgs, m_ptr);
@@ -2218,6 +2219,7 @@ void activate_floor_trap(int y, int x, u32b mpe_mode)
 	msg_print("(–¢ŽÀ‘•)");
 
 	}
+	break;
 
 	case TRAP_MEGACRASH: //ƒƒKƒNƒ‰ƒbƒVƒ…’n—‹ MEGACRASH‚ÆMEGACRUSH‚Ì‚Ç‚Á‚¿‚ª³‚µ‚¢‚ñ‚¾‚ë‚¤
 	{
@@ -5789,8 +5791,9 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 
 				///mod140714 •t‘r_Žg‚¢‚Ì—dŠí‰»ˆ—@“G‚ð“|‚µ‚½Žž‚Í—dŠí‰»‚µ‚â‚·‚¢
 				//v1.1.29 —‹ŒÛ‚Ì’Ç‰Á‚Æ™‚Ì—dŠí‰»‚ª”²‚¯‚Ä‚½‚Ì‚Å’Ç‰Á
+				//v2.1.7 inside_arena‚Ì§ŒÀ‚ª”²‚¯‚Ä‚¢‚½‚Ì‚Å’Ç‰Á
 				if((p_ptr->pclass == CLASS_TSUKUMO_MASTER || p_ptr->pclass == CLASS_RAIKO) && 
-					!object_is_fixed_artifact(o_ptr) && o_ptr->xtra1 < 100)
+					!object_is_fixed_artifact(o_ptr) && o_ptr->xtra1 < 100 && !p_ptr->inside_arena)
 				{
 					if(randint0(o_ptr->xtra1) < (r_ptr->level-o_ptr->xtra1 / 4) || (r_ptr->flags1 & RF1_UNIQUE))
 					{

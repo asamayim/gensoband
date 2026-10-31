@@ -443,7 +443,7 @@ bool make_attack_normal(int m_idx)
 		if (method == RBM_SHOOT) continue;
 
 		///mod140323 盾装備時に経験値を得る。ここに置いたら最大4回一度に得ることになるがまあいいだろう
-		if(!check_invalidate_inventory(INVEN_RARM) && inventory[INVEN_RARM].tval == TV_SHIELD || !check_invalidate_inventory(INVEN_RARM) && inventory[INVEN_LARM].tval == TV_SHIELD)
+		if(!check_invalidate_inventory(INVEN_RARM) && inventory[INVEN_RARM].tval == TV_SHIELD || !check_invalidate_inventory(INVEN_LARM) && inventory[INVEN_LARM].tval == TV_SHIELD)
 			gain_skill_exp(SKILL_SHIELD,m_ptr);
 
 		/* Extract the attack "power" */
@@ -2591,9 +2591,10 @@ msg_format("%sは体力を回復したようだ。", m_name);
 						damage = damage * (randint1(3) + 5) / 10;
 					}
 
+					if (process_ringo_im(GF_SOUND)) break;
+
 					/* Take damage */
 					get_damage += take_hit(DAMAGE_ATTACK, damage, ddesc, -1);
-					if(process_ringo_im(GF_SOUND)) break;
 
 					if (p_ptr->is_dead) break;
 
@@ -2714,7 +2715,8 @@ msg_format("%sは体力を回復したようだ。", m_name);
 					if (p_ptr->resist_chaos) 
 						damage = damage * (randint1(3) + 5) / 10;
 
-					if (damage == 0) break;
+					//v2.1.7 ダメージのない変異攻撃が無効になってたのでコメントアウト
+					//if (damage == 0) break;
 
 					get_damage += take_hit(DAMAGE_ATTACK, damage, ddesc, -1);
 					if (p_ptr->is_dead || CHECK_MULTISHADOW()) break;

@@ -2529,6 +2529,21 @@ bool do_cmd_concentrate(int mode)
 		}
 		break;
 
+	case CLASS_RANGER:
+	case CLASS_ARCHER:
+		max = 1;
+		if (p_ptr->concent > max)
+		{
+			p_ptr->concent = max;
+			msg_print("‚ ‚È‚½‚ÍŽËŒ‚‚Ì‹@‰ï‚ð‰M‚Á‚Ä‚¢‚é...");
+		}
+		else
+		{
+			msg_print("‚ ‚È‚½‚Í•Ší‚ð\‚¦‚½B");
+		}
+		break;
+
+
 	default:
 		msg_print("ERROR:‚±‚ÌE‹Æ‚Ìdo_cmd_concentrate()‚Ìˆ—‚ª‹Lq‚³‚ê‚Ä‚¢‚È‚¢");
 		return FALSE;
@@ -4466,6 +4481,7 @@ bool do_cmd_throw_aux2(int y, int x, int ty, int tx, int mult, object_type *o_pt
 bool unzan_guard(void)
 {
 	int chance = 15 + p_ptr->lev / 5;
+
 	if(p_ptr->pclass != CLASS_ICHIRIN)	return FALSE;
 //ÅI‹Z‚Ì”­“®’†‚ÍŒø‰Ê‚ªo‚È‚¢H
 	if(p_ptr->chp < p_ptr->mhp / 2) chance += 50 * (p_ptr->mhp - p_ptr->chp)  / p_ptr->mhp ;
@@ -4477,7 +4493,14 @@ bool unzan_guard(void)
 	if(inventory[INVEN_RARM].k_idx) chance /= 2;
 	if(inventory[INVEN_LARM].k_idx) chance /= 2;
 
-	if(randint1(100) < chance)
+	//v2.1.7 ‰_ŽR‹Ù‹}‰ñ”ð
+	if (!(PLAYER_CAN_COMMAND) && weird_luck())
+	{
+		teleport_player(25 + randint1(25), TELEPORT_NONMAGICAL);
+		msg_print("‰_ŽR‚ª‚ ‚È‚½‚ðˆø‚Á’Í‚ñ‚Å‹Ù‹}—£’E‚µ‚½I");
+		return TRUE;
+	}
+	else if(randint1(100) < chance)
 	{
 		msg_print("‰_ŽR‚ª‚ ‚È‚½‚ðŽç‚Á‚½I");
 		return TRUE;

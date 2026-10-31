@@ -1815,7 +1815,7 @@ bool lose_mutation(int choose_mut)
 	/*:::基本20回試行　選ばれた変異を持っていればbreak*/
 	while (attempts_left--)
 	{
-		switch (choose_mut ? choose_mut : randint1(217))
+		switch (choose_mut ? choose_mut : randint1(218))
 		{
 		case 1: case 2: case 3: case 4:
 			muta_class = &(p_ptr->muta1);

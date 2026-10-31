@@ -1191,6 +1191,14 @@ static void chest_death(bool scatter, int y, int x, s16b o_idx)
 			q_ptr->pval = 3 + randint1(15)/7;
 			(void)drop_near(q_ptr, -1, y, x);
 		}
+		//v2.1.7 異変石納入クエスト　知性のアミュレット+3～5
+		else if (o_ptr->sval == SV_CHEST_MAMIZOU)
+		{
+			q_ptr = &forge;
+			object_prep(q_ptr, lookup_kind(TV_AMULET, SV_AMULET_BRILLIANCE));
+			q_ptr->pval = 3 + randint1(15) / 7;
+			(void)drop_near(q_ptr, -1, y, x);
+		}
 		else if(o_ptr->sval == SV_CHEST_SEIJA)
 		{
 			msg_print("中には金銀財宝と巻物が入っていた。");
@@ -5662,6 +5670,8 @@ void do_cmd_fire_aux(int item, object_type *j_ptr)
 				armour /= 2;
 			}
 
+			if (p_ptr->wizard) msg_format("hit_chance:%d", chance);
+
 			/* Did we hit it (penalize range) */
 			/*:::命中判定*/
 			if (test_hit_fire(chance - cur_dis, armour, m_ptr->ml))
@@ -6292,6 +6302,8 @@ void do_cmd_fire_gun_aux(int slot, int dir)
 		else if(one_in_(2))	shot_msg = "敵の鼻先を掠めて撃った。";
 		else				shot_msg = "敵の機先を制して撃った。";
 		typ = GF_SPECIAL_SHOT;
+
+		break;
 
 	//case SSM_HEAD_SHOT: //ヘッドショット クリティカル判定発生..だったが別処理にした
 	//	break;

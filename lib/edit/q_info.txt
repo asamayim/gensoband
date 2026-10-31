@@ -273,4 +273,6 @@
 ?:[EQU $QUEST_NUMBER 75]
 %:quest75_t14_nina.txt
 
+?:[EQU $QUEST_NUMBER 76]
+%:quest76_t10_deliver_incidentstone.txt
 

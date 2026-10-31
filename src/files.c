@@ -5754,6 +5754,11 @@ static void player_immunity(u32b flgs[TR_FLAG_SIZE])
 	{
 		u32b obj_flgs[TR_FLAG_SIZE];
 		u32b mode = (PLAYER_ADD_OBJ_FLG_MODE_IMMUNE);
+
+		//v2.1.7 初期化忘れ
+		for (i = 0; i < TR_FLAG_SIZE; i++)
+			obj_flgs[i] = 0;
+
 		//magic_num2[]に記録している装備品フラグ処理
 		for (i = 0; i<TR_FLAG_MAX; i++)
 		{
@@ -5950,10 +5955,10 @@ void	obj_flags_known_jyoon_ring(int slot, u32b flgs[TR_FLAG_SIZE])
 {
 	int i;
 
+	for (i = 0; i < TR_FLAG_SIZE; i++) flgs[i] = 0L;
+
 	if (p_ptr->pclass != CLASS_JYOON) { msg_print("ERROR:女苑以外でobj_flags_known_jyoon_ring()が呼ばれた"); return; }
 	if (slot != INVEN_RIGHT && slot != INVEN_LEFT) { msg_print("ERROR:obj_flags_known_jyoon_ring()が不正なスロットで呼ばれた"); return; }
-
-	for (i = 0; i < TR_FLAG_SIZE; i++) flgs[i] = 0L;
 
 	for (i = 0; i<4; i++)
 	{

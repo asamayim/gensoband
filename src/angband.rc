@@ -1,152 +1,225 @@
-/* File: angband.rc */
+// Microsoft Visual C++ generated resource script.
+//
+/* LANG_JAPANESE, SUBLANG_DEFAULT, VS_VERSION_INFO の定義に必要 */
+#include <windows.h>
+/////////////////////////////////////////////////////////////////////////////
+// 日本語 (日本) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_JPN)
+LANGUAGE LANG_JAPANESE, SUBLANG_DEFAULT
+#pragma code_page(932)
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
 
 ANGBAND MENU
-{
-	POPUP "ファイル(&F)"
-	{
-		MENUITEM "新規(&N)", 100
-		MENUITEM SEPARATOR
-		MENUITEM "開く(&O)...", 101
-		MENUITEM SEPARATOR
-		MENUITEM "保存(&S)", 110
-		MENUITEM SEPARATOR
-		MENUITEM "スコア(&C)", 120
-		MENUITEM "ムービー(&M)", 121 /*:::ここ消しておこう*/
-		MENUITEM SEPARATOR  
-		MENUITEM "終了(&X)", 130
-	}
+BEGIN
+    POPUP "ファイル(&F)"
+    BEGIN
+        MENUITEM "新規(&N)",                      100
+        MENUITEM SEPARATOR
+        MENUITEM "開く(&O)...",                   101
+        MENUITEM SEPARATOR
+        MENUITEM "保存(&S)",                      110
+        MENUITEM SEPARATOR
+        MENUITEM "スコア(&C)",                     120
+        MENUITEM "ムービー(&M)",                    121
+        MENUITEM SEPARATOR
+        MENUITEM "終了(&X)",                      130
+    END
+    POPUP "ウィンドウ(&W)"
+    BEGIN
+        POPUP "表示(&V)"
+        BEGIN
+            MENUITEM "メインウィンドウ",                    200
+            MENUITEM "サブウィンドウ 1",                   201
+            MENUITEM "サブウィンドウ 2",                   202
+            MENUITEM "サブウィンドウ 3",                   203
+            MENUITEM "サブウィンドウ 4",                   204
+            MENUITEM "サブウィンドウ 5",                   205
+            MENUITEM "サブウィンドウ 6",                   206
+            MENUITEM "サブウィンドウ 7",                   207
+        END
+        POPUP "フォント(&F)"
+        BEGIN
+            MENUITEM "メインウィンドウ",                    210
+            MENUITEM "サブウィンドウ 1",                   211
+            MENUITEM "サブウィンドウ 2",                   212
+            MENUITEM "サブウィンドウ 3",                   213
+            MENUITEM "サブウィンドウ 4",                   214
+            MENUITEM "サブウィンドウ 5",                   215
+            MENUITEM "サブウィンドウ 6",                   216
+            MENUITEM "サブウィンドウ 7",                   217
+        END
+        POPUP "前面に固定"
+        BEGIN
+            MENUITEM "サブウィンドウ 1",                   221
+            MENUITEM "サブウィンドウ 2",                   222
+            MENUITEM "サブウィンドウ 3",                   223
+            MENUITEM "サブウィンドウ 4",                   224
+            MENUITEM "サブウィンドウ 5",                   225
+            MENUITEM "サブウィンドウ 6",                   226
+            MENUITEM "サブウィンドウ 7",                   227
+        END
+        MENUITEM SEPARATOR
+        POPUP "タイルの幅を広げる"
+        BEGIN
+            MENUITEM "メインウィンドウ",                    240
+            MENUITEM "サブウィンドウ 1",                   241
+            MENUITEM "サブウィンドウ 2",                   242
+            MENUITEM "サブウィンドウ 3",                   243
+            MENUITEM "サブウィンドウ 4",                   244
+            MENUITEM "サブウィンドウ 5",                   245
+            MENUITEM "サブウィンドウ 6",                   246
+            MENUITEM "サブウィンドウ 7",                   247
+        END
+        POPUP "タイルの幅を縮める"
+        BEGIN
+            MENUITEM "メインウィンドウ",                    250
+            MENUITEM "サブウィンドウ 1",                   251
+            MENUITEM "サブウィンドウ 2",                   252
+            MENUITEM "サブウィンドウ 3",                   253
+            MENUITEM "サブウィンドウ 4",                   254
+            MENUITEM "サブウィンドウ 5",                   255
+            MENUITEM "サブウィンドウ 6",                   256
+            MENUITEM "サブウィンドウ 7",                   257
+        END
+        POPUP "タイルの高さを広げる"
+        BEGIN
+            MENUITEM "メインウィンドウ",                    260
+            MENUITEM "サブウィンドウ 1",                   261
+            MENUITEM "サブウィンドウ 2",                   262
+            MENUITEM "サブウィンドウ 3",                   263
+            MENUITEM "サブウィンドウ 4",                   264
+            MENUITEM "サブウィンドウ 5",                   265
+            MENUITEM "サブウィンドウ 6",                   266
+            MENUITEM "サブウィンドウ 7",                   267
+        END
+        POPUP "タイルの高さを縮める"
+        BEGIN
+            MENUITEM "メインウィンドウ",                    270
+            MENUITEM "サブウィンドウ 1",                   271
+            MENUITEM "サブウィンドウ 2",                   272
+            MENUITEM "サブウィンドウ 3",                   273
+            MENUITEM "サブウィンドウ 4",                   274
+            MENUITEM "サブウィンドウ 5",                   275
+            MENUITEM "サブウィンドウ 6",                   276
+            MENUITEM "サブウィンドウ 7",                   277
+        END
+    END
+    POPUP "オプション(&O)"
+    BEGIN
+        POPUP "グラフィクス(&G)"
+        BEGIN
+            MENUITEM "なし(&N)",                      400
+            MENUITEM "旧タイル(&O)",                    401
+            MENUITEM "&Adam Boltさんタイル",             402
+            MENUITEM "画面を全角文字で表示",                  409
+        END
+        MENUITEM "BGM(&M)",                     411
+        MENUITEM "効果音(&S)",                     410
+        MENUITEM "壁紙を使う(&B)",                   440
+        MENUITEM "壁紙を選択(&O)...",                441
+        MENUITEM "画面をHTMLで保存(&H)...",           450
+    END
+END
 
-	POPUP "ウィンドウ(&W)"
-	{
-		POPUP "表示(&V)"
-		{
-			MENUITEM "メインウィンドウ", 200
-			MENUITEM "サブウィンドウ 1", 201
-			MENUITEM "サブウィンドウ 2", 202
-			MENUITEM "サブウィンドウ 3", 203
-			MENUITEM "サブウィンドウ 4", 204
-			MENUITEM "サブウィンドウ 5", 205
-			MENUITEM "サブウィンドウ 6", 206
-			MENUITEM "サブウィンドウ 7", 207
-		}
 
-		POPUP "フォント(&F)"
-		{
-			MENUITEM "メインウィンドウ", 210
-			MENUITEM "サブウィンドウ 1", 211
-			MENUITEM "サブウィンドウ 2", 212
-			MENUITEM "サブウィンドウ 3", 213
-			MENUITEM "サブウィンドウ 4", 214
-			MENUITEM "サブウィンドウ 5", 215
-			MENUITEM "サブウィンドウ 6", 216
-			MENUITEM "サブウィンドウ 7", 217
-		}
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
 
-		POPUP "前面に固定"
-		{
-			MENUITEM "サブウィンドウ 1", 221
-			MENUITEM "サブウィンドウ 2", 222
-			MENUITEM "サブウィンドウ 3", 223
-			MENUITEM "サブウィンドウ 4", 224
-			MENUITEM "サブウィンドウ 5", 225
-			MENUITEM "サブウィンドウ 6", 226
-			MENUITEM "サブウィンドウ 7", 227
-		}
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+ANGBAND                 ICON                    "angband.ico"
 
-		MENUITEM SEPARATOR
 
-		/*  POPUP "Bizarre Display"
-		{
-			MENUITEM "メインウィンドウ", 230
-			MENUITEM "サブウィンドウ 1", 231
-			MENUITEM "サブウィンドウ 2", 232
-			MENUITEM "サブウィンドウ 3", 233
-			MENUITEM "サブウィンドウ 4", 234
-			MENUITEM "サブウィンドウ 5", 235
-			MENUITEM "サブウィンドウ 6", 236
-			MENUITEM "サブウィンドウ 7", 237
-		}
-		*/
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
 
-		POPUP "タイルの幅を広げる"
-		{
-			MENUITEM "メインウィンドウ", 240
-			MENUITEM "サブウィンドウ 1", 241
-			MENUITEM "サブウィンドウ 2", 242
-			MENUITEM "サブウィンドウ 3", 243
-			MENUITEM "サブウィンドウ 4", 244
-			MENUITEM "サブウィンドウ 5", 245
-			MENUITEM "サブウィンドウ 6", 246
-			MENUITEM "サブウィンドウ 7", 247
-		}
+ANGBAND                 BITMAP                  "wall.bmp"
 
-		POPUP "タイルの幅を縮める"
-		{
-			MENUITEM "メインウィンドウ", 250
-			MENUITEM "サブウィンドウ 1", 251
-			MENUITEM "サブウィンドウ 2", 252
-			MENUITEM "サブウィンドウ 3", 253
-			MENUITEM "サブウィンドウ 4", 254
-			MENUITEM "サブウィンドウ 5", 255
-			MENUITEM "サブウィンドウ 6", 256
-			MENUITEM "サブウィンドウ 7", 257
-		}
 
-		POPUP "タイルの高さを広げる"
-		{
-			MENUITEM "メインウィンドウ", 260
-			MENUITEM "サブウィンドウ 1", 261
-			MENUITEM "サブウィンドウ 2", 262
-			MENUITEM "サブウィンドウ 3", 263
-			MENUITEM "サブウィンドウ 4", 264
-			MENUITEM "サブウィンドウ 5", 265
-			MENUITEM "サブウィンドウ 6", 266
-			MENUITEM "サブウィンドウ 7", 267
-		}
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
 
-		POPUP "タイルの高さを縮める"
-		{
-			MENUITEM "メインウィンドウ", 270
-			MENUITEM "サブウィンドウ 1", 271
-			MENUITEM "サブウィンドウ 2", 272
-			MENUITEM "サブウィンドウ 3", 273
-			MENUITEM "サブウィンドウ 4", 274
-			MENUITEM "サブウィンドウ 5", 275
-			MENUITEM "サブウィンドウ 6", 276
-			MENUITEM "サブウィンドウ 7", 277
-		}
-	}
+1 TEXTINCLUDE 
+BEGIN
+    "windows.h\0"
+END
 
-	POPUP "オプション(&O)"
-	{
-		POPUP "グラフィクス(&G)"
-		{
-			MENUITEM "なし(&N)", 400
-			MENUITEM "旧タイル(&O)", 401
-			MENUITEM "&Adam Boltさんタイル", 402
-			//MENUITEM "タイルを2倍幅で表示", 409
-			MENUITEM "画面を全角文字で表示", 409
-		}
-		MENUITEM "BGM(&M)", 411
-		MENUITEM "効果音(&S)", 410
-		MENUITEM "壁紙を使う(&B)", 440
-		MENUITEM "壁紙を選択(&O)...", 441
-		MENUITEM "画面をHTMLで保存(&H)...", 450
-		/*  MENUITEM "地図(&M)", 430 */
-		/*  MENUITEM SEPARATOR
-		MENUITEM "未使用", 410
-		MENUITEM "未使用", 411*/
-	}
+2 TEXTINCLUDE 
+BEGIN
+    "\0"
+END
 
-	/*
-	POPUP "ヘルプ(&H)"
-	{
-		MENUITEM "一般(&G)",       901
-		MENUITEM "スポイラー(&S)", 902
-	}
-	*/
-}
+3 TEXTINCLUDE 
+BEGIN
+    "\r\n"
+    "\0"
+END
 
-ANGBAND ICON "angband.ico"
+#endif    // APSTUDIO_INVOKED
 
-ANGBAND BITMAP "wall.bmp"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 2,1,7,0
+ PRODUCTVERSION 2,1,7,0
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x40004L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "041104b0"
+        BEGIN
+            VALUE "CompanyName", "none"
+            VALUE "FileDescription", "angband variant"
+            VALUE "FileVersion", "2.1.7.0"
+            VALUE "InternalName", "gensoband"
+            VALUE "LegalCopyright", "Copyright (C) 2026"
+            VALUE "OriginalFilename", "gensoband.exe"
+            VALUE "ProductName", "gensoband"
+            VALUE "ProductVersion", "2.1.7.0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x411, 1200
+    END
+END
+
+#endif    // 日本語 (日本) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

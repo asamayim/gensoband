@@ -1,0 +1,75 @@
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+
+name: MSBuild
+
+on:
+# pushしたときに実行せずrun workflowのときのみ実行
+#  push:
+#    branches: [ "master" ]
+  workflow_dispatch:
+    inputs:
+      version_string:
+        description: 'リリース用バージョン文字列 (例: v2.1.7) 空欄のときビルドのみ行う'
+        required: false
+        type: string      
+
+env:
+  SOLUTION_FILE_PATH: gensoband/gensoband.sln
+  BUILD_CONFIGURATION: Release
+  BUILD_PLATFORM: x86
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v6
+
+    - name: Add MSBuild to PATH
+      uses: microsoft/setup-msbuild@v3
+
+    - name: Build
+      run: msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} /p:Platform=${{env.BUILD_PLATFORM}} ${{env.SOLUTION_FILE_PATH}}
+
+#exeファイルやlibディレクトリなどを一時領域にまとめる version_stringの入力がないとき無視
+    - name: Package for distribution
+      if: ${{ inputs.version_string != '' }}
+      shell: cmd
+      run: |
+        mkdir dist\gensoband
+        copy gensoband.exe dist\gensoband\
+        xcopy /E /I lib dist\gensoband\lib
+        copy change.txt dist\gensoband\
+        copy change2.txt dist\gensoband\
+
+#githubリリースのために↓とは別口でzipファイルが必要らしい？
+    - name: Zip package
+      if: ${{ inputs.version_string != '' }}
+      shell: pwsh
+      run: Compress-Archive -Path dist\gensoband -DestinationPath dist\gensoband_${{ inputs.version_string }}.zip
+
+#まとめた一時領域を指定名称でzip化しアーティファクトとして保持 version_stringの入力がないとき無視
+    - name: Upload distribution zip
+      if: ${{ inputs.version_string != '' }}
+      uses: actions/upload-artifact@v7
+      with:
+        name: gensoband_${{ inputs.version_string }}
+        path: dist/gensoband/
+
+#githubリリース version_stringの入力がないとき無視
+    - name: Create GitHub Release
+      if: ${{ inputs.version_string != '' }}
+      uses: softprops/action-gh-release@v3
+      with:
+        tag_name: ${{ inputs.version_string }}
+        files: dist/gensoband_${{ inputs.version_string }}.zip
+#        body: |
+#          SHA-256: `${{ steps.hash.outputs.value }}`
+
+        

@@ -10,7 +10,12 @@
 #include <ctype.h>
 #include <string.h>
 
-#if defined(WINDOWS)
+//v2.1.7
+#if defined(USE_WINHTTP)
+#include <windows.h>
+#include <winhttp.h>
+#pragma comment(lib, "winhttp.lib")
+#elif defined(WINDOWS)
 #include <winsock.h>
 #elif defined(MACINTOSH)
 #include <OpenTransport.h>
@@ -211,6 +216,8 @@ static BUF * buf_subbuf(BUF *buf, int pos1, size_t sz)
 }
 #endif
 
+//v2.1.7
+#if !defined(USE_WINHTTP)
 static void http_post(int sd, cptr url, BUF *buf)
 {
 	BUF *output;
@@ -228,7 +235,7 @@ static void http_post(int sd, cptr url, BUF *buf)
 	buf_append(output, buf->data, buf->size);
 	soc_write(sd, output->data, output->size);
 }
-
+#endif /* !USE_WINHTTP */
 
 /* キャラクタダンプを作って BUFに保存 */
 static errr make_dump(BUF* dumpbuf)
@@ -258,6 +265,17 @@ static errr make_dump(BUF* dumpbuf)
 
 	/* Open for read */
 	fff = my_fopen(file_name, "r");
+
+	if (!fff)
+	{
+#ifdef JP
+		msg_format("ダンプファイル %s へのアクセスに失敗しました。", file_name);
+#else
+		msg_format("Failed to create temporary file %s.", file_name);
+#endif
+		msg_print(NULL);
+		return 1;
+	}
 
 	while (fgets(buf, 1024, fff))
 	{
@@ -325,7 +343,12 @@ cptr make_screen_dump(void)
 	}
 
 	for (i = 0; html_head[i]; i++)
-		buf_sprintf(screen_buf, html_head[i]);
+	{
+		//v2.1.7
+		buf_sprintf(screen_buf, "%s",html_head[i]);
+		//		buf_sprintf(screen_buf, html_head[i]);
+	}
+
 
 	/* Dump the screen */
 	for (y = 0; y < hgt; y++)
@@ -411,7 +434,7 @@ cptr make_screen_dump(void)
 }
 
 
-
+#if !defined(USE_WINHTTP)
 //v1.1.25 スコアを送信したときCGIサーバからのメッセージを表示してみる
 static bool http_get_msg(int sd)
 {
@@ -527,6 +550,218 @@ static bool http_get_msg(int sd)
 
 	return success;
 }
+#endif /* !USE_WINHTTP */
+
+//v2.1.7
+#ifdef USE_WINHTTP
+
+/*
+ * マルチバイト文字列を wide 文字列に変換する。
+ * 変換対象はホスト名・パス・ヘッダのみで、いずれも短い ASCII 文字列。
+ */
+static bool score_to_wide(const char* src, WCHAR* dst, int dst_chars)
+{
+	if (!src || !dst || dst_chars <= 0) return FALSE;
+	if (MultiByteToWideChar(CP_ACP, 0, src, -1, dst, dst_chars) == 0)
+		return FALSE;
+	return TRUE;
+}
+
+//v2.1.7
+/*
+ * WinHTTP を用いてスコアサーバへ multipart/form-data を POST し、
+ * 応答を解析する。
+ *
+ *   body        : 送信するマルチパート本体（呼び出し側が組み立てたもの）
+ *   p_conn_fail : 接続そのものに失敗したときに TRUE が入る（再試行判定用）
+ *
+ *   戻り値      : サーバが成功マーカーを返したとき TRUE
+ *
+ * 従来のソケット実装との違い:
+ *   ・chunked 転送は WinHTTP が自動で復号するため、"0\r\n\r\n" を
+ *     自前で検出する処理が不要になった。
+ *   ・応答全体をいったん蓄積してから一度だけマーカー検索するため、
+ *     マーカーが recv の境界にまたがって取りこぼされる問題が無くなった。
+ *   ・HTTP ステータスコードを確認するようにした。
+ *   ・プロキシは OS の設定（自動構成スクリプトを含む）を使う。
+ */
+static bool winhttp_post_score(BUF* body, bool* p_conn_fail)
+{
+	HINTERNET hSession = NULL;
+	HINTERNET hConnect = NULL;
+	HINTERNET hRequest = NULL;
+	WCHAR wHost[256];
+	WCHAR wPath[512];
+	WCHAR wAgent[128];
+	WCHAR wHeaders[512];
+	char tmp[512];
+	INTERNET_PORT port;
+	DWORD req_flags = 0;
+	DWORD status = 0;
+	DWORD status_size = sizeof(status);
+	BUF* resp = NULL;
+	bool success = FALSE;
+	byte err_code = 0;
+	char file_name[1024];
+	FILE* fff;
+	bool use_tmpfile = FALSE;
+
+	DWORD hdr_len;
+
+	/* 明示的に成功させるまでは「接続失敗」扱いにしておく */
+	*p_conn_fail = TRUE;
+
+	/* --- 各種文字列を wide に変換 --- */
+	if (!score_to_wide(SCORE_SERVER, wHost, 256)) return FALSE;
+	if (!score_to_wide(SCORE_PATH, wPath, 512)) return FALSE;
+
+	sprintf(tmp, "Gensoband/%d.%d.%d", H_VER_MAJOR, H_VER_MINOR, H_VER_PATCH);
+	if (!score_to_wide(tmp, wAgent, 128)) return FALSE;
+
+	sprintf(tmp, "Content-Type: multipart/form-data; boundary=%s",
+		MULTIPART_BOUNDARY);
+	if (!score_to_wide(tmp, wHeaders, 512)) return FALSE;
+
+	/* --- セッションを開く --- */
+	/* AUTOMATIC_PROXY は Windows 8.1 以降。失敗したら既定設定にフォールバック */
+	hSession = WinHttpOpen(wAgent, WINHTTP_ACCESS_TYPE_AUTOMATIC_PROXY,
+		WINHTTP_NO_PROXY_NAME, WINHTTP_NO_PROXY_BYPASS, 0);
+	if (!hSession)
+	{
+		hSession = WinHttpOpen(wAgent, WINHTTP_ACCESS_TYPE_DEFAULT_PROXY,
+			WINHTTP_NO_PROXY_NAME, WINHTTP_NO_PROXY_BYPASS, 0);
+	}
+	if (!hSession) goto winhttp_done;
+
+	WinHttpSetTimeouts(hSession,
+		HTTP_TIMEOUT * 1000,   /* 名前解決 */
+		HTTP_TIMEOUT * 1000,   /* 接続 */
+		HTTP_TIMEOUT * 1000,   /* 送信 */
+		HTTP_TIMEOUT * 1000);  /* 受信 */
+
+	/* --- 接続 --- */
+#ifdef SCORE_USE_HTTPS
+	port = INTERNET_DEFAULT_HTTPS_PORT;
+	req_flags = WINHTTP_FLAG_SECURE;
+#else
+	port = (INTERNET_PORT)SCORE_PORT;
+	req_flags = 0;
+#endif
+
+	hConnect = WinHttpConnect(hSession, wHost, port, 0);
+	if (!hConnect) goto winhttp_done;
+
+	hRequest = WinHttpOpenRequest(hConnect, L"POST", wPath,
+		NULL, WINHTTP_NO_REFERER,
+		WINHTTP_DEFAULT_ACCEPT_TYPES, req_flags);
+	if (!hRequest) goto winhttp_done;
+
+	//v2.1.7 警告除け
+	hdr_len = (DWORD)wcsnlen(wHeaders, 512);
+
+	/* --- 送信 --- */
+	/* Content-Length は dwTotalLength から WinHTTP が自動で付ける */
+	if (!WinHttpSendRequest(hRequest, wHeaders, hdr_len,
+		(LPVOID)body->data, (DWORD)body->size,
+		(DWORD)body->size, 0))
+		goto winhttp_done;
+
+	if (!WinHttpReceiveResponse(hRequest, NULL)) goto winhttp_done;
+
+	/* ここまで到達すれば接続・送信は成功している */
+	*p_conn_fail = FALSE;
+
+	/* --- HTTP ステータスコードの確認 --- */
+	if (WinHttpQueryHeaders(hRequest,
+		WINHTTP_QUERY_STATUS_CODE | WINHTTP_QUERY_FLAG_NUMBER,
+		WINHTTP_HEADER_NAME_BY_INDEX, &status, &status_size,
+		WINHTTP_NO_HEADER_INDEX))
+	{
+		if (status != 200)
+		{
+			msg_format("CGIサーバが HTTP %lu を返しました。",
+				(unsigned long)status);
+		}
+	}
+
+	/* --- 応答本文を読む --- */
+	resp = buf_new();
+	if (!resp) goto winhttp_done;
+
+	while (1)
+	{
+		DWORD avail = 0;
+		DWORD read = 0;
+		char chunk[2048];
+
+		if (!WinHttpQueryDataAvailable(hRequest, &avail)) break;
+		if (avail == 0) break;
+		if (avail > sizeof(chunk)) avail = sizeof(chunk);
+		if (!WinHttpReadData(hRequest, chunk, avail, &read)) break;
+		if (read == 0) break;
+
+		buf_append(resp, chunk, read);
+	}
+
+	/* my_strstr のために終端を付ける */
+	buf_append(resp, "", 1);
+
+	/* --- 応答をログに保存 --- */
+	path_build(file_name, sizeof(file_name), ANGBAND_DIR_USER,
+		"http_post_result.log");
+
+	fff = my_fopen(file_name, "w");
+	if (!fff)
+	{
+		fff = my_fopen_temp(file_name, 1024);
+		if (fff) use_tmpfile = TRUE;
+	}
+	if (fff)
+	{
+		fprintf(fff, "HTTP status: %lu\n", (unsigned long)status);
+		fwrite(resp->data, 1, resp->size - 1, fff);
+		my_fclose(fff);
+	}
+
+	/* --- マーカー判定（応答全体に対して一度だけ行う） --- */
+	if (my_strstr(resp->data, "RECEIVE_SAVEFILE_SUCCESSFULLY"))
+		success = TRUE;
+
+	if (my_strstr(resp->data, "ERROR:MAINTENANCE"))  err_code |= 0x01;
+	if (my_strstr(resp->data, "ERROR:CROWDED"))      err_code |= 0x02;
+	if (my_strstr(resp->data, "ERROR:FILE_OPEN"))    err_code |= 0x04;
+	if (my_strstr(resp->data, "FILE_PARSE_ERROR"))   err_code |= 0x08;
+	if (my_strstr(resp->data, "GET_NUM_ERROR"))      err_code |= 0x10;
+
+	if (!success)
+	{
+		if (err_code & 0x01)
+			msg_print("CGIサーバがメンテナンス中です。");
+		else if (err_code & 0x02)
+			msg_print("CGIサーバが混み合っています、もしくはサーバトラブルです。");
+		else if (err_code & 0x04)
+			msg_print("CGIサーバ内でファイルの保存に失敗しました。");
+		else if (err_code & 0x08)
+			msg_print("データの解析に失敗しました。");
+		else if (err_code & 0x10)
+			msg_print("サーバトラブルによりファイル番号の取得に失敗しました。");
+		else
+			msg_print("ERROR:CGIサーバからの応答が不正です");
+
+		if (!use_tmpfile)
+			msg_format("詳細はuserフォルダのログファイルを参照してください");
+	}
+
+winhttp_done:
+	if (hRequest) WinHttpCloseHandle(hRequest);
+	if (hConnect) WinHttpCloseHandle(hConnect);
+	if (hSession) WinHttpCloseHandle(hSession);
+	if (resp) buf_delete(resp);
+
+	return success;
+}
+
+#endif /* USE_WINHTTP */
 
 /*:::スコアを送信する*/
 //v1.1.25　スコア送信復活。
@@ -539,7 +774,9 @@ errr report_score(void)
 	errr err = 0;
 #endif
 
-#ifdef WINDOWS
+//v2.1.7
+#if defined(WINDOWS) && !defined(USE_WINHTTP)
+//#ifdef WINDOWS
 	WSADATA wsaData;
 	WORD wVersionRequested =(WORD) (( 1) |  ( 1 << 8));
 #endif
@@ -654,7 +891,13 @@ errr report_score(void)
 			{
 				rewind(fp_tmp);
 				n = fread(tmp_buf,1,tmp_size,fp_tmp);
-				buf_append(score,tmp_buf,tmp_size);
+				if (n != tmp_size)
+				{
+					msg_format("ERROR:セーブファイルの読み込みが不完全 (%d/%d)", n, tmp_size);
+					err = 1;
+				}
+				else
+					buf_append(score,tmp_buf,tmp_size);
 			}
 			free(tmp_buf);
 
@@ -664,8 +907,9 @@ errr report_score(void)
 
 	buf_sprintf(score, "--%s--\r\n", MULTIPART_BOUNDARY);//最後のバウンダリの後ろにはさらに--が要る
 
-	
-#ifdef WINDOWS
+//v2.1.7
+//#ifdef WINDOWS
+#if defined(WINDOWS) && !defined(USE_WINHTTP)
 	if (WSAStartup(wVersionRequested, &wsaData))
 	{
 		msg_print("Report: WSAStartup failed.");
@@ -688,6 +932,43 @@ errr report_score(void)
 #endif
 
 	Term_clear();
+
+//v2.1.7
+#ifdef USE_WINHTTP
+
+	if (!err) while (1)
+	{
+		bool conn_fail = FALSE;
+
+		prt("接続中...", 0, 0);
+		Term_fresh();
+
+		if (winhttp_post_score(score, &conn_fail))
+		{
+			/* 送信成功 */
+			break;
+		}
+
+		if (!conn_fail)
+		{
+			/* 接続はできたがサーバがエラーを返した。再試行しない */
+			err = 1;
+			break;
+		}
+
+		/* 接続自体に失敗した場合のみ再試行を尋ねる */
+		prt("スコア・サーバへの接続に失敗しました。", 0, 0);
+		(void)inkey();
+
+		if (!get_check_strict("もう一度接続を試みますか? ", CHECK_NO_HISTORY))
+		{
+			err = 1;
+			break;
+		}
+	}
+
+#else /* USE_WINHTTP */
+
 
 	if(!err) while (1)
 	{
@@ -728,7 +1009,6 @@ errr report_score(void)
 
 
 
-
 	if(!err) 
 	{
 	#ifdef JP
@@ -748,11 +1028,17 @@ errr report_score(void)
 		disconnect_server(sd);
 
 	}
+#endif /* USE_WINHTTP */
 
- report_end:
-#ifdef WINDOWS
+report_end:
+
+//v2.1.7
+//#ifdef WINDOWS
+#if defined(WINDOWS) && !defined(USE_WINHTTP)
 	WSACleanup();
 #endif
+
+	if (score) buf_delete(score);
 
 #ifdef MACINTOSH
 #if TARGET_API_MAC_CARBON

@@ -1470,6 +1470,7 @@ static void wild_magic(int spell)
 		break;
 	case 16: case 17:
 		wall_breaker();
+		break;
 	case 18:
 		sleep_monsters_touch();
 		break;
@@ -2496,7 +2497,9 @@ int calculate_upkeep(void)
 			//v1.1.41 舞と里乃の特殊騎乗除く
 			if (p_ptr->riding == m_idx && !CLASS_RIDING_BACKDANCE)
 			{
-				tmp_lev -= tmp_lev * (10000 - ref_skill_exp(SKILL_RIDING)) / 10000;
+				//v2.1.7 計算式が変だったので修正
+				//tmp_lev -= tmp_lev * (10000 - ref_skill_exp(SKILL_RIDING)) / 10000;
+				tmp_lev = tmp_lev * (10000 - ref_skill_exp(SKILL_RIDING)) / 10000;
 			}
 
 			//ユニークにペナルティ　一時的存在にボーナス
@@ -2556,6 +2559,9 @@ int calculate_upkeep(void)
 			///mon
 			if (r_ptr->flags3 & RF3_ANG_COSMOS) friend_align += r_ptr->level;
 			if (r_ptr->flags3 & RF3_ANG_CHAOS) friend_align -= r_ptr->level;
+
+			//test
+			//if (p_ptr->wizard && p_ptr->riding == m_idx) msg_format("rigind_lev:%d",tmp_lev);
 
 			total_friend_levels += tmp_lev;
 		}

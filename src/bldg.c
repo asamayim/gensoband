@@ -4094,6 +4094,10 @@ bool check_quest_deliver_item(int q_index)
 	{
 		item_tester_hook = item_tester_hook_sazareishi;
 	}
+	else if (q_index == QUEST_DELIVER_INCIDENT_STONE)
+	{
+		item_tester_tval = TV_STONE_INCIDENT;
+	}
 
 	else
 	{
@@ -8431,7 +8435,42 @@ bool check_quest_unique_text(void)
 
 		break;
 
-
+		//v2.1.7 異変石納入クエスト
+	case QUEST_DELIVER_INCIDENT_STONE:
+		//依頼人
+		if (pc == CLASS_MAMIZOU)
+		{
+			if (accept)
+			{
+				strcpy(quest_text[line++], "さっぱり記憶にないことだが、");
+				strcpy(quest_text[line++], "自分は何度も聖域に向かっては用事を忘れて帰っているらしい。");
+				strcpy(quest_text[line++], "魔理沙が言うには『異変石』があれば記憶を失わずに済むそうな。");
+				strcpy(quest_text[line++], "急がば回れ。まずは異変石を探さねばなるまい。");
+			}
+			else if (comp)
+			{
+				strcpy(quest_text[line++], "ようやく異変石を発見し、聖域の猿たちと話をつけた。");
+				strcpy(quest_text[line++], "猿たちも約束のことをすっかり忘れていたようで平謝りされた。");
+				strcpy(quest_text[line++], "詫びの印として高価な呪具をせしめることに成功した。");
+			}
+			else
+			{
+				strcpy(quest_text[line++], "つい先程まで何かについて悩んでいたはずだが、");
+				strcpy(quest_text[line++], "それが何のことだったのか思い出せない。");
+				strcpy(quest_text[line++], "まだまだ若いつもりだったが、ついに痴呆が始まってしまったのか。");
+			}
+		}
+		//異変石について知ってそう(とマミゾウが考えそう)な面々
+		else if (pc == CLASS_REIMU || pc == CLASS_MARISA || pc == CLASS_EIRIN || pc == CLASS_YUKARI || pc == CLASS_OKINA)
+		{
+			if (accept)
+			{
+				strcpy(quest_text[line++], "マミゾウ「お前さんに頼みがあるんじゃが、");
+				strcpy(quest_text[line++], "件の『異変石』とかいう石を一つ分けてくれんか？");
+				strcpy(quest_text[line++], "あれがないと美宵の嬢ちゃんに約束した酒の仕入れができなくての。");
+				strcpy(quest_text[line++], "済まんが宜しく頼む。」");
+			}
+		}
 
 		break;
 
@@ -14574,9 +14613,23 @@ msg_print("お金が足りません！");
 
 			if(muta_erasable_count())
 			{
+				int attempt;
 				/*:::突然変異をランダムに失う。20回試行して今持ってる変異に当たらないとFALSEになるが何かに当たるまでここで繰り返している*/
-				while(!lose_mutation(0));
-				paid = TRUE;	
+				//v2.1.7 変異追加時にlose_mutation()を処理していなくてここでループバグが起こったので処理を書き直す
+				for(attempt=100;attempt;attempt--)
+				{
+					if (lose_mutation(0))
+					{
+						paid = TRUE;
+						break;
+					}
+				}
+				if (!attempt)
+				{
+					msg_print("WARNING:変異治療に失敗した lose_mutation()のバグの可能性");
+					break;
+				}
+
 			}
 			else
 			{

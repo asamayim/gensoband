@@ -137,6 +137,10 @@ void reset_concentration(bool msg)
 			msg_print("W’†‚ª“rØ‚ê‚½B");
 		else if (p_ptr->pclass == CLASS_ENOKO)
 			msg_print("W’†‚ª“rØ‚ê‚½B");
+		else if (p_ptr->pclass == CLASS_RANGER)
+			msg_print("W’†‚ª“rØ‚ê‚½B");
+		else if (p_ptr->pclass == CLASS_ARCHER)
+			msg_print("W’†‚ª“rØ‚ê‚½B");
 		//v1.1.14 ˆË•P‹_‰€—l‚ÌŒ•ƒŠƒZƒbƒgˆ—
 		else if(p_ptr->pclass == CLASS_YORIHIME)
 		{
